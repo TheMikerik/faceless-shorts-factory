@@ -24,7 +24,27 @@ Kopie `main_hero_tlama` s rekvizitou dokreslenou přímo do vrstvy, takže se h�
 | `main_hero_tlama_phone` | červený mobil v pravé ruce | telefon stojí rovně při `"pose": {"armR": -105}` (ruka u obličeje). Hovory, telefonáty, selfie |
 | `main_hero_tlama_nest` | ptačí hnízdo se dvěma vajíčky na hlavě | „zítřejší já“, gag s ptákem, druhá Tlama ve stejné scéně |
 
+| `main_hero_tlama_snow` | hnízdo jako `_nest` + sníh na hnízdě | zimní scény (video 005). Vzniká skriptem `scripts/race_puppets.py` |
+
 Vznikly skriptem s PIL (rozšíření plátna vrstvy `armR` / `head` a všech `faces/`, úprava `box`, `pivot` a `center` v `rig.json`). Stejným postupem jde přidat další rekvizitu (klobouk, náplast, korunu), aniž by bylo potřeba generovat novou postavu.
+
+### Rekvizitové loutky (`prop_*`)
+
+Obrázek jako „postava“ (vrstva `head` = obrázek, `body` = 1 px). Na rozdíl od statických rekvizit v `props` se dají hýbat a schovat přes `to` (padat, letět, přistát), a kamera je umí sledovat přes `target`. Vznikají lokálně skriptem `scripts/race_puppets.py`.
+
+| Složka | Co to je | Typická `height` |
+| --- | --- | --- |
+| `prop_cap` | vínová čepice staříka (odlétá při kýchnutí) | 0.2 |
+| `prop_fly` | moucha | 0.12 |
+| `prop_fish` | modrá ryba | 0.13 |
+| `prop_snow` | průhledná karta se sněhovými vločkami; padání = opakované `to` shora pod zem, `idle: false` | 2.8 |
+| `prop_pancake` | palačinka s máslem (z boku) | 0.15 |
+| `prop_cake` | třípatrový růžový narozeninový dort se svíčkami | 1.45 |
+| `prop_crumbs` | talíř s drobky a jednou svíčkou (snědený dort, výměna za `prop_cake`) | 0.22 |
+| `prop_can_cat` / `prop_can_cat_open` | konzerva kočičího žrádla zavřená / otevřená (otevřená je vyšší kvůli víčku, `height` × 1.31) | 0.42 |
+| `prop_can_dog` | modrá konzerva psího žrádla s kostí | 0.42 |
+
+Palačinka, dort a konzervy (video 006) vznikají skriptem `scripts/cat_puppets.py`.
 
 ## Lidé
 
@@ -36,6 +56,8 @@ Vznikly skriptem s PIL (rozšíření plátna vrstvy `armR` / `head` a všech `f
 | `feather_beret_clerk` | černý baret s hnědým perem, hnědá vesta, bílý límec, mladý | zmatený, nenápadný mladík | kamarád hrdiny, úředník, svědek, ten, kdo nechápe, co se děje |
 | `pith_helmet_official` | bílá tropická helma, černé kníry | sebejistý úředník / průzkumník | úředník, vedoucí akce, vynálezce, cestovatel, šéf kanceláře |
 | `straw_hat_peasant` | kónický slaměný klobouk, modré oblečení s páskem | klidný, skromný člověk | lovec, farmář, prodavač, obyčejný hrdina, dav (použít vícekrát) |
+
+`maroon_cap_elder_nocap` je stařík bez čepice (holá hlava, všechny výrazy). Výměnou za `maroon_cap_elder` + `prop_cap` jde udělat gag „čepice odletěla“.
 
 `feather_beret_clerk` má navíc výraz `burnt` (spálený obličej): hodí se pro gagy s výbuchem nebo požárem.
 
@@ -67,6 +89,11 @@ Normální zvířata, ne lidé v masce: pohled z boku, **koukají doprava**, ko�
 | `orange_tabby_cat` | oranžová mourovatá kočka s bílou hrudí a tlapkami, zvednutý ocas | kočka, kočičí král, šéf |
 | `dog_floppy_ears` | světle hnědý pes s velkým klapatým uchem, krémová hruď, černý nos | pes, věrný parťák, postava v pozadí |
 | `grey_bird` | neutrální bílošedý pták, oranžový zobák a nohy, křídlo na boku | základ pro holuba, kachnu i kuře. Na jiný druh vyrob variantu: přegeneruj `source.png` přes Higgsfield s přebarvením a znovu rozřež |
+
+**Přebarvené varianty pro davy** (lokálně přes `scripts/cat_puppets.py`, posun barvy srsti, linky a bílá zůstávají):
+- kočky: `cat_grey`, `cat_black`, `cat_white`, `cat_brown`, `cat_cream`, `cat_blue` (oranžová `orange_tabby_cat` tak zůstává v davu jedinečná),
+- psi: `dog_brown`, `dog_white`, `dog_grey`, `dog_golden`, `dog_black`.
+Náhled všech: `puppets/_cat_puppets_preview.jpg`. Stejnou funkcí `variant()` jde přebarvit i `grey_bird` bez Higgsfieldu.
 
 Zdrojový obrázek je v každé složce jako `source.png`.
 

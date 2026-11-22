@@ -3,7 +3,7 @@
 //   node render.mjs short.json out.mp4              full render: video + captions + voice + music
 //   node render.mjs short.json out.mp4 --stills     3 stills per shot + sanity checks, no video
 //   options: --scale 0.5   render smaller (fast preview)      --from 3 --to 9   only this time range (s)
-//            --no-audio    picture only                       --chrome          use the installed Chrome
+//            --no-audio    picture only                       --chrome          use the installed Chrome (default on macOS, uses the GPU)
 //
 // The stage (stage.js) runs in headless Chromium; this script resolves the
 // timeline (say:/w: times, shot lengths, captions), serves the files, pulls the
@@ -20,7 +20,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const die = (msg) => { console.error('error: ' + msg); process.exit(1); };
 
 // ------------------------------------------------------------ arguments
-const argv = process.argv.slice(2), pos = [], opt = { scale: null, from: null, to: null, stills: false, audio: true, chrome: false };
+const argv = process.argv.slice(2), pos = [], opt = { scale: null, from: null, to: null, stills: false, audio: true, chrome: process.platform === 'darwin' };
 for (let i = 0; i < argv.length; i++) {
   const a = argv[i];
   if (a === '--stills') opt.stills = true; else if (a === '--no-audio') opt.audio = false; else if (a === '--chrome') opt.chrome = true;
@@ -140,7 +140,7 @@ const port = server.address().port;
 // ------------------------------------------------------------ browser
 let pw; try { pw = require('playwright'); } catch { try { pw = require(execFileSync('npm', ['root', '-g']).toString().trim() + '/playwright'); } catch { die('playwright is not installed: run "npm install" in ' + here); } }
 const soft = ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'], hard = ['--ignore-gpu-blocklist', '--enable-gpu'];
-const tries = opt.chrome ? [{ channel: 'chrome', args: hard }, { channel: 'chrome', args: soft }]
+const tries = opt.chrome ? [{ channel: 'chrome', args: hard }, { channel: 'chrome', args: soft }, { args: soft }]
   : [{ args: soft }, { channel: 'chrome', args: process.platform === 'darwin' ? hard : soft }, { channel: 'chrome', args: soft }, { channel: 'msedge', args: soft }];
 let browser, lastErr;
 for (const t of tries) { try { browser = await pw.chromium.launch(t); break; } catch (e) { lastErr = e; } }

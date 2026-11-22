@@ -1,7 +1,9 @@
 # My prompts
 ## 1 - Initial prompt
-Using the ricksclips-short-style skill, suggest 5 absurd/funny stories. Give me those ideas and i will choose one of them. Then write a 60-second script with the channel's formula: paradox first line, strong hook, escalation, "You see…", twist. Use puppets available in @PUPPETS.md
+Using the ricksclips-short-style skill, suggest 3 absurd/funny stories. Give me those ideas and i will choose one of them. Then write a 60-second script with the channel's formula: paradox first line, strong hook, escalation, "You see…", twist. Use puppets available in @PUPPETS.md
 
+## 2 - Voice
+I added the voice into audio folder. Its named "v.mp3"
 
 ---
 ---

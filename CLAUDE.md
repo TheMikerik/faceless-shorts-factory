@@ -51,6 +51,7 @@ Kroky workflow (podrobně ve skillu):
 - Po přidání nového packu spusť `.venv/bin/python scripts/props_catalog.py` (obnoví katalog i náhled).
 - **Kombinuj:** modely z `props/` a primitiva stage (bedna, sud, zeď, dům, strom…) se používají společně, ne místo sebe. Modely nejsou povinné, primitiva dál platí (zdi, podlahy, velké tvary, absurdní předměty). Vyber, co se pro scénu hodí; typicky primitiva na stavbu místa + modely na detaily a rekvizity.
 - **Packy se kombinují:** modely nemusíš brát jen z jedné složky. Ve scéně (i v jednom záběru) mísi packy podle potřeby, např. nábytek + jídlo + hřbitov. Cesta v `file` vždy obsahuje složku packu.
+- **Hustota scény:** lokace musí působit jako skutečné místo, ne jako holá scéna. Cíl **120–200 objektů na lokaci** (střed, drobný nepořádek na zemi, ploty/zdi, popředí, pás stromů a velké kulisy v pozadí, mix packů). Skládej to přes `scripts/set_dressing.py` (`scatter`, `line`, `ring`, `clear_zone`), pár řádků na vrstvu. Podrobná pravidla jsou v SKILL.md, pravidlo 4.
 - Použití v `short.json`: `{"type": "model", "file": "props/basic_scene/wall.glb", "pos": [x, 0, z], "scale": 3, "rotY": 30}`. Kenney modely jsou malé (dlaždice 1×1), obvykle `scale` 2–3, nebo `height` v jednotkách stage.
 
 ### Struktura složky kanálu (podle skillu)
@@ -79,6 +80,22 @@ short.json           scéna pro aktuální video
 - **Retence.** Každé 2–3 věty nová zápletka, odhalení nebo eskalace („open loop“: slib něco, co se vysvětlí až později). Nikdy nevysvětluj vše hned. Žádný hluchý moment, žádná vata. Poslední věta se vrací k začátku, aby se video loopovalo.
 - **Jeden hrdina, jedna situace.** Jednoduchý příběh, který se dá vizuálně vyprávět jednou postavou a pár rekvizitami.
 - **Bezpečný obsah.** Bez násilí, nenávisti a sexuálního obsahu (monetizace, YPP). Vhodné i pro mladší diváky.
+
+### Srozumitelnost (divák se nesmí ztratit)
+
+Absurdní má být **situace**, ne vyprávění. Příběh musí jít sledovat na první poslech, i když divák kouká jen napůl.
+
+- **Jedno kouzelné pravidlo.** Celý příběh stojí na jediné absurdní věci (např. „kýchnutí mění starostu“). Žádné druhé kouzlo ani další nesouvisející absurdita. Všechno ostatní z toho pravidla vyplývá.
+- **Divák vždy ví, co Tlama chce.** Cíl nebo problém zazní hned v hooku a po celou dobu se nemění (schovat sušenku, zmenšit kuře, najít stroj).
+- **Stupňování je stejný vzorec, jen větší.** Pravidlo tří: stejný typ události třikrát, pokaždé větší (malý průšvih, větší, obrovský). Divák se vzorec naučí a těší se na další krok. Nemíchej tři různé druhy zápletek.
+- **Max. 3 vedlejší postavy.** Každá se při prvním výskytu představí jedním jasným označením („my mom“, „the inventor“, „my dog Max“) a to se pak nemění. Po „You see…“ už nepřichází nikdo nový.
+- **Žádná nejasná zájmena.** Když jsou ve scéně dvě postavy, místo „he/she/it“ opakuj jméno nebo roli. U přímé řeči vždy řekni, kdo mluví („Mom said: …“).
+- **Čas jde jen dopředu.** Žádné flashbacky ani skoky, kromě zlomu „You see…“, který je jasně ohlášený.
+- **Změna místa zazní nahlas.** Max. 3 místa a každý přesun řekni na začátku věty („At school…“, „Then I ran outside.“).
+- **„You see…“ je krátké.** Vysvětlení v 1–2 větách, jedna jednoduchá příčina. Žádný řetěz důvodů.
+- **Twist jen z toho, co už divák viděl.** Pointa používá postavy, věci a pravidlo z první půlky. Nic nového na poslední chvíli.
+- **Každá věta je vidět.** Ke každé větě musí jít ukázat jeden jasný obraz (postava, věc, reakce). Věta, která se nedá nakreslit, pryč.
+- **Test převyprávění.** Před odevzdáním převyprávěj příběh ve 3 větách (problém, co se děje, jak to skončí). Když to nejde, příběh je moc složitý: škrtej postavy, místa a vedlejší nápady, dokud to nejde.
 
 ### Silné hooky (musí přimět zůstat)
 
@@ -122,18 +139,20 @@ Textový skript **vždy piš rovnou s ElevenLabs audio tagy** v hranatých závo
 
 Používej hlavně tyto tagy:
 - **Emotion:** `[weak]` `[angry]` `[bored]` `[menacing]` `[playful]` `[tired]` `[excited]`
-- **Vocalizations:** `[clears throat]` `[coughing]` `[chuckling]` `[sighing]` `[sniffling]` `[yawning]` `[laughing]` `[sharp exhale]` `[scoffing]` `[humming]` `[panting]` `[gasping]`
-- **Delivery:** `[whispering]` `[singing]` `[slowly]` `[softly]` `[pause]` `[voice breaking]`
+- **Vocalizations:** `[clears throat]` `[coughing]` `[chuckling]` `[sniffling]` `[yawning]` `[laughing]` `[sharp exhale]` `[scoffing]` `[humming]` `[panting]` `[gasping]`
+- **Delivery:** `[whispering]` `[singing]` `[voice breaking]`
 - **Character:** `[sleepy drowsy voice]` `[witch voice]` `[drunken voice]`
 - **Sound effects:** `[keyboard typing]` `[echoing]` `[knocking on door]` `[bell ringing]` `[phone ringing]` `[dog barking]` `[crowd cheering]` `[applause]` `[rain falling]` `[drum roll]` `[heartbeat]` `[engine starting]`
 
 Ukázkový skript (styl a hustota tagů):
 
 ```
-[thoughtful] I built the best invention in the world, but nobody can see it. [sighs] Not even me. [short pause] This morning, the mayor heard about it. [excited] He ran in and shouted, "I will pay a thousand coins for it!" [chuckles] I said, "Great! Just one problem. I lost it." [short pause] Then he walked right into it. [sound of impact] Bonk! [surprised] He fell on the floor, and his hat flew out the window. [sighs] So I ran to the middle of the room. Nothing. [anxious] Oh no. I gave it little wheels. Big mistake. [short pause] At lunch, the baker hit it on the street. All his bread flew into the sky. [chuckles] Then my friend Bob hit it at the market and landed in a barrel of fish. [annoyed] The whole town was angry. "What is this thing?" [thoughtful] You see, I built a machine that makes things invisible. [sighs] And the first thing it made invisible was itself. [anxious] The mayor gave me one hour. "Find it, or no coins." [inhales deeply] I looked everywhere, on my hands and knees. [surprised] Then I touched something warm. It was buzzing. [excited] My machine! [thoughtful] I found two buttons. A small one and a big one. [thoughtful] One makes things come back. But which one? [short pause] I pressed the big one. [sound of electricity] There was a bright flash. [surprised] And the whole town was gone. The houses. The people. The mayor. [short pause] Then, from nowhere, I heard his voice. [muffled] "Amazing! I will pay two thousand coins!" [sighs] So now I have the best town in the world, but nobody can see it. Not even me.
+[thoughtful] I built the best invention in the world, but nobody can see it. Not even me. This morning, the mayor heard about it. [excited] He ran in and shouted, "I will pay a thousand coins for it!" [chuckles] I said, "Great! Just one problem. I lost it." Then he walked right into it. [sound of impact] Bonk! [surprised] He fell on the floor, and his hat flew out the window. So I ran to the middle of the room. Nothing. [anxious] Oh no. I gave it little wheels. Big mistake. At lunch, the baker hit it on the street. All his bread flew into the sky. [chuckles] Then my friend Bob hit it at the market and landed in a barrel of fish. [annoyed] The whole town was angry. "What is this thing?" [thoughtful] You see, I built a machine that makes things invisible. And the first thing it made invisible was itself. [anxious] The mayor gave me one hour. "Find it, or no coins." I looked everywhere, on my hands and knees. [surprised] Then I touched something warm. It was buzzing. [excited] My machine! [thoughtful] I found two buttons. A small one and a big one. [thoughtful] One makes things come back. But which one? I pressed the big one. [sound of electricity] There was a bright flash. [surprised] And the whole town was gone. The houses. The people. The mayor. Then, from nowhere, I heard his voice. [muffled] "Amazing! I will pay two thousand coins!" So now I have the best town in the world, but nobody can see it. Not even me.
 ```
 
-Ukázka smí používat i další přirozené tagy mimo seznam (`[thoughtful]`, `[surprised]`, `[anxious]`, `[annoyed]`, `[short pause]`, `[inhales deeply]`, `[muffled]`, `[sound of impact]`), ale seznam výše je základ.
+**Nepoužívej** tagy, které zpomalují nebo prodlužují zvuk (`[pause]`, `[short pause]`, `[slowly]`, `[softly]`, `[sighs]`, `[inhales deeply]` apod.). Pauzy se stejně osekávají a cílem je co nejkratší stopa.
+
+Ukázka smí používat i další přirozené tagy mimo seznam (`[thoughtful]`, `[surprised]`, `[anxious]`, `[annoyed]`, `[muffled]`, `[sound of impact]`), ale seznam výše je základ.
 
 **Pozor při časování a titulcích:** tagy se nikdy nezobrazují jako titulky a nepočítají se do tempa (~4 slova/s). Před `words` / `words.json` si uložit `audio/script.txt` **bez tagů** (nebo tagy odfiltrovat), jinak se zarovnání slov rozbije.
 

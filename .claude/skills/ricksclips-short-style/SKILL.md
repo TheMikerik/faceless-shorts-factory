@@ -104,9 +104,21 @@ The goal is maximum watch time. Open a loop early (promise something that is onl
 
 **Simple English.** Everyone must understand it, including kids and people who do not speak English as a first language (level A2, B1 at most): short common words, short sentences (about 10 words or fewer, one idea each), simple tenses, no idioms, slang, phrasal verbs, wordplay or technical terms, short easy names (Tom, Mia), numbers kept simple. Test: would a ten-year-old or a beginner understand every sentence? If not, simplify.
 
+**Easy to follow.** The situation is absurd, the storytelling is not: a viewer who only half watches must never get lost (full rules in "Srozumitelnost" in `CLAUDE.md`).
+- One magic rule carries the whole story; no second magic, no unrelated absurd extras.
+- Tlama's goal or problem is clear from the hook and never changes.
+- Escalation is one pattern repeated three times, each time bigger (rule of three), not three different kinds of trouble.
+- At most 3 side characters, each introduced once with a fixed label ("my mom", "the inventor"); nobody new after "You see...".
+- No unclear pronouns when two characters are on screen: repeat the name or role. Always say who speaks ("Mom said: ...").
+- Time only moves forward (the "You see..." explanation is the only, clearly signalled, step back). At most 3 places, and every change of place is said out loud ("At school...").
+- "You see..." is 1 or 2 sentences with one simple cause.
+- The twist uses only characters, things and the rule already shown.
+- Every sentence has one clear picture to show; cut sentences that cannot be drawn.
+- Retell test: the story fits into 3 sentences (problem, what happens, how it ends). If not, cut characters, places and side ideas.
+
 Before writing, read the three real reference scripts in `references/transcripts/` (`transcript1.txt` to `transcript3.txt`, timestamped, about 230 to 260 words each). Study their rhythm only: how the opening line hits, sentence length, how details escalate, where "You see..." lands, how the twist closes. Never copy their topics, sentences or facts, and do not imitate their vocabulary level; every script must be original, and simpler in language.
 
-About four words a second, no dead air. Write the voice script with ElevenLabs audio tags in square brackets (e.g. `[excited]`, `[whispering]`, `[short pause]`, `[sighs]`; full list and a sample in the project `CLAUDE.md`), roughly one tag per one or two sentences. Tags are never subtitles and do not count toward pacing: keep `audio/script.txt` tag-free (strip `[...]`) before running `words`, or word alignment breaks. Then generate the voice with Miles (`voice_id e18664a7-ee4f-5273-acf8-533eb24cd366`, `voice_type: preset`; see `references/prompts.md`; no music), save the raw take as `audio/voice_original.mp3` (never edit audio through Higgsfield). Process it locally with ffmpeg via the project's `scripts/voice.sh`: it removes the gaps between sentences and speeds the track up so it is 60 s at most, writing `audio/voice.mp3`. Save the script as `audio/script.txt`, then get the word timings from the processed `voice.mp3`:
+About four words a second, no dead air. Write the voice script with ElevenLabs audio tags in square brackets (e.g. `[excited]`, `[whispering]`, `[gasping]`; full list and a sample in the project `CLAUDE.md`), roughly one tag per one or two sentences. Never use tags that slow down or lengthen the audio (`[pause]`, `[short pause]`, `[slowly]`, `[softly]`, `[sighs]`, `[inhales deeply]`): pauses are trimmed anyway and the track must be as short as possible. Tags are never subtitles and do not count toward pacing: keep `audio/script.txt` tag-free (strip `[...]`) before running `words`, or word alignment breaks. Then generate the voice with Miles (`voice_id e18664a7-ee4f-5273-acf8-533eb24cd366`, `voice_type: preset`; see `references/prompts.md`; no music), save the raw take as `audio/voice_original.mp3` (never edit audio through Higgsfield). Process it locally with ffmpeg via the project's `scripts/voice.sh`: it removes the gaps between sentences and speeds the track up so it is 60 s at most, writing `audio/voice.mp3`. Save the script as `audio/script.txt`, then get the word timings from the processed `voice.mp3`:
 
 ```bash
 python3 scripts/stage/shortkit.py words audio/voice.mp3 audio/script.txt -o audio/words.json
@@ -131,7 +143,17 @@ A scene feels empty when the picture barely changes between shots. Without music
 1. **Something new in every shot.** Compared with the previous shot, at least two of these must differ: framing (`headWidth`), angle (`yaw`/`pitch`), the face or pose of Tlama, who is on screen, what is behind the character, or the light mood. If two neighbouring shots look alike, merge them or change one.
 2. **Short beats.** One shot per sentence or per new idea, 1 to 3 seconds. A 60 s Short has 20 to 30 shots, not 8.
 3. **Alternate the framing.** Close-up, medium, wide, then close again. Alternate the sign of `yaw` (left, right). Use low and high `pitch`, a wide `fov` for drama, push-ins (`zoom` positive) and sometimes pull-outs (`zoom` negative). Keep `glide` for the move between shots.
-4. **Fill the set in three layers.** Every location gets at least 8 to 12 props: foreground (near the camera, partly cropping the frame: posts, crates, tree trunks), midground (around the character) and background (houses, walls, tree groups, far shapes). Vary height, size and colour; use a palette of 4 to 6 saturated flat colours, not one grey. Use `box` stacks, `wall` segments and `tree` clusters instead of leaving open ground.
+4. **Dress every location densely (the set must look like a real place, not a stage).** Target **120-200 props per location**, not 10-25. A sparse set looks cheap even when the hero is perfect. Build it in layers, with `scripts/set_dressing.py` (`scatter`, `line`, `ring`, `clear_zone`; see its docstring), a few lines per layer:
+   - **Hero zone (5-10 props):** only what the story needs, clean and readable.
+   - **Midground (30-50):** gravestones, furniture, crates, stalls: different models, sizes and rotations (random `rotY`, scale jitter), grouped in clusters, not an even grid.
+   - **Ground clutter (25-40 small items):** pumpkins, rocks, plants, debris, plates, books. Small items right up to the hero make the ground feel lived-in.
+   - **Boundaries:** fences, walls, hedges, house rows with `line()`, so the place has edges and space is enclosed.
+   - **Foreground (5-8, cropping the frame):** big out-of-focus shapes at the edges (rocks, trunks, crates), never in the camera line.
+   - **Background (50+):** a belt of trees/rocks/buildings with `ring()` at 16-40 units from the hero, plus a few big far landmarks (crypt, tower, house) at 25+ units, so every shot has depth behind the character.
+   - **Mix packs** (e.g. graveyard + forest + food), and mix with primitives. Vary heights: tall (trees, lamp posts) next to low (rocks, stones).
+   - **Keep the camera path free:** pass `keep_out=clear_zone((hero_x, hero_z))` to every scatter of BIG props (trees, rocks, crypts), otherwise the stage flags `CAMERA_INSIDE_PROP`. Small clutter can use `keep_out=[(hx, hz, 2.5)]`.
+   - Interiors: floor box big enough, 3-4 walls, window + door, furniture in 2-3 depth rows, and clutter on every surface (books, plates, plants, lamps), plus something in front of the camera at the edges.
+   - Palette: 4 to 6 saturated colours across the set; use `seed` in every scatter so the set is reproducible when you re-render.
 5. **Change place.** 3 to 5 locations per video, one per story act (different ground colour, different `backdrop`, different props), 60+ units apart. Move between them on the pivot or on a new reveal, not mid-sentence.
 6. **Use the light as a storyteller.** Define more than `day` and `night`: for example `dusk`, an alarm `red`, a weird `green`, a bright `flash`. Switch the mood on every story turn (`lighting` keyframes at `say:` phrases), with a short `fade`.
 7. **More actors.** Put 1 to 3 extra puppets from the library (`PUPPETS.md`) into most scenes as a crowd, a rival or a reaction. Cut to their reaction shots (shocked, nervous, confused). Never leave Tlama alone for the whole video.
@@ -152,7 +174,7 @@ The user called 004 the best video so far (good animation, assets, full scenes).
 **Scene built by a Python generator**
 - Helpers `prop()`, `shot()`, `a()`, `show()`; shots start on `"w:<index>"` from `words.json` (print the indexed word list first).
 - **~40 shots for 60 s** (avg ~1.5 s), one per phrase. Alternate close (`headWidth` 0.3–0.42) / medium / wide (0.09–0.14), flip the sign of `yaw` every shot.
-- **3 locations, 15–25 props each**, 60–80 units apart. An interior is built from a floor box + 3 walls + window + door + furniture + shelf with coloured books + rug + foreground plant/toy box. Make the floor box big enough that the global ground never shows inside a room.
+- **3 locations, 120–200 props each** (see rule 4 and `scripts/set_dressing.py`), 60–80 units apart. An interior is built from a floor box + 3 walls + window + door + furniture + shelf with coloured books + rug + foreground plant/toy box. Make the floor box big enough that the global ground never shows inside a room.
 - **8 moods** (day, red, tense, night, flashback, dusk, gold, morning) with a lighting key on every story turn; short red flash (`fade` 0.15) on each shock.
 
 **Animation tricks that sell it**
