@@ -1,11 +1,11 @@
 ---
 name: ricksclips-short-style
-description: The channel skill for @ricksclips3000-style animated Shorts - flat 2D doodle characters living in a sunlit 3D world, built entirely in code. Use it whenever the user wants to make, plan, render or check a vertical Short in this style, mentions "the channel skill", or asks for any step of it - generate the main character, an emotion sheet, slice a character into layers or rig a puppet, a background, the voiceover, "build the full 3D scene in code", a stop-frame check, a numbers comparison with a reference frame, or pastes a script and asks for the video. Generates every asset through the Higgsfield connector and assembles, checks and renders the video with the bundled three.js stage.
+description: The channel skill for @ricksclips3000-style animated Shorts - flat 2D doodle characters living in a sunlit 3D world, built entirely in code. Use it whenever the user wants to make, plan, render or check a vertical Short in this style, mentions "the channel skill", or asks for any step of it - generate the main character, an emotion sheet, slice a character into layers or rig a puppet, a background, "build the full 3D scene in code", a stop-frame check, or pastes a script and asks for the video. New characters and backgrounds can be generated through the Higgsfield connector (only after the user confirms); the video is assembled, checked and rendered with the bundled three.js stage.
 ---
 
 # @ricksclips3000 Short style
 
-Make a vertical Short where flat 2D characters stand in a real 3D set: the sun casts their shadows on the ground, the set uses flat colours with an ink outline, the light follows the story and the camera glides from shot to shot. Higgsfield generates what has to be designed (characters, background, voice). **This channel does NOT generate music, textures or 3D models** (see "Channel rules" below). The bundled stage builds, checks and renders the scene in code.
+Make a vertical Short where flat 2D characters stand in a real 3D set: the sun casts their shadows on the ground, the set uses flat colours with an ink outline, the light follows the story and the camera glides from shot to shot. Higgsfield can generate what has to be designed (new characters, backgrounds), but only on the user's explicit confirmation; the voice is never generated. **This channel does NOT generate music, textures or 3D models** (see "Channel rules" below). The bundled stage builds, checks and renders the scene in code.
 
 The style rules behind every default were measured frame by frame from 20 Shorts. The short version is at the end; the full numbers are in `references/style-rules.md`.
 
@@ -14,7 +14,7 @@ The style rules behind every default were measured frame by frame from 20 Shorts
 - **Music: use the shared track, never generate one.** Every Short gets the user's ready-made track `music/music.mp3` (shared library, lives in the project root). Put `"music": "music/music.mp3", "musicDb": -18` in `short.json` `audio`. The render trims it to the video length and fades it out; never generate other music.
 - **No textures.** Never generate textures. Use flat colours (`"color"`) for the ground, walls and props; leave `"texture"`, `"wall"` texture and `"roofTexture"` out.
 - **No generated 3D models.** Never generate GLB models. Ready-made GLB models supplied by hand in `props/<pack>/` ARE allowed: read `props/catalog.json` (names, sizes) and `props/<pack>/0_preview.jpg`, then use `{"type": "model", "file": "props/<pack>/<name>.glb", "pos": [x, 0, z], "scale": 3, "rotY": 0}` (kit models are ~1 unit, use `scale` 2-3 or `height`). Models and primitives are used together, not instead of each other: models are optional and the primitives (crate, barrel, wall, house, box, tree...) stay fully valid. Models do not have to come from a single pack folder: mix packs freely, even within one scene or shot (e.g. furniture + food + graveyard); the `file` path always includes the pack folder. Combine freely, e.g. primitives for the room, ground, walls and oversized absurd objects, models for details and props. Rebuild the catalog with `.venv/bin/python scripts/props_catalog.py` after a new pack is added.
-- **Voice: never generate it.** The user records the voiceover themselves and drops it into the video folder (see "Zkratka `--cv`" in the project `CLAUDE.md`). No `generate_audio`, no other TTS, and do not offer to generate it. Only write the text script.
+- **Voice: never generate it.** The user records the voiceover themselves and drops it into the video folder (see "Shortcut `--cv`" in the project `CLAUDE.md`). No `generate_audio`, no other TTS, and do not offer to generate it. Only write the text script.
 - **Main character.** `puppets/main_hero_tlama` is the hero of every Short (see `PUPPETS.md`).
 - If a step below mentions generating music, textures or 3D models, skip it.
 
@@ -25,7 +25,7 @@ The style rules behind every default were measured frame by frame from 20 Shorts
 | `scripts/stage/puppet.py` | Cut a character cutout into layers and rig it; cut an emotion sheet into faces |
 | `scripts/stage/render.mjs` | Stop-frame check (`--stills`) and the full render to MP4 |
 | `scripts/stage/stage.js`, `index.html` | The three.js stage that `render.mjs` drives |
-| `scripts/stage/shortkit.py` | Word timings for a voiceover, numbers comparison with a reference, style measuring, camera check |
+| `scripts/stage/shortkit.py` | Word timings for a voiceover and the camera check |
 | `references/formats.md` | The `short.json` scene format, `rig.json`, `words.json`, time values, poses and actions |
 | `references/prompts.md` | Prompt templates for every generated asset |
 | `references/style-rules.md`, `rules.json` | The measured rules, camera math and QA ranges |
@@ -34,30 +34,38 @@ The style rules behind every default were measured frame by frame from 20 Shorts
 ## Setup, once
 
 ```bash
-cd scripts/stage
+cd .claude/skills/ricksclips-short-style/scripts/stage
 npm install                       # three + playwright (versions pinned in package.json)
 npx playwright install chromium   # or pass --chrome to use an installed Chrome
 pip install numpy pillow scipy opencv-python-headless
 # ffmpeg and ffprobe must be on PATH
 ```
 
-The Higgsfield connector must be on. If its tools are missing, say so and stop: the assets cannot be generated without it. Rendering alone works without it.
+The Higgsfield connector is connected, but use it **only when truly needed** (a character or background the library lacks) and **always ask the user first and wait for their confirmation** before any generation. Rendering and the normal `--cv` workflow do not need it. If it is needed but its tools are missing, say so.
 
 ## Project folder
 
-Keep one folder per channel and reuse it for every video. Everything except `short.json` and the audio is a library you build once.
+One shared library in the project root, plus one folder per video. The library is built once; each video only adds its own folder.
 
 ```
-my-channel/
-  puppets/<character>/   rig.json, layer PNGs, faces/
-  bg/                    mountains.png
-  audio/                 voice.mp3, script.txt, words.json
-  short.json             the scene for this video
+puppets/<character>/     rig.json, layer PNGs, faces/   (shared)
+props/, bg/, music/      shared library
+videos/NNN-slug/
+  work/
+    audio/               voice_original.mp3, voice.mp3, script.txt, words.json
+    build.py, short.json the scene for this video
+    out.mp4, out_stills/
+    custom/              one-off assets for this video
+  video.mp4, script.txt, metadata.md   final files
 ```
 
 ## The workflow, request by request
 
-Users drive this in short requests. Each one maps to a step below; do the step, show the result, and say what the next step is. When the user pastes a script and nothing else, run steps 7 to 10 with the existing library and ask nothing first (the voice file comes from the user). The `--cv` shortcut (idea → script → wait for the user's voice → full production → report) is defined in the project `CLAUDE.md`.
+Users drive this in short requests. Each one maps to a step below; do the step, show the result, and say what the next step is. When the user pastes a script and nothing else, run steps 5 to 8 with the existing library and ask nothing first (the voice file comes from the user). The `--cv` shortcut (idea → script → wait for the user's voice → full production → report) is defined in the project `CLAUDE.md`.
+
+Steps 1 to 4 below are only for a **new** character or background that the library lacks: the main character and most others already exist, so normally skip them. Before any Higgsfield generation, ask the user and wait for their confirmation. A new character goes through the whole chain (image → emotion sheet → slice/rig) and is then added to `PUPPETS.md`.
+
+All commands below are run from the project root with `.venv/bin/python` (the system `python3` has no Whisper), using `V=videos/NNN-slug/work` and `S=.claude/skills/ricksclips-short-style/scripts/stage`.
 
 Download a finished generation with `curl -o <file> <result url>`. If the sandbox cannot reach the URL, ask the user to drop the file into the project folder.
 
@@ -72,30 +80,22 @@ Generate the sheet with the template in `references/prompts.md`, using the chara
 ### 3. "Slice the character into layers and rig a puppet"
 
 ```bash
-python3 scripts/stage/puppet.py slice puppets/hero/source.png puppets/hero
-python3 scripts/stage/puppet.py faces puppets/hero/emotions.png puppets/hero --names happy,nervous,shocked,shouting,confused,neutral
+.venv/bin/python $S/puppet.py slice puppets/hero/source.png puppets/hero
+.venv/bin/python $S/puppet.py faces puppets/hero/emotions.png puppets/hero --names happy,nervous,shocked,shouting,confused,neutral
 ```
 
 `slice` writes head, body, arm and leg layers with their pivots into `rig.json` and a `preview.png` with four panels: original, layers apart, re-assembled, posed. Open the preview and check the posed panel: limbs must swing from the shoulders and hips, and the head must tilt on the neck with no gap. `faces` needs the names in the sheet's order, left to right and top to bottom; check `faces_preview.png` the same way. If a cut is wrong, regenerate the character with the limbs further from the body instead of editing the layers by hand.
 
 From here the character is a puppet driven by code. The stage adds breathing, shoulder bobs, a slight head tilt and blinking on its own, and actions in `short.json` set poses, faces, walking, hops and shaking.
 
-### 4. Textures: not used
-
-This channel does not generate textures. Use flat colours on the ground and on props.
-
-### 5. 3D models: library only
-
-This channel does not generate 3D models. Use the ready-made GLB library in `props/` (see Channel rules) together with primitives (any mix), and write them into `short.json`.
-
-### 6. Background
+### 4. Background
 
 The sky and the far distance are one flat painting (background template, 21:9), saved into `bg/` and set as `"backdrop"`. The stage wraps it around the world and blurs it. It needs no geometry.
 
-### 7. Script, voice, timing
+### 5. Script, voice, timing
 
 Write an **absurd, completely made-up story that never happened**. Never use history, real events, real people, real brands or real facts, and do not fact-check; invent everything. Use the formula:
-1. a **strong, exaggerated hook** in the first line, with no intro, starting in the middle of the action, with high stakes or a deadline (a number or a time), concrete and impossible, told in first person (Tlama), max 15 words. It must make the viewer ask "what? how does it end?" (see "Silné hooky" in `CLAUDE.md` for 23 examples);
+1. a **strong, exaggerated hook** in the first line, with no intro, starting in the middle of the action, with high stakes or a deadline (a number or a time), concrete and impossible, told in first person (Tlama), max 15 words. It must make the viewer ask "what? how does it end?" (see "Strong hooks" in `CLAUDE.md` for 23 examples);
 2. two or three escalating details, each more absurd than the last;
 3. the pivot, "You see...", where the (absurd but story-logical) explanation starts;
 4. a twist in the last line that calls back to the hook, so the Short loops.
@@ -104,7 +104,7 @@ The goal is maximum watch time. Open a loop early (promise something that is onl
 
 **Simple English.** Everyone must understand it, including kids and people who do not speak English as a first language (level A2, B1 at most): short common words, short sentences (about 10 words or fewer, one idea each), simple tenses, no idioms, slang, phrasal verbs, wordplay or technical terms, short easy names (Tom, Mia), numbers kept simple. Test: would a ten-year-old or a beginner understand every sentence? If not, simplify.
 
-**Easy to follow.** The situation is absurd, the storytelling is not: a viewer who only half watches must never get lost (full rules in "Srozumitelnost" in `CLAUDE.md`).
+**Easy to follow.** The situation is absurd, the storytelling is not: a viewer who only half watches must never get lost (full rules in "Clarity" in `CLAUDE.md`).
 - One magic rule carries the whole story; no second magic, no unrelated absurd extras.
 - Tlama's goal or problem is clear from the hook and never changes.
 - Escalation is one pattern repeated three times, each time bigger (rule of three), not three different kinds of trouble.
@@ -118,15 +118,15 @@ The goal is maximum watch time. Open a loop early (promise something that is onl
 
 Before writing, read the three real reference scripts in `references/transcripts/` (`transcript1.txt` to `transcript3.txt`, timestamped, about 230 to 260 words each). Study their rhythm only: how the opening line hits, sentence length, how details escalate, where "You see..." lands, how the twist closes. Never copy their topics, sentences or facts, and do not imitate their vocabulary level; every script must be original, and simpler in language.
 
-About four words a second, no dead air. Write the voice script with ElevenLabs audio tags in square brackets (e.g. `[excited]`, `[whispering]`, `[gasping]`; full list and a sample in the project `CLAUDE.md`), roughly one tag per one or two sentences. Never use tags that slow down or lengthen the audio (`[pause]`, `[short pause]`, `[slowly]`, `[softly]`, `[sighs]`, `[inhales deeply]`): pauses are trimmed anyway and the track must be as short as possible. Tags are never subtitles and do not count toward pacing: keep `audio/script.txt` tag-free (strip `[...]`) before running `words`, or word alignment breaks. Then wait for the voice: the user records it and supplies it as the raw take `work/audio/voice_original.mp3` (never generate it, never edit audio through Higgsfield). Process it locally with ffmpeg via the project's `scripts/voice.sh`: it removes the gaps between sentences and speeds the track up so it is 60 s at most, writing `audio/voice.mp3`. Save the script as `audio/script.txt`, then get the word timings from the processed `voice.mp3`:
+About four words a second, no dead air. Write the voice script with ElevenLabs audio tags in square brackets (e.g. `[excited]`, `[whispering]`, `[gasping]`; full list and a sample in the project `CLAUDE.md`), roughly one tag per one or two sentences. Never use tags that slow down or lengthen the audio (`[pause]`, `[short pause]`, `[slowly]`, `[softly]`, `[sighs]`, `[inhales deeply]`): pauses are trimmed anyway and the track must be as short as possible. Tags are never subtitles and do not count toward pacing: keep `audio/script.txt` tag-free (strip `[...]`) before running `words`, or word alignment breaks. Then **stop and wait until the user has put the `.mp3` into the video folder and confirmed**; do not continue without both. The user records it and supplies it as the raw take `work/audio/voice_original.mp3` (never generate it, never edit audio through Higgsfield). Process it locally with ffmpeg via the project's `scripts/voice.sh`: it removes the gaps between sentences and speeds the track up so it is 60 s at most, writing `audio/voice.mp3`. Save the script as `audio/script.txt`, then get the word timings from the processed `voice.mp3`:
 
 ```bash
-python3 scripts/stage/shortkit.py words audio/voice.mp3 audio/script.txt -o audio/words.json
+.venv/bin/python $S/shortkit.py words $V/audio/voice.mp3 $V/audio/script.txt -o $V/audio/words.json
 ```
 
 Check that the voice is in the language you asked for before building on it.
 
-### 8. "Build the full 3D scene in code"
+### 6. "Build the full 3D scene in code"
 
 Write `short.json`. Read `references/formats.md` first; `examples/demo/short.json` is a working example to copy. Decisions to make:
 
@@ -138,10 +138,10 @@ Write `short.json`. Read `references/formats.md` first; `examples/demo/short.jso
 
 ### Keep every scene alive (anti-boring rules)
 
-A scene feels empty when the picture barely changes between shots. Without textures or 3D models, the variety has to come from the shots, the set layout, the light and the acting. Apply all of this when writing `short.json`:
+A scene feels empty when the picture barely changes between shots. With flat colours and a fixed model library, the variety has to come from the shots, the set layout, the light and the acting. Apply all of this when writing `short.json`:
 
 1. **Something new in every shot.** Compared with the previous shot, at least two of these must differ: framing (`headWidth`), angle (`yaw`/`pitch`), the face or pose of Tlama, who is on screen, what is behind the character, or the light mood. If two neighbouring shots look alike, merge them or change one.
-2. **Short beats.** One shot per sentence or per new idea, 1 to 3 seconds. A 60 s Short has 20 to 30 shots, not 8.
+2. **Short beats.** One shot per sentence or per new idea, 1 to 3 seconds. A 60 s Short has about 40 shots (average ~1.5 s), not 8.
 3. **Alternate the framing.** Close-up, medium, wide, then close again. Alternate the sign of `yaw` (left, right). Use low and high `pitch`, a wide `fov` for drama, push-ins (`zoom` positive) and sometimes pull-outs (`zoom` negative). Keep `glide` for the move between shots.
 4. **Dress every location densely (the set must look like a real place, not a stage).** Target **120-200 props per location**, not 10-25. A sparse set looks cheap even when the hero is perfect. Build it in layers, with `scripts/set_dressing.py` (`scatter`, `line`, `ring`, `clear_zone`; see its docstring), a few lines per layer:
    - **Hero zone (5-10 props):** only what the story needs, clean and readable.
@@ -154,7 +154,7 @@ A scene feels empty when the picture barely changes between shots. Without textu
    - **Keep the camera path free:** pass `keep_out=clear_zone((hero_x, hero_z))` to every scatter of BIG props (trees, rocks, crypts), otherwise the stage flags `CAMERA_INSIDE_PROP`. Small clutter can use `keep_out=[(hx, hz, 2.5)]`.
    - Interiors: floor box big enough, 3-4 walls, window + door, furniture in 2-3 depth rows, and clutter on every surface (books, plates, plants, lamps), plus something in front of the camera at the edges.
    - Palette: 4 to 6 saturated colours across the set; use `seed` in every scatter so the set is reproducible when you re-render.
-5. **Change place.** 3 to 5 locations per video, one per story act (different ground colour, different `backdrop`, different props), 60+ units apart. Move between them on the pivot or on a new reveal, not mid-sentence.
+5. **Change place.** 3 locations per video (the script has at most 3 places), one per story act (different ground colour, different `backdrop`, different props), 60+ units apart. Move between them on the pivot or on a new reveal, not mid-sentence.
 6. **Use the light as a storyteller.** Define more than `day` and `night`: for example `dusk`, an alarm `red`, a weird `green`, a bright `flash`. Switch the mood on every story turn (`lighting` keyframes at `say:` phrases), with a short `fade`.
 7. **More actors.** Put 1 to 3 extra puppets from the library (`PUPPETS.md`) into most scenes as a crowd, a rival or a reaction. Cut to their reaction shots (shocked, nervous, confused). Never leave Tlama alone for the whole video.
 8. **Always acting.** Tlama gets a new face or pose in every shot. Use `walk` + `to`, `hop` on surprises, `shake` for fear or anger, arms up for excitement. Reactions should be big and quick.
@@ -181,7 +181,7 @@ The user called 004 the best video so far (good animation, assets, full scenes).
 - **Growing/shrinking things:** several copies of a character at different `height`, parked underground (`pos` y = -60), swapped with `to` + `over: 0.01` at a word (`show()` helper). Same for appearing/vanishing characters.
 - **Real motion with `to`:** the dog falls from the roof into Tlama's arms; Tlama walks between spots in the room; the dog runs across the park. Put at least 3–4 moves like this in every video.
 - **Props that belong to a character are painted into its puppet** (`scripts/puppet_variants.py`: phone in hand, nest on head). Static props near a character float when it moves or disappears.
-- 2–4 side characters with reaction shots (neighbour shocked, tomorrow-me shouting, dog barking via `hop`).
+- 2–3 side characters with reaction shots (neighbour shocked, tomorrow-me shouting, dog barking via `hop`).
 
 **Camera fixes learned the hard way**
 - Between locations always `out: "dissolve"` (the generator sets it automatically); a glide flies through floors and walls.
@@ -190,10 +190,10 @@ The user called 004 the best video so far (good animation, assets, full scenes).
 - Keep foreground props out of the line between the camera and a close-up (the `TARGET_HIDDEN_BEHIND_SET` flag).
 - After `--stills` passes, look at a few stills at full size (paste 4–8 into one image), not only the contact sheet.
 
-### 9. Stop-frame check, before every full render
+### 7. Stop-frame check, before every full render
 
 ```bash
-node scripts/stage/render.mjs short.json out.mp4 --stills
+node $S/render.mjs $V/short.json $V/out.mp4 --stills --lib .
 ```
 
 This renders three stills per shot into `out_stills/` with a contact sheet `sheet.jpg` and checks each one. Look at the sheet yourself as well: the flags catch the mechanical failures, not a dull composition.
@@ -209,42 +209,29 @@ This renders three stills per shot into `out_stills/` with a contact sheet `shee
 
 Fix `short.json` and run the check again until it reports no problems. Only then render.
 
-### 10. Render
+### 8. Render
 
 ```bash
-node scripts/stage/render.mjs short.json out.mp4            # 1080x1920, 30 fps, captions + voice
-node scripts/stage/render.mjs short.json preview.mp4 --scale 0.5 --from 0 --to 8   # fast partial preview
+node $S/render.mjs $V/short.json $V/out.mp4 --lib .            # 1080x1920, 30 fps, captions + voice
+node $S/render.mjs $V/short.json $V/preview.mp4 --lib . --scale 0.5 --from 0 --to 8   # fast partial preview
 ```
 
 Software rendering in a sandbox takes roughly half a second per frame; a machine with a GPU is many times faster. Use `--scale` and `--from/--to` while iterating.
 
-### 11. "Compare it with the original"
-
-Compare with numbers, not by eye:
+### 9. Camera check
 
 ```bash
-python3 scripts/stage/shortkit.py compare out_stills/shot02_b.jpg reference_frame.png
-python3 scripts/stage/shortkit.py check out.mp4
+.venv/bin/python $S/shortkit.py check $V/out.mp4
 ```
 
-`compare` prints contrast, shadow depth and colour, saturation, warm and cool shares and ink density for both pictures, and names the fields in `short.json` to change for the largest gaps. `check` measures camera speed and zoom against the style's ranges. Two fixes come up most:
+`check` measures camera speed and zoom against the style's ranges. Two fixes come up most:
 
 - **Floating characters.** The soft contact shadow under the feet pins a character to the ground. It is on by default (`contactShadow`); raise it if feet still look detached, and make sure the character's `pos` y is on the ground.
 - **Flat, pale picture.** Raise `sun.intensity`, deepen `fill.ground`, and use richer flat colours (no textures).
 
-### 12. The next video
+### 10. The next video
 
-Reuse the shared library (`puppets/`, `props/`, `bg/`, `scripts/`): it stays. Each video lives in its own folder `videos/NNN-slug/work/` (audio, `short.json`, generator, stills, one-off assets) that can be deleted without touching anything else, so several videos can be made at the same time. Render with `--lib <project root>`: paths in `short.json` are looked up in the video's `work/` folder first, then in the shared library. Anything with a real chance of reuse (new puppet, background, GLB pack, helper script) goes to the shared library; video-specific things stay in `work/`. See the project `CLAUDE.md`, section "Struktura".
-
-### Measuring another style
-
-To study reference videos the way these rules were made:
-
-```bash
-python3 scripts/stage/shortkit.py measure path/to/videos out_dir
-```
-
-It writes one reference sheet per two seconds of video and `measured.json` with cut timing, camera speed and zoom, brightness, shadow colour and saturation. Measure every frame, then decide; an opinion about a video cannot be reproduced, a number can.
+Reuse the shared library (`puppets/`, `props/`, `bg/`, `scripts/`): it stays. Each video lives in its own folder `videos/NNN-slug/work/` (audio, `short.json`, generator, stills, one-off assets) that can be deleted without touching anything else, so several videos can be made at the same time. Render with `--lib <project root>`: paths in `short.json` are looked up in the video's `work/` folder first, then in the shared library. Anything with a real chance of reuse (new puppet, background, GLB pack, helper script) goes to the shared library; video-specific things stay in `work/`. See the project `CLAUDE.md`, section "Structure".
 
 ## Working with sub-agents
 
@@ -264,4 +251,3 @@ Format: 1080x1920, 30 fps, about 60 seconds, captions of one or two words centre
 - The puppet is a cutout rig: limbs rotate at the shoulder and hip, with no elbows or knees and no lip sync. For acting beyond that, add faces to the emotion sheet or generate extra poses as separate characters.
 - `shortkit.py words` uses Whisper when it is installed; otherwise it estimates timings from the loudness of the track, good to about 0.15 s.
 - The far background is blurred, but the stage has no lens depth of field.
-- The rules describe 20 videos of one channel, not what performs best.

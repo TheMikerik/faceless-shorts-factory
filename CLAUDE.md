@@ -1,54 +1,51 @@
-# Content creator projekt – YouTube Shorts
+# Content creator project – YouTube Shorts
 
-## O projektu
+## About the project
 
-Můj content creator projekt zaměřený hlavně na **YouTube Shorts**. Tento repozitář slouží jako pracovní složka pro nápady, skripty, assety a výrobu videí.
+My content creator project, focused mainly on **YouTube Shorts**. This repository is a working folder for ideas, scripts, assets and video production.
 
-## Kanál
+## Channel
 
-- **Aktivní kanál:** [@TlamaLabs](https://www.youtube.com/@TlamaLabs)
-- **Aktuální stav:** 24 odběratelů, 6 Shorts (všechny z Robloxu, už neodpovídají novému směru)
-- **Záměr:** začít vydávat **faceless Shorts** (animované, bez obličeje autora) pomocí skillu `ricksclips-short-style`
+- **Active channel:** [@TlamaLabs](https://www.youtube.com/@TlamaLabs)
+- **Goal:** start publishing **faceless Shorts** (animated, without the author's face) using the `ricksclips-short-style` skill
 
-## Vize a cíle
+## Vision and goals
 
-- **Hlavní cíl:** monetizace YouTube (splnit podmínky YPP – odběratelé + zhlédnutí Shorts – a vydělávat z reklam)
-- **Zaměření:** úplná změna. Roblox obsah je minulost, kanál dostane novou identitu (faceless absurdní vymyšlené příběhy). Stávající Roblox Shorts už nejsou směr.
-- **Téma a jazyk:** **vymyšlené absurdní příběhy, které se nikdy nestaly** (žádná historie, žádná reálná fakta, žádní skuteční lidé). Vždy v **angličtině**, formát silný hook → stupňující se absurdita → zlom „You see…“ → twist (globální publikum, vyšší RPM)
-- **Hlavní postava:** `puppets/main_hero_tlama` (Tlama, růžová hlava s obří pusou a žlutými brýlemi) je hrdina **každého** videa. Vždy ji použij jako hlavní postavu. Detaily v `PUPPETS.md`
-- **Hlas:** hlas si **generuji sám** a nahraji ho do složky videa (viz „Zkratka `--cv`“). **Hlas negeneruj nikdy** (žádné `generate_audio` ani jiný TTS), ani ho nenavrhuj generovat. Dodej jen textový skript.
-- **Hlavní cíl videa:** co nejvyšší retence. Divák musí zůstat u Shortu až do konce (a ideálně ho pustit znovu v loopu)
-- **Úroveň angličtiny:** jednoduchá, srozumitelná pro všechny (viz sekce „Jednoduchá angličtina“)
-- **Frekvence:** **denně** 1 Short. Výroba proto musí být co nejrychlejší: knihovna (postavy, textury, pozadí) se staví jednou a znovu používá, nové video = jen jeho složka `videos/NNN-slug/` (skript, hlas, `short.json`).
-- **Důsledek:** preferuj opakovatelné, automatizovatelné postupy před jednorázovou dokonalostí. Navrhuj, jak zkrátit čas na jedno video.
+- **Main goal:** YouTube monetization (meet the YPP conditions – subscribers + Shorts views – and earn from ads)
+- **Focus:** a complete change. Roblox content is in the past, the channel gets a new identity (faceless absurd invented stories). The existing Roblox Shorts are no longer the direction.
+- **Topic and language:** **invented absurd stories that never happened** (no history, no real facts, no real people). Always in **English**, format: strong hook → escalating absurdity → pivot "You see…" → twist (global audience, higher RPM)
+- **Main character:** `puppets/main_hero_tlama` (Tlama, a pink head with a huge mouth and yellow goggles) is the hero of **every** video. Always use Tlama as the main character. Details in `PUPPETS.md`
+- **Voice:** I **generate the voice myself** and upload it into the video folder (see "Shortcut `--cv`"). **Never generate the voice** (no `generate_audio` or any other TTS), and do not suggest generating it. Deliver only the text script.
+- **Main goal of a video:** the highest possible retention. The viewer must stay with the Short until the end (and ideally replay it in a loop)
+- **English level:** simple, understandable for everyone (see the "Simple English" section)
+- **Frequency:** **daily**, 1 Short. Production must therefore be as fast as possible: the library (characters, backgrounds, models) is built once and reused, a new video = only its own folder `videos/NNN-slug/` (script, voice, `short.json`).
+- **Consequence:** prefer repeatable, automatable procedures over one-off perfection. Suggest how to shorten the time per video.
 
-## Obsah složky
+## Folder contents
 
-| Cesta | Popis |
+| Path | Description |
 | --- | --- |
-| `brainstorming.md` | Reference na inspirační kanály a staré nápady (nové nápady sem nezapisovat, jen na výslovné přání) |
-| `.claude/skills/ricksclips-short-style/` | Hlavní skill pro výrobu faceless Shorts ve stylu @RicksClips3000 |
-| `.claude/skills/outcut-cartoon-shorts/` | Alternativní skill: 2D cut-out kreslené Shorts (Higgsfield + Remotion) |
-| `PUPPETS.md` | Přehled postav ve `puppets/` (kdo je kdo a kdy ho použít). Po přidání nové postavy ho doplň |
+| `.claude/skills/ricksclips-short-style/` | Main skill for producing faceless Shorts in the @RicksClips3000 style |
+| `PUPPETS.md` | Overview of the characters in `puppets/` (who is who and when to use them). Update it after adding a new character |
 
-## Hlavní workflow: faceless Shorts ve stylu RicksClips
+## Main workflow: faceless Shorts in the RicksClips style
 
-Používej skill **`ricksclips-short-style`** (`.claude/skills/ricksclips-short-style/SKILL.md`). Před jakoukoli prací na videu si ho přečti a řiď se jím.
+Use the skill **`ricksclips-short-style`** (`.claude/skills/ricksclips-short-style/SKILL.md`). Read it before any work on a video and follow it.
 
-Stručně: ploché 2D doodle postavy ve slunečném 3D světě, celé sestavené v kódu (three.js stage). Assety (postavy, pozadí, hlas) se generují přes **Higgsfield connector**, scéna se skládá do `short.json` a renderuje přes `.claude/skills/ricksclips-short-style/scripts/stage/render.mjs`.
+In short: flat 2D doodle characters in a sunlit 3D world, built entirely in code (three.js stage). New characters and backgrounds are **exceptionally** generated through the **Higgsfield connector** (only when truly needed and **only after my explicit confirmation**, see "Higgsfield"). Nobody generates the voice, I record it. The scene is assembled into `short.json` and rendered via `.claude/skills/ricksclips-short-style/scripts/stage/render.mjs`.
 
-Formát: 1080x1920, 30 fps, cca 60 s, titulky po 1–2 slovech.
+Format: 1080x1920, 30 fps, about 60 s, captions of 1–2 words.
 
-### Zkratka `--cv` (create video)
+### Shortcut `--cv` (create video)
 
-Když napíšu jen `--cv`, znamená to tento prompt (nemusím ho psát celý):
+When I write just `--cv`, it means this prompt (I do not have to write it out):
 
 > Using the ricksclips-short-style skill, suggest 3 absurd/funny stories. Give me those ideas and I will choose one of them. Then write a 60-second script with the channel's formula: paradox first line, strong hook, escalation, "You see…", twist. Use puppets available in PUPPETS.md
 
-Postup je vždy stejný:
+The procedure is always the same. (The output templates below are intentionally kept in Czech, because they are what I read; the rest of this file is in English.)
 
-1. **Okamžitě, jako úplně první krok** (před čtením čehokoli) vytvoř prázdnou složku `videos/NNN/`, kde `NNN` = nejvyšší číslo ve `videos/` + 1 (třímístné, např. `009`). Zatím jen číslo, žádný slug a žádné podsložky. Díky tomu může běžet víc videí souběžně.
-2. **Tři příběhy.** Přečti skill a skripty hotových videí, aby se téma neopakovalo. **Téma musí být vždy nové, originální a jiné než všechna dosavadní videa.** Pak vypiš přesně tuto strukturu a **nic jiného** (žádný úvod, žádné doporučení, žádný výpis postav):
+1. **Immediately, as the very first step** (before reading anything) create an empty folder `videos/NNN/`, where `NNN` = the highest number in `videos/` + 1 (three digits, e.g. `009`). Only the number for now, no slug and no subfolders. This lets several videos run in parallel.
+2. **Three stories.** Read the skill and the scripts of the finished videos so the topic does not repeat. **The topic must always be new, original and different from all previous videos.** Then print exactly this structure and **nothing else** (no intro, no recommendation, no list of characters):
 
    ```
    # 1 - Název
@@ -63,8 +60,8 @@ Postup je vždy stejný:
    ...
    ```
 
-   `Hodnocení` = tvůj upřímný odhad virálního potenciálu (1 nejméně, 10 nejvíce). Pravidlo = to jedno kouzelné pravidlo příběhu.
-3. **Skript.** Po mé volbě vypiš jen text pro ElevenLabs (s audio tagy, viz níže) v této podobě a nic dalšího. Zároveň ho ulož do `videos/NNN/script_tagged.txt` a `videos/NNN/script.txt` (bez tagů):
+   `Hodnocení` (rating) = your honest estimate of the viral potential (1 lowest, 10 highest). `Pravidlo` (rule) = the one magic rule of the story.
+3. **Script.** After I choose, print only the text for ElevenLabs (with audio tags, see below) in this form and nothing else. At the same time save it to `videos/NNN/script_tagged.txt` and `videos/NNN/script.txt` (without tags):
 
    ```
    Příběh:
@@ -72,111 +69,119 @@ Postup je vždy stejný:
 
    Nyní čekám na vložení zvukové stopy do složky NNN.
    ```
-4. **Čekání na hlas.** Hlas nahraju sám a vložím ho do `videos/NNN/` (bude tam jediný `.mp3`, název je libovolný). Žádné slovo na pokračování není potřeba. Až napíšu, že je hotovo (cokoli, co není otázka), pokračuj. Pokud se na něco zeptám, odpověz srozumitelně a dál čekej. Pokud ve složce není právě jeden `.mp3`, napiš mi to a zastav se.
-5. **Výroba.** Složku přejmenuj na `NNN-slug` (slug = krátký anglický název videa), mp3 přesuň do `work/audio/voice_original.mp3` a proveď celé workflow: zpracování hlasu (`voice.sh`), časování slov, generátor scény, kontrola stillů, render, finální soubory (`video.mp4`, `script.txt`, `metadata.md`). Neptej se. Chyby (vlajky ze stillů, selhání renderu) oprav sám. Zeptej se, nebo mě upozorni, jen když něco nejde vyřešit bez mě.
-6. **Dry run.** Po dokončení spusť `node scripts/publish/publish.mjs --dry NNN` (nic se nepublikuje). Ostrou publikaci nikdy nespouštěj sám.
-7. **Závěrečný výpis** vždy v této struktuře:
+4. **Waiting for the voice.** I record the voice myself and put it into `videos/NNN/` (it will be the only `.mp3` there, any name). No continue word is needed. Once I write that it is done (anything that is not a question), continue. If I ask something, answer clearly and keep waiting. If the folder does not contain exactly one `.mp3`, tell me and stop.
+5. **Production.** Rename the folder to `NNN-slug` (slug = short English title of the video), move the mp3 to `work/audio/voice_original.mp3` and run the whole workflow: voice processing (`voice.sh`), word timing, scene generator, stills check, render, final files (`video.mp4`, `script.txt`, `metadata.md`). Do not ask questions. Fix errors (stills flags, render failures) yourself. Ask or notify me only when something cannot be solved without me.
+6. **Dry run.** When finished, run `node scripts/publish/publish.mjs --dry NNN` (nothing is published). Never run the real publication yourself.
+7. **Final report** always in this structure:
 
    ```
    - Plný render doběhl: <snímky>, <délka>, 1080×1920, 30 fps, hlas + hudba.
    - `shortkit.py check`: <výsledek kamery a zoomu>
    - Vytvořeno: `video.mp4`, `script.txt`, `metadata.md`
-   - Dry run: <OK nebo problém>
+   - Dry run: <OK nebo problém>, výpis:
+     <celý výstup `publish.mjs --dry NNN`>
    - [případné upozornění na chyby nebo věci, které musím vědět]
    - command pro nahrání:
      - node scripts/publish/publish.mjs NNN
    ```
 
-Kroky workflow (podrobně ve skillu):
-1. Hlavní postava → 2. emotion sheet → 3. slice na vrstvy / rig puppetu → 4. pozadí → 5. skript, hlas, timing → 6. scéna v `short.json` → 7. stop-frame kontrola (`--stills`) → 8. render → 9. porovnání s referencí → 10. **finální soubory do složky videa** (viz „Po vyrenderování videa“) → 11. **publikace** (viz „Publikace přes Buffer“, nikdy automaticky, až po mé kontrole videa) → 12. další video
+### Higgsfield (new characters and backgrounds)
 
-**Negenerují se:** hudba, textury ani 3D modely. **Hudba:** každé video používá moji hotovou stopu `music/music.mp3` (sdílený archiv), v `short.json` `"audio": {"voice": "audio/voice.mp3", "music": "music/music.mp3", "musicDb": -18}`; render ji ořízne na délku videa a ztlumí na konci. Žádnou jinou hudbu negeneruj. Video má hlas, hudbu, ploché barvy, rekvizity z primitiv stage (bedna, sud, zeď, dům…) a **hotové 3D modely (GLB) z knihovny `props/`**, které dodávám ručně (stažené free packy, CC0). Nové 3D modely negeneruj, jen používej ty z knihovny.
+Higgsfield is connected, but it is used **only when truly needed** (a character or background that the library lacks). **Always ask me first and wait for my confirmation.** Do not generate anything without confirmation. The main character (`main_hero_tlama`) is always ready, and so are most of the others, so steps 1–4 are usually skipped.
 
-### Knihovna 3D modelů (`props/`)
+If a new character is generated, it goes through the whole cycle: 1. character image → 2. emotion sheet → 3. slice into layers / rig the puppet → (optionally a background). Then add it to `PUPPETS.md`.
 
-- Jedna složka na pack (např. `props/basic_scene/` = hradní sada Kenney), uvnitř `*.glb` a `Textures/` (GLB odkazuje na `Textures/colormap.png`, nemazat).
-- **`props/catalog.json`** = seznam všech modelů s rozměry (jednotka stage, hrdina má 1,8). **`props/<pack>/0_preview.jpg`** = náhledový list všech modelů. Před stavbou scény je přečti a vybírej z nich.
-- Po přidání nového packu spusť `.venv/bin/python scripts/props_catalog.py` (obnoví katalog i náhled).
-- **Kombinuj:** modely z `props/` a primitiva stage (bedna, sud, zeď, dům, strom…) se používají společně, ne místo sebe. Modely nejsou povinné, primitiva dál platí (zdi, podlahy, velké tvary, absurdní předměty). Vyber, co se pro scénu hodí; typicky primitiva na stavbu místa + modely na detaily a rekvizity.
-- **Packy se kombinují:** modely nemusíš brát jen z jedné složky. Ve scéně (i v jednom záběru) mísi packy podle potřeby, např. nábytek + jídlo + hřbitov. Cesta v `file` vždy obsahuje složku packu.
-- **Hustota scény:** lokace musí působit jako skutečné místo, ne jako holá scéna. Cíl **120–200 objektů na lokaci** (střed, drobný nepořádek na zemi, ploty/zdi, popředí, pás stromů a velké kulisy v pozadí, mix packů). Skládej to přes `scripts/set_dressing.py` (`scatter`, `line`, `ring`, `clear_zone`), pár řádků na vrstvu. Podrobná pravidla jsou v SKILL.md, pravidlo 4.
-- Použití v `short.json`: `{"type": "model", "file": "props/basic_scene/wall.glb", "pos": [x, 0, z], "scale": 3, "rotY": 30}`. Kenney modely jsou malé (dlaždice 1×1), obvykle `scale` 2–3, nebo `height` v jednotkách stage.
+### Workflow steps (details in the skill)
 
-### Struktura: sdílený archiv + složka na každé video
+A regular video (the library already exists): 1. script → 2. **waiting for my voice** → 3. timing → 4. scene in `short.json` → 5. stop-frame check (`--stills`) → 6. render → 7. **final files into the video folder** (see "After the video is rendered") → 8. **publication** (see "Publishing via Buffer", never automatic, only after I review the video) → 9. next video
 
-**Každé video má vlastní složku `videos/NNN-slug/`**, kterou můžu kdykoli celou smazat, a nic se tím nerozbije. Videa se navzájem neovlivňují, takže jich jde vyrábět víc najednou (paralelně, třeba v oddělených agentech). Žádné video nesmí zapisovat do kořene projektu (`short.json`, `audio/`, `out.mp4` v kořeni se už nepoužívají) ani do složky jiného videa.
+**Not generated:** music, textures or 3D models. **Music:** every video uses my ready-made track `music/music.mp3` (shared archive), in `short.json` `"audio": {"voice": "audio/voice.mp3", "music": "music/music.mp3", "musicDb": -18}`; the render trims it to the video length and fades it out at the end. Do not generate any other music. A video has voice, music, flat colors, props from the stage primitives (crate, barrel, wall, house…) and **ready-made 3D models (GLB) from the `props/` library**, which I supply by hand (downloaded free packs, CC0). Do not generate new 3D models, only use those from the library.
+
+### 3D model library (`props/`)
+
+- One folder per pack (e.g. `props/basic_scene/` = Kenney castle kit), containing `*.glb` and `Textures/` (the GLB refers to `Textures/colormap.png`, do not delete).
+- **`props/catalog.json`** = list of all models with dimensions (stage unit, the hero is 1.8). **`props/<pack>/0_preview.jpg`** = preview sheet of all models. Read them before building a scene and choose from them.
+- After adding a new pack run `.venv/bin/python scripts/props_catalog.py` (refreshes the catalog and the preview).
+- **Combine:** models from `props/` and stage primitives (crate, barrel, wall, house, tree…) are used together, not instead of each other. Models are not mandatory, primitives still apply (walls, floors, large shapes, absurd objects). Pick what suits the scene; typically primitives to build the place + models for details and props.
+- **Packs combine:** you do not have to take models from one folder only. In a scene (even in one shot) mix packs as needed, e.g. furniture + food + graveyard. The path in `file` always contains the pack folder.
+- **Scene density:** a location must feel like a real place, not a bare stage. Target **120–200 objects per location** (center, small clutter on the ground, fences/walls, foreground, a belt of trees and large backdrops in the background, a mix of packs). Build it with `scripts/set_dressing.py` (`scatter`, `line`, `ring`, `clear_zone`), a few lines per layer. Detailed rules are in SKILL.md, rule 4.
+- Usage in `short.json`: `{"type": "model", "file": "props/basic_scene/wall.glb", "pos": [x, 0, z], "scale": 3, "rotY": 30}`. Kenney models are small (1×1 tiles), usually `scale` 2–3, or `height` in stage units.
+
+### Structure: shared archive + a folder per video
+
+**Every video has its own folder `videos/NNN-slug/`**, which I can delete as a whole at any time without breaking anything. Videos do not affect one another, so several can be produced at once (in parallel, e.g. in separate agents). No video may write to the project root (`short.json`, `audio/`, `out.mp4` in the root are no longer used) or to another video's folder.
 
 ```
 videos/NNN-slug/
-  work/            pracovní věci jen pro tohle video (smazatelné)
+  work/            working files for this video only (deletable)
     audio/         voice_original.mp3 (raw), voice.mp3, script.txt, words.json
-    build.py       generátor scény (kopie šablony, viz níže)
-    short.json     scéna
+    build.py       scene generator (copy of the template, see below)
+    short.json     scene
     out.mp4, out_stills/
-    custom/        cokoli jednorázového: pozadí, puppet jen pro tohle video, textury, obrázky
-  video.mp4        finální render
-  script.txt       finální skript bez tagů
-  metadata.md      popisky pro platformy
+    custom/        anything one-off: background, puppet for this video only, images
+  video.mp4        final render
+  script.txt       final script without tags
+  metadata.md      captions for the platforms
 ```
 
-**Sdílený archiv** (v kořeni, znovupoužitelný napříč videi): `puppets/`, `props/`, `bg/`, `music/`, `textures/`, `sprites/`, `scripts/` (šablony generátorů, `set_dressing.py`, `puppet_variants.py`, `voice.sh`, `publish/`). Rozhodnutí kam co patří:
-- **Má reálnou šanci se použít znovu** (nová postava, obecné pozadí, nový GLB pack, nový pomocný skript, obecná šablona) → rovnou do sdíleného archivu (`puppets/`, `bg/`, `props/`, `scripts/`…), případně doplnit `PUPPETS.md`.
-- **Je to specifické jen pro tohle video** (hlas, skript, words, `short.json`, generátor scény, jednorázová rekvizita, pozadí nebo varianta puppeta na míru, stilly) → do `videos/NNN-slug/work/`. Když pochybuješ, ber to jako video-specifické a archiv zbytečně nezahlcuj.
-- Sdílený archiv jen **přidávej**, existující soubory v něm pro jedno video neměň (rozbil bys ostatní videa). Potřebuješ úpravu postavy? Udělej variantu do `work/custom/`.
+**Shared archive** (in the root, reusable across videos): `puppets/`, `props/`, `bg/`, `music/`, `scripts/` (generator templates, `set_dressing.py`, `puppet_variants.py`, `voice.sh`, `publish/`). Deciding what goes where:
+- **Has a real chance of being reused** (new character, generic background, new GLB pack, new helper script, generic template) → straight into the shared archive (`puppets/`, `bg/`, `props/`, `scripts/`…), and update `PUPPETS.md` if needed.
+- **Specific to this video only** (voice, script, words, `short.json`, scene generator, one-off prop, custom background or puppet variant, stills) → into `videos/NNN-slug/work/`. When in doubt, treat it as video-specific and do not clutter the archive.
+- Only **add** to the shared archive; do not change existing files in it for one video (you would break the other videos). Need to alter a character? Make a variant in `work/custom/`.
 
-**Cesty v `short.json`** se hledají nejdřív ve `work/` videa, potom ve sdíleném archivu. Tedy `audio/voice.mp3` = z videa, `puppets/main_hero_tlama` a `props/...glb` = z archivu, `custom/bg.png` = z videa. Render proto vždy s `--lib` na kořen projektu:
+**Paths in `short.json`** are looked up first in the video's `work/`, then in the shared archive. So `audio/voice.mp3` = from the video, `puppets/main_hero_tlama` and `props/...glb` = from the archive, `custom/bg.png` = from the video. Therefore always render with `--lib` pointing at the project root:
 
 ```
 V=videos/NNN-slug/work
 node .claude/skills/ricksclips-short-style/scripts/stage/render.mjs $V/short.json $V/out.mp4 --stills --lib .
 ```
 
-Generátor scény: zkopíruj `scripts/build_call_from_tomorrow.py` do `$V/build.py` a spusť `cd $V && ../../../.venv/bin/python build.py short.json` (v kopii nastav `sys.path.insert(0, "<absolutní cesta>/scripts")` pro `set_dressing`). Hlas: `cd $V && ../../../scripts/voice.sh`. Word timing: `cd $V && ../../../.venv/bin/python ../../../.claude/skills/ricksclips-short-style/scripts/stage/shortkit.py words audio/voice.mp3 audio/script.txt -o audio/words.json`. Zkontroluj si, že `.venv/bin/python` cestu vidíš (jinak absolutní).
+Scene generator: copy `scripts/build_call_from_tomorrow.py` to `$V/build.py` and run `cd $V && ../../../.venv/bin/python build.py short.json` (in the copy set `sys.path.insert(0, "<absolute path>/scripts")` for `set_dressing`). Voice: `cd $V && ../../../scripts/voice.sh`. Word timing: `cd $V && ../../../.venv/bin/python ../../../.claude/skills/ricksclips-short-style/scripts/stage/shortkit.py words audio/voice.mp3 audio/script.txt -o audio/words.json`. Check that you can see the `.venv/bin/python` path (otherwise use an absolute one).
 
-### Skript – vzorec (vymyšlený absurdní příběh)
+### Script – formula (invented absurd story)
 
-1. **hook** hned v první větě, bez úvodu: absurdní, konkrétní situace, která vyvolá otázku „cože? jak?“ (např. „Every night, my cat pays rent to a tiny king who lives in my wall.“)
-2. dva až tři stupňující se detaily: každý je absurdnější než předchozí
-3. zlom „You see…“, kde začíná (absurdní, ale uvnitř příběhu logické) vysvětlení
-4. pointa/twist v poslední větě těsně před loopem, ideálně navazuje na hook, aby se video přirozeně pustilo znovu
+1. **hook** right in the first sentence, no intro: an absurd, concrete situation that raises the question "what? how?" (e.g. "Every night, my cat pays rent to a tiny king who lives in my wall.")
+2. two to three escalating details: each more absurd than the previous one
+3. pivot "You see…", where the (absurd but story-logical) explanation begins
+4. punchline/twist in the last sentence right before the loop, ideally tied to the hook so the video naturally replays
 
-### Pravidla pro příběhy
+### Story rules
 
-- **Vše je vymyšlené.** Žádné skutečné události, historické postavy, data, reálné značky ani skuteční lidé. Nic nesmí vypadat jako pravdivé tvrzení o světě. Nehledej a neověřuj fakta, příběh si prostě vymysli.
-- **Absurdní, ale uvnitř konzistentní.** Příběh má svá vlastní pravidla a ta se dodržují (absurdita funguje, když dává vnitřní smysl).
-- **Silný hook.** První věta (do ~2 s) musí zastavit scroll: konkrétní, bizarní, bez úvodu. Žádné „Hey guys“, žádné „Today I will tell you“.
-- **Retence.** Každé 2–3 věty nová zápletka, odhalení nebo eskalace („open loop“: slib něco, co se vysvětlí až později). Nikdy nevysvětluj vše hned. Žádný hluchý moment, žádná vata. Poslední věta se vrací k začátku, aby se video loopovalo.
-- **Jeden hrdina, jedna situace.** Jednoduchý příběh, který se dá vizuálně vyprávět jednou postavou a pár rekvizitami.
-- **Bezpečný obsah.** Bez násilí, nenávisti a sexuálního obsahu (monetizace, YPP). Vhodné i pro mladší diváky.
+- **Everything is invented.** No real events, historical figures, dates, real brands or real people. Nothing may look like a true statement about the world. Do not look up or verify facts, just make the story up.
+- **Absurd, but internally consistent.** The story has its own rules and they are kept (absurdity works when it makes internal sense).
+- **Strong hook.** The first sentence (within ~2 s) must stop the scroll: concrete, bizarre, no intro. No "Hey guys", no "Today I will tell you".
+- **Retention.** Every 2–3 sentences a new plot turn, reveal or escalation ("open loop": promise something that is explained later). Never explain everything at once. No dead moment, no filler. The last sentence returns to the beginning so the video loops.
+- **One hero, one situation.** A simple story that can be told visually with one character and a few props.
+- **Safe content.** No violence, hate or sexual content (monetization, YPP). Suitable for younger viewers too.
 
-### Srozumitelnost (divák se nesmí ztratit)
+### Clarity (the viewer must not get lost)
 
-Absurdní má být **situace**, ne vyprávění. Příběh musí jít sledovat na první poslech, i když divák kouká jen napůl.
+The **situation** should be absurd, not the storytelling. The story must be followable on first listen, even if the viewer is only half watching.
 
-- **Jedno kouzelné pravidlo.** Celý příběh stojí na jediné absurdní věci (např. „kýchnutí mění starostu“). Žádné druhé kouzlo ani další nesouvisející absurdita. Všechno ostatní z toho pravidla vyplývá.
-- **Divák vždy ví, co Tlama chce.** Cíl nebo problém zazní hned v hooku a po celou dobu se nemění (schovat sušenku, zmenšit kuře, najít stroj).
-- **Stupňování je stejný vzorec, jen větší.** Pravidlo tří: stejný typ události třikrát, pokaždé větší (malý průšvih, větší, obrovský). Divák se vzorec naučí a těší se na další krok. Nemíchej tři různé druhy zápletek.
-- **Max. 3 vedlejší postavy.** Každá se při prvním výskytu představí jedním jasným označením („my mom“, „the inventor“, „my dog Max“) a to se pak nemění. Po „You see…“ už nepřichází nikdo nový.
-- **Žádná nejasná zájmena.** Když jsou ve scéně dvě postavy, místo „he/she/it“ opakuj jméno nebo roli. U přímé řeči vždy řekni, kdo mluví („Mom said: …“).
-- **Čas jde jen dopředu.** Žádné flashbacky ani skoky, kromě zlomu „You see…“, který je jasně ohlášený.
-- **Změna místa zazní nahlas.** Max. 3 místa a každý přesun řekni na začátku věty („At school…“, „Then I ran outside.“).
-- **„You see…“ je krátké.** Vysvětlení v 1–2 větách, jedna jednoduchá příčina. Žádný řetěz důvodů.
-- **Twist jen z toho, co už divák viděl.** Pointa používá postavy, věci a pravidlo z první půlky. Nic nového na poslední chvíli.
-- **Každá věta je vidět.** Ke každé větě musí jít ukázat jeden jasný obraz (postava, věc, reakce). Věta, která se nedá nakreslit, pryč.
-- **Test převyprávění.** Před odevzdáním převyprávěj příběh ve 3 větách (problém, co se děje, jak to skončí). Když to nejde, příběh je moc složitý: škrtej postavy, místa a vedlejší nápady, dokud to nejde.
+- **One magic rule.** The whole story stands on a single absurd thing (e.g. "a sneeze changes the mayor"). No second magic and no other unrelated absurdity. Everything else follows from that rule.
+- **The viewer always knows what Tlama wants.** The goal or problem is stated right in the hook and never changes (hide a cookie, shrink the chicken, find the machine).
+- **Escalation is the same pattern, only bigger.** Rule of three: the same type of event three times, each bigger (small trouble, bigger, huge). The viewer learns the pattern and looks forward to the next step. Do not mix three different kinds of plot.
+- **Max. 3 side characters.** Each introduces themselves on first appearance with one clear label ("my mom", "the inventor", "my dog Max") and it never changes afterwards. Nobody new appears after "You see…".
+- **No unclear pronouns.** When two characters are in the scene, repeat the name or role instead of "he/she/it". For direct speech always say who is speaking ("Mom said: …").
+- **Time only moves forward.** No flashbacks or jumps, except the "You see…" pivot, which is clearly announced.
+- **A change of place is said out loud.** Max. 3 places and say every move at the beginning of a sentence ("At school…", "Then I ran outside.").
+- **"You see…" is short.** An explanation in 1–2 sentences, one simple cause. No chain of reasons.
+- **The twist only uses what the viewer has already seen.** The punchline uses the characters, things and rule from the first half. Nothing new at the last moment.
+- **Every sentence is visible.** For every sentence you must be able to show one clear picture (character, thing, reaction). A sentence that cannot be drawn goes.
+- **Retelling test.** Before delivering, retell the story in 3 sentences (problem, what happens, how it ends). If you cannot, the story is too complex: cut characters, places and side ideas until you can.
 
-### Silné hooky (musí přimět zůstat)
+### Strong hooks (they must make people stay)
 
-První věta rozhoduje, jestli divák odscrolluje. Každý hook musí splnit **aspoň 3 z 5**:
-1. **Začíná uprostřed děje** (něco se právě děje, žádné „Once upon a time“, žádné představování).
-2. **Přehnané a konkrétní** (obří, nemožné, s číslem nebo časem: „60 seconds“, „every adult in the world“).
-3. **Sázky nebo hodinky:** hrozí něco, co se musí vyřešit hned („before the moon falls“, „only I can fix it“).
-4. **Otevírá smyčku:** vzbudí otázku, kterou zodpoví až konec („Why did every cat look at my house?“).
-5. **Vypravěč je v ohrožení nebo v centru dění** („I“ = Tlama), ne popis světa zvenčí.
+The first sentence decides whether the viewer scrolls away. Every hook must meet **at least 3 of 5**:
+1. **Starts in the middle of the action** (something is happening right now, no "Once upon a time", no introductions).
+2. **Exaggerated and concrete** (huge, impossible, with a number or time: "60 seconds", "every adult in the world").
+3. **Stakes or a clock:** something threatens that must be solved right now ("before the moon falls", "only I can fix it").
+4. **Opens a loop:** raises a question that only the end answers ("Why did every cat look at my house?").
+5. **The narrator is in danger or at the center of events** ("I" = Tlama), not a description of the world from the outside.
 
-Max. 15 slov, jednoduchá angličtina. Příběh pak hook splní v zlomu „You see…“ a vrátí se k němu v twistu.
+Max. 15 words, simple English. The story then pays off the hook at the "You see…" pivot and returns to it in the twist.
 
-#### 23 ukázkových hooků (+ nápad na twist)
+#### 23 example hooks (+ twist idea)
 1. "At 3 AM, my cat looked at me and whispered: 'Run. They are inside the walls.'" / "They" are tiny workers building a pool for the cat. The cat wanted to warn me about the noise.
 2. "Today at 8 AM, every adult in the world turned into a potato. Only I can fix it." / The cure is a hug from a kid. At the end, I turn into a potato too, and my little sister has to hug me.
 3. "I have 60 seconds before the moon falls on my house." / The moon is only looking for its lost sock. It finds it, and I wake up with a moon-shaped sock in my bed.
@@ -201,119 +206,118 @@ Max. 15 slov, jednoduchá angličtina. Příběh pak hook splní v zlomu „You 
 22. "Why did every cat in the world look at my house at exactly 7 PM?" / They are all waiting for my cat, who is the cat king. He walks out, and they all bow, and he asks me for a snack.
 23. "I found a door in my school that opens to yesterday, and yesterday's me was waiting with a warning." / The warning: "Do not eat the blue cake." Today, I eat the blue cake anyway, and it is amazing.
 
-### ElevenLabs tagy ve skriptu
+### ElevenLabs tags in the script
 
-Textový skript **vždy piš rovnou s ElevenLabs audio tagy** v hranatých závorkách, aby ho šlo vložit do ElevenLabs bez úprav. Tagy piš anglicky, vkládej je před větu/frázi, které se týkají, a nepřeháněj (cca 1 tag na 1–2 věty, ať hlas nezní přehrávaně). Dialog v uvozovkách zůstává normální text.
+**Always write** the text script straight away with ElevenLabs audio tags in square brackets, so it can be pasted into ElevenLabs without edits. Write the tags in English, put them before the sentence/phrase they apply to, and do not overdo it (about 1 tag per 1–2 sentences, so the voice does not sound overacted). Dialogue in quotation marks stays normal text.
 
-Používej hlavně tyto tagy:
+Mainly use these tags:
 - **Emotion:** `[weak]` `[angry]` `[bored]` `[menacing]` `[playful]` `[tired]` `[excited]`
 - **Vocalizations:** `[clears throat]` `[coughing]` `[chuckling]` `[sniffling]` `[yawning]` `[laughing]` `[sharp exhale]` `[scoffing]` `[humming]` `[panting]` `[gasping]`
 - **Delivery:** `[whispering]` `[singing]` `[voice breaking]`
 - **Character:** `[sleepy drowsy voice]` `[witch voice]` `[drunken voice]`
 - **Sound effects:** `[keyboard typing]` `[echoing]` `[knocking on door]` `[bell ringing]` `[phone ringing]` `[dog barking]` `[crowd cheering]` `[applause]` `[rain falling]` `[drum roll]` `[heartbeat]` `[engine starting]`
 
-Ukázkový skript (styl a hustota tagů):
+Sample script (style and tag density):
 
 ```
 [thoughtful] I built the best invention in the world, but nobody can see it. Not even me. This morning, the mayor heard about it. [excited] He ran in and shouted, "I will pay a thousand coins for it!" [chuckles] I said, "Great! Just one problem. I lost it." Then he walked right into it. [sound of impact] Bonk! [surprised] He fell on the floor, and his hat flew out the window. So I ran to the middle of the room. Nothing. [anxious] Oh no. I gave it little wheels. Big mistake. At lunch, the baker hit it on the street. All his bread flew into the sky. [chuckles] Then my friend Bob hit it at the market and landed in a barrel of fish. [annoyed] The whole town was angry. "What is this thing?" [thoughtful] You see, I built a machine that makes things invisible. And the first thing it made invisible was itself. [anxious] The mayor gave me one hour. "Find it, or no coins." I looked everywhere, on my hands and knees. [surprised] Then I touched something warm. It was buzzing. [excited] My machine! [thoughtful] I found two buttons. A small one and a big one. [thoughtful] One makes things come back. But which one? I pressed the big one. [sound of electricity] There was a bright flash. [surprised] And the whole town was gone. The houses. The people. The mayor. Then, from nowhere, I heard his voice. [muffled] "Amazing! I will pay two thousand coins!" So now I have the best town in the world, but nobody can see it. Not even me.
 ```
 
-**Nepoužívej** tagy, které zpomalují nebo prodlužují zvuk (`[pause]`, `[short pause]`, `[slowly]`, `[softly]`, `[sighs]`, `[inhales deeply]` apod.). Pauzy se stejně osekávají a cílem je co nejkratší stopa.
+**Do not use** tags that slow down or lengthen the audio (`[pause]`, `[short pause]`, `[slowly]`, `[softly]`, `[sighs]`, `[inhales deeply]` etc.). Pauses are trimmed anyway and the goal is the shortest possible track.
 
-Ukázka smí používat i další přirozené tagy mimo seznam (`[thoughtful]`, `[surprised]`, `[anxious]`, `[annoyed]`, `[muffled]`, `[sound of impact]`), ale seznam výše je základ.
+The sample may also use other natural tags outside the list (`[thoughtful]`, `[surprised]`, `[anxious]`, `[annoyed]`, `[muffled]`, `[sound of impact]`), but the list above is the baseline.
 
-**Pozor při časování a titulcích:** tagy se nikdy nezobrazují jako titulky a nepočítají se do tempa (~4 slova/s). Před `words` / `words.json` si uložit `audio/script.txt` **bez tagů** (nebo tagy odfiltrovat), jinak se zarovnání slov rozbije.
+**Careful with timing and captions:** tags are never shown as captions and do not count toward the pace (~4 words/s). Before `words` / `words.json`, save `audio/script.txt` **without tags** (or filter the tags out), otherwise the word alignment breaks.
 
-### Zvuková stopa: raw + lokální úprava
+### Audio track: raw + local processing
 
-- Nahraný hlas je vždy **raw** a ukládá se do složky videa jako `videos/NNN-slug/work/audio/voice_original.mp3`. Nikdy ho neupravuj přes Higgsfield ani jiný online nástroj.
-- Úpravu dělej **lokálně na tomhle počítači** přes `ffmpeg`: `scripts/voice.sh` (výstup `audio/voice.mp3`, raw soubor se nepřepisuje).
-  1. odstraní mezery/ticho mezi větami (`silenceremove`, zbyde jen ~0,06 s),
-  2. zrychlí (`atempo`, výška hlasu se nemění) tak, aby výsledek měl **max 60 s** (cíl ~59,5 s). Pokud už je kratší, nezrychluje.
-- Až potom spusť `words` pro `audio/words.json` nad **upraveným** `voice.mp3` (časování musí sedět na finální stopu).
-- Spuštění: `scripts/voice.sh` (výchozí cesty), případně `scripts/voice.sh raw.mp3 out.mp3 60`.
+- The uploaded voice is always **raw** and is stored in the video folder as `videos/NNN-slug/work/audio/voice_original.mp3`. Never edit it through Higgsfield or any other online tool.
+- Do the processing **locally on this computer** via `ffmpeg`: `scripts/voice.sh` (output `audio/voice.mp3`, the raw file is not overwritten).
+  1. removes gaps/silence between sentences (`silenceremove`, only ~0.06 s remains),
+  2. speeds up (`atempo`, the pitch does not change) so the result is **at most 60 s** (target ~59.5 s). If it is already shorter, it does not speed up.
+- Only then run `words` for `audio/words.json` on the **processed** `voice.mp3` (the timing must match the final track).
+- Run: `scripts/voice.sh` (default paths), or `scripts/voice.sh raw.mp3 out.mp3 60`.
 
-### Po vyrenderování videa (povinné)
+### After the video is rendered (mandatory)
 
-**Složku videa `videos/NNN-slug/` vytvoř hned na začátku práce** (ať si paralelní videa nevezmou stejné číslo; `NNN` = další volné). Po dokončeném renderu do ní bez ptaní ulož finální soubory:
+**Create the video folder right at the start of the work as an empty `videos/NNN/`** (so parallel videos do not take the same number; `NNN` = next free) and **rename it to `videos/NNN-slug/` after I choose the story**. After the render is finished, save the final files into it without asking:
 
-- Název: `videos/NNN-nazev-videa/`, kde `NNN` je další pořadové číslo (podle nejvyššího čísla v `videos/`) a název je krátký anglický slug (např. `003-invisible-invention`).
-- Obsah složky: `work/` (pracovní věci, viz „Struktura“) a **tři finální soubory**, které čte publikace:
-  1. `video.mp4`: kopie finálního `out.mp4`,
-  2. `script.txt`: kopie `audio/script.txt` (finální skript bez tagů),
-  3. `metadata.md`: anglicky, **zvlášť pro každou platformu** (každá má jiné konvence). Přesná struktura (nadpisy nech beze změny, publikační skript je podle nich parsuje):
+- Name: `videos/NNN-video-name/`, where `NNN` is the next sequence number (based on the highest number in `videos/`) and the name is a short English slug (e.g. `003-invisible-invention`).
+- Folder contents: `work/` (working files, see "Structure") and **three final files** read by the publication:
+  1. `video.mp4`: copy of the final `out.mp4`,
+  2. `script.txt`: copy of `audio/script.txt` (final script without tags),
+  3. `metadata.md`: in English, **separately for each platform** (each has different conventions). Exact structure (keep the headings unchanged, the publishing script parses them):
 
      ```
-     # NNN – Název videa
+     # NNN – Video title
 
      ## YouTube
      ### Title
-     jediný název (s emoji, max ~70 znaků), žádné alternativy
+     a single title (with emoji, max ~70 characters), no alternatives
 
      ### Description
-     krátký popisek, který otevře smyčku („Watch till the end…“), na konci 3–5 hashtagů (první vždy #shorts)
+     a short description that opens a loop ("Watch till the end…"), 3–5 hashtags at the end (the first always #shorts)
 
      ### Tags
-     shorts, story, funny   (stejná slova jako hashtagy bez #; Buffer je neposílá, jen pro ruční vložení)
+     shorts, story, funny   (the same words as the hashtags without #; Buffer does not send them, only for manual pasting)
 
      ## Instagram
      ### Caption
-     první řádek je hook, pak krátký popisek, na konci 3–5 hashtagů (bez #shorts)
+     the first line is the hook, then a short description, 3–5 hashtags at the end (without #shorts)
 
      ## TikTok
      ### Caption
-     velmi krátký popisek (1–2 věty), na konci 3–5 hashtagů
+     a very short description (1–2 sentences), 3–5 hashtags at the end
      ```
-- Hashtagy jsou jednoslovné (bez mezer). Každá platforma má vlastní text, nekopíruj mechanicky stejný popisek třikrát.
+- Hashtags are single words (no spaces). Each platform has its own text, do not mechanically copy the same description three times.
 
-### Publikace přes Buffer (jen na výslovný pokyn)
+### Publishing via Buffer (only on explicit command)
 
-Videa se publikují skriptem `scripts/publish/publish.mjs` (nahraje `video.mp4` na Cloudflare R2 a zařadí ho přes Buffer API do fronty na YouTube, Instagram a TikTok). Klíče jsou v `.env` (nikdy je nečti ani nevypisuj).
+Videos are published by the script `scripts/publish/publish.mjs` (it uploads `video.mp4` to Cloudflare R2 and queues it through the Buffer API for YouTube, Instagram and TikTok). The keys are in `.env` (never read or print them).
 
-- **Nikdy nepublikuj automaticky.** Nejdřív si video nechám zkontrolovat já. Publikaci spusť až po mém výslovném pokynu (např. „publikuj 004“), protože jde na veřejné sítě.
-- Před ostrým spuštěním vždy nejdřív `--dry NNN` a ukaž mi výpis.
-- Spuštění: `node scripts/publish/publish.mjs NNN` (zařadí do dalšího volného slotu ve frontě v Bufferu, časy se neřeší). Více videí najednou: `... 004 005 006`. Pevné časy jen na přání (`--start`, `--time`).
-- Skript podle `.published.json` už publikovaná videa přeskočí. Video na R2 nemaž, dokud nevyjde.
+- **Never publish automatically.** I review the video first. Run the publication only on my explicit command (e.g. "publish 004"), because it goes to public networks.
+- Before the real run always do `--dry NNN` first and show me the output.
+- Run: `node scripts/publish/publish.mjs NNN` (queues into the next free slot in the Buffer queue, times do not matter). Several videos at once: `... 004 005 006`. Fixed times only on request (`--start`, `--time`).
+- The script skips already published videos according to `.published.json`. Do not delete the video from R2 until it has gone out.
 
-### Jednoduchá angličtina
+### Simple English
 
-Skript musí pochopit každý, včetně mladších diváků a lidí, pro které angličtina není hlavní jazyk (úroveň A2, max. B1).
+Everyone must be able to understand the script, including younger viewers and people for whom English is not the first language (level A2, B1 at most).
 
-- Krátká slova a krátké věty (ideálně do ~10 slov). Jedna myšlenka na větu.
-- Běžná slova z každodenního života. Žádná složitá nebo vzácná slovíčka (místo „consequently“ → „so“, místo „purchase“ → „buy“, místo „enormous“ → „huge“).
-- Jednoduché časy (present simple, past simple). Žádné složité větné konstrukce, vedlejší věty v řetězcích ani trpný rod bez nutnosti.
-- Žádné idiomy, slang, frázová slovesa ani slovní hříčky, které cizinec nepochopí („kick the bucket“, „spill the beans“…).
-- Žádná odborná terminologie ani složitá jména. Jména postav krátká a snadno vyslovitelná (Tom, Mia, Bob).
-- Čísla jednoduše (ne „1,347“, ale „a thousand“).
-- Před odevzdáním skript zkontroluj: kdyby ho slyšelo desetileté dítě nebo začátečník v angličtině, pochopil by každou větu? Pokud ne, zjednoduš.
+- Short words and short sentences (ideally up to ~10 words). One idea per sentence.
+- Common everyday words. No complicated or rare words (instead of "consequently" → "so", instead of "purchase" → "buy", instead of "enormous" → "huge").
+- Simple tenses (present simple, past simple). No complex sentence constructions, chained subordinate clauses or passive voice unless necessary.
+- No idioms, slang, phrasal verbs or wordplay that a foreigner would not understand ("kick the bucket", "spill the beans"…).
+- No technical terminology or complicated names. Character names short and easy to pronounce (Tom, Mia, Bob).
+- Numbers simple (not "1,347", but "a thousand").
+- Before delivering, check the script: if a ten-year-old child or a beginner in English heard it, would they understand every sentence? If not, simplify.
 
-Cca 4 slova za sekundu, žádné prázdné místo.
+About 4 words per second, no empty space.
 
-## Pravidla stylu (zkráceně)
+## Style rules (short)
 
-- Postavy: ploché 2D výřezy s velkými kulatými hlavami (hlava cca stejně široká jako trup), reálné stíny v 3D
-- Linky: tlusté, rovnoměrné, švestkově černé `#271925`, nikdy čistá černá
-- Barvy: teplé slunce vs. chladné stíny, stíny nezvedat do čisté černé
-- Živé scény: záběr každé 1–3 s, v každém záběru se něco změní (úhel, výraz, pozadí, světlo), kulisy ve třech vrstvách (popředí, střed, pozadí), 3–5 míst na video, 1–3 vedlejší postavy. Podrobně ve skillu („Keep every scene alive“)
-- Kamera: pohyb v každém záběru, převážně přibližování, žádné tvrdé střihy
+- Characters: flat 2D cutouts with big round heads (the head about as wide as the torso), real shadows in 3D
+- Lines: thick, even, plum black `#271925`, never pure black
+- Colors: warm sun vs. cool shadows, do not lift shadows to pure black
+- Lively scenes: a shot every 1–3 s, something changes in every shot (angle, expression, background, light), set dressing in three layers (foreground, middle, background), max. 3 places per video, 1–3 side characters. Details in the skill ("Keep every scene alive")
+- Camera: movement in every shot, mostly zooming in, no hard cuts
 
-## Technické požadavky
+## Technical requirements
 
-- Higgsfield connector musí být zapnutý (bez něj nejdou generovat assety; samotný render funguje i bez něj)
-- Setup (jednou): `cd .claude/skills/ricksclips-short-style/scripts/stage && npm install && npx playwright install chromium`, `pip install numpy pillow scipy opencv-python-headless`, `ffmpeg` a `ffprobe` v PATH
-- Python skripty skillu spouštěj přes `.venv/bin/python` (je v něm `faster-whisper` pro přesné časování slov ve `words.json`; systémový `python3` ho nemá a spadne na odhad podle hlasitosti)
-- Před každým plným renderem vždy `--stills` kontrola
+- The Higgsfield connector is connected, but it is optional: it is used only for new characters and backgrounds after my confirmation (see "Higgsfield"). A regular video and the render do not need it
+- Setup (once): `cd .claude/skills/ricksclips-short-style/scripts/stage && npm install && npx playwright install chromium`, `pip install numpy pillow scipy opencv-python-headless`, `ffmpeg` and `ffprobe` in PATH
+- Run the skill's Python scripts via `.venv/bin/python` (it contains `faster-whisper` for accurate word timing in `words.json`; the system `python3` does not have it and falls back to an estimate based on loudness)
+- Always do the `--stills` check before every full render
 
-## Inspirace
+## Inspiration
 
-- **RicksClips3000** – https://www.youtube.com/@RicksClips3000/shorts – vizuální styl, který kopíruju
-- **theboov_** – https://www.youtube.com/@theboov_/shorts – nápad na redabbing (kopíruje zahraniční videa 1:1 a jen je předabovává)
+- **RicksClips3000** – https://www.youtube.com/@RicksClips3000/shorts – the visual style I copy
 
-## Jak se mnou pracovat
+## How to work with me
 
-- Komunikuj česky, pokud nenapíšu jinak. Skripty, hlas, titulky, názvy a popisky videí piš **anglicky**.
-- Respektuj monetizační cíl: originální obsah (ne 1:1 kopie cizích videí), žádná reálná fakta ani skuteční lidé (vše vymyšlené, takže nic k ověřování), žádné porušování pravidel YouTube (reused content, copyright u hudby).
-- Když pošlu jen skript, spusť kroky 7–10 s existující knihovnou a nic se neptej předem.
-- Při nejasnostech ohledně stylu vycházej ze skillu a `references/style-rules.md`, ne z odhadu.
-- Nové nápady na videa **nezapisuj** do `brainstorming.md` ani nikam jinam. Jen mi je napiš do chatu. Do `brainstorming.md` zapisuj jen, když to výslovně řeknu.
-- Když chci nápad nebo skript, dodej **jen textový skript** (a případně hook/twist). Hlas negeneruj, nahraju ho sám.
+- Communicate in Czech unless I write otherwise. Write scripts, voice, captions, titles and video descriptions in **English**.
+- Respect the monetization goal: original content (no 1:1 copies of other people's videos), no real facts or real people (everything invented, so nothing to verify), no violations of YouTube rules (reused content, music copyright).
+- When I send just a script, run the workflow with the existing library and do not ask anything beforehand. **Exception:** I record the voice. As soon as you send the script for ElevenLabs, **wait until I put the `.mp3` into the video folder and write that it is done** (a message that is not a question). Without the voice, timing and render do not start.
+- When the style is unclear, rely on the skill and `references/style-rules.md`, not on guesswork.
+- **Do not write** new video ideas to `brainstorming.md` or anywhere else. Just write them to me in the chat. Write to `brainstorming.md` only when I say so explicitly.
+- When I want an idea or a script, deliver **only the text script** (and optionally the hook/twist). Do not generate the voice, I will record it myself.

@@ -51,6 +51,20 @@ Keys live in `.env` (copy `.env.example` and fill it in). `.env` is git-ignored,
 
 *The hero, Tlama: source cutout, layers, re-assembled, posed. Limbs rotate at the shoulder and hip, the head tilts, faces are swapped per shot.*
 
+## Automated publishing (Cloudflare R2 + Buffer)
+
+Publishing is fully automated by `scripts/publish/publish.mjs`, so no video is uploaded by hand:
+
+1. **Cloudflare R2** – the script uploads `video.mp4` to a public R2 bucket (`NNN-slug.mp4`). Buffer can only post a video from a public URL, so R2 acts as the temporary hosting. Keep the file there until the post has gone out.
+
+   ![Cloudflare R2 bucket with the uploaded videos](docs/images/r2.png)
+
+2. **Buffer** – the script then creates the posts through the Buffer API, using the texts from `metadata.md`. Each video goes into the next free slot of the queue on YouTube Shorts, Instagram Reels and TikTok, so I never pick publishing times by hand.
+
+   ![Buffer calendar with queued posts on YouTube, Instagram and TikTok](docs/images/buffer.png)
+
+Videos that were already published are recorded in `.published.json` and skipped on the next run, so it is safe to run the command again.
+
 ## Folder structure
 
 ```
