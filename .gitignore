@@ -1,0 +1,17 @@
+/videos
+/textures
+/sprites
+/scripts
+/puppets
+/models
+/bg
+/audio
+/skills_archive
+/out_stills
+.env
+scripts/publish/node_modules
+/props
+.venv
+
+/out_props_test_stills
+short_props_test.json

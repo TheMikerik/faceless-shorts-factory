@@ -640,20 +640,24 @@ def energy_times(script, x, dur):
         tv, len(reg), len(pauses), snapped, len(ends))
     return list(zip(st[ra] + a - cv[ra], st[rb] + b - cv[rb])), note
 
-def whisper_words(path):
+def whisper_words(x):
     """[(word, t0, t1)] from faster-whisper or openai-whisper, or None when
     neither is installed or the model cannot be loaded (nothing is installed
-    or downloaded on purpose here)."""
+    or downloaded on purpose here). x is decode_audio() output (mono 16 kHz
+    float32); passing samples instead of a path keeps Whisper off its own
+    file decoder (PyAV), which breaks between versions."""
     name = os.environ.get("SHORTKIT_WHISPER_MODEL", "base")
     try:
         from faster_whisper import WhisperModel
-        segs, _ = WhisperModel(name, compute_type="int8").transcribe(path, word_timestamps=True)
+        segs, info = WhisperModel(name, compute_type="int8").transcribe(x, word_timestamps=True)
+        print("whisper heard language: %s (%.2f)" % (info.language, info.language_probability), file=sys.stderr)
         return [(w.word, w.start, w.end) for s in segs for w in (s.words or [])]
     except ImportError: pass
     except Exception as e: print("faster_whisper failed (%s)" % e, file=sys.stderr)
     try:
         import whisper
-        r = whisper.load_model(name).transcribe(path, word_timestamps=True)
+        r = whisper.load_model(name).transcribe(x, word_timestamps=True)
+        print("whisper heard language: %s" % r.get("language"), file=sys.stderr)
         return [(w["word"], w["start"], w["end"]) for s in r["segments"] for w in s.get("words", [])]
     except ImportError: return None
     except Exception as e: print("whisper failed (%s)" % e, file=sys.stderr)
@@ -695,7 +699,7 @@ def words(audio, script_path, out=None):
     separated word of the script, original spelling kept."""
     with open(script_path, encoding="utf-8") as fh: script = fh.read().split()
     if not script: sys.exit("no words in " + script_path)
-    x = decode_audio(audio); dur = len(x) / SR; heard = whisper_words(audio)
+    x = decode_audio(audio); dur = len(x) / SR; heard = whisper_words(x)
     if heard: method, times, note = "whisper", align(script, heard, dur), "%d words heard" % len(heard)
     else: method = "energy"; times, note = energy_times(script, x, dur)
     ws = tidy(script, times, dur); out = out or os.path.join(os.path.dirname(os.path.abspath(audio)), "words.json")

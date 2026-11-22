@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """puppet - turn a doodle character image into a layered puppet for the stage.
 
-  python3 puppet.py slice  <cutout.png> <rig_dir> [--name ID]
+  python3 puppet.py slice  <cutout.png> <rig_dir> [--name ID] [--stick 0.022]
       cut the figure into head, body, arm and leg layers, find the pivots,
       write rig.json + layer PNGs + preview.png
   python3 puppet.py faces  <sheet.png> <rig_dir> --names happy,nervous,...
@@ -65,13 +65,13 @@ def ball(mask):
     return [float((xs[0] + xs[-1]) / 2), float(y)], float(xs[-1] - xs[0] + 1)
 
 # ---------------------------------------------------------------- slice
-def slice_figure(a):
+def slice_figure(a, stick=0.022):
     alpha = a[..., 3]; m = alpha > 128
     lab, n = ndi.label(m)                                       # keep the figure, drop specks
     if n > 1:
         sizes = ndi.sum(m, lab, range(1, n + 1)); m = np.isin(lab, [i + 1 for i, s in enumerate(sizes) if s > 0.002 * sizes.max()])
     H, W = m.shape; fh = np.where(m.any(axis=1))[0]; fig_h = fh[-1] - fh[0] + 1
-    r = max(4.0, 0.022 * fig_h)                                 # anything thinner than 2r is a stick
+    r = max(4.0, stick * fig_h)                                 # anything thinner than 2r is a stick
     core = ndi.distance_transform_edt(m) > r
     if not core.any(): fail("the figure has no thick parts (head, torso) to anchor on")
     thick = (ndi.distance_transform_edt(~core) <= r + 2) & m
@@ -217,9 +217,9 @@ def preview(rig_dir, out=None):
     out = out or os.path.join(rig_dir, "preview.png"); sheet.save(out); return out
 
 # ---------------------------------------------------------------- commands
-def cmd_slice(image, rig_dir, name=None):
+def cmd_slice(image, rig_dir, name=None, stick=0.022):
     a = fit(crop(load(image)))
-    rig, layers = slice_figure(a); rig["name"] = name or os.path.basename(os.path.normpath(rig_dir))
+    rig, layers = slice_figure(a, stick); rig["name"] = name or os.path.basename(os.path.normpath(rig_dir))
     save_rig(rig_dir, rig, layers); Image.fromarray(a).save(os.path.join(rig_dir, "source_fit.png"))
     missing = [k for k in ORDER if k not in layers]
     print("wrote %s: %dx%d, layers %s%s" % (os.path.join(rig_dir, "rig.json"), rig["size"][0], rig["size"][1], ", ".join(rig["order"]), ("; missing " + ", ".join(missing)) if missing else ""))
@@ -254,8 +254,8 @@ def opt(args, flag):
 
 if __name__ == "__main__":
     args = sys.argv[1:]
-    name, names = opt(args, "--name"), opt(args, "--names")
-    if len(args) == 3 and args[0] == "slice": cmd_slice(args[1], args[2], name)
+    name, names, stick = opt(args, "--name"), opt(args, "--names"), opt(args, "--stick")
+    if len(args) == 3 and args[0] == "slice": cmd_slice(args[1], args[2], name, float(stick) if stick else 0.022)
     elif len(args) == 3 and args[0] == "faces":
         if not names: fail("faces needs --names a,b,c in the sheet's order")
         cmd_faces(args[1], args[2], [n.strip() for n in names.split(",") if n.strip()])
