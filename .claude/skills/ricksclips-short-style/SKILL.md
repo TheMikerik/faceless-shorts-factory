@@ -11,12 +11,12 @@ The style rules behind every default were measured frame by frame from 20 Shorts
 
 ## Channel rules (override everything below)
 
-- **No music.** Never generate or add music. The Short has the voiceover only; the user adds the background music themselves while editing. Leave `audio.music` out of `short.json`.
+- **Music: use the shared track, never generate one.** Every Short gets the user's ready-made track `music/music.mp3` (shared library, lives in the project root). Put `"music": "music/music.mp3", "musicDb": -18` in `short.json` `audio`. The render trims it to the video length and fades it out; never generate other music.
 - **No textures.** Never generate textures. Use flat colours (`"color"`) for the ground, walls and props; leave `"texture"`, `"wall"` texture and `"roofTexture"` out.
 - **No generated 3D models.** Never generate GLB models. Ready-made GLB models supplied by hand in `props/<pack>/` ARE allowed: read `props/catalog.json` (names, sizes) and `props/<pack>/0_preview.jpg`, then use `{"type": "model", "file": "props/<pack>/<name>.glb", "pos": [x, 0, z], "scale": 3, "rotY": 0}` (kit models are ~1 unit, use `scale` 2-3 or `height`). Models and primitives are used together, not instead of each other: models are optional and the primitives (crate, barrel, wall, house, box, tree...) stay fully valid. Models do not have to come from a single pack folder: mix packs freely, even within one scene or shot (e.g. furniture + food + graveyard); the `file` path always includes the pack folder. Combine freely, e.g. primitives for the room, ground, walls and oversized absurd objects, models for details and props. Rebuild the catalog with `.venv/bin/python scripts/props_catalog.py` after a new pack is added.
-- **Voice.** Always use the Higgsfield preset voice **Miles** for every voiceover: `voice_id: e18664a7-ee4f-5273-acf8-533eb24cd366`, `voice_type: preset`. Never pick another voice or ask which one.
+- **Voice: never generate it.** The user records the voiceover themselves and drops it into the video folder (see "Zkratka `--cv`" in the project `CLAUDE.md`). No `generate_audio`, no other TTS, and do not offer to generate it. Only write the text script.
 - **Main character.** `puppets/main_hero_tlama` is the hero of every Short (see `PUPPETS.md`).
-- If a step below mentions music, textures or 3D models, skip it.
+- If a step below mentions generating music, textures or 3D models, skip it.
 
 ## What is in the package
 
@@ -57,7 +57,7 @@ my-channel/
 
 ## The workflow, request by request
 
-Users drive this in short requests. Each one maps to a step below; do the step, show the result, and say what the next step is. When the user pastes a script and nothing else, run steps 7 to 10 with the existing library and ask nothing first.
+Users drive this in short requests. Each one maps to a step below; do the step, show the result, and say what the next step is. When the user pastes a script and nothing else, run steps 7 to 10 with the existing library and ask nothing first (the voice file comes from the user). The `--cv` shortcut (idea → script → wait for the user's voice → full production → report) is defined in the project `CLAUDE.md`.
 
 Download a finished generation with `curl -o <file> <result url>`. If the sandbox cannot reach the URL, ask the user to drop the file into the project folder.
 
@@ -118,7 +118,7 @@ The goal is maximum watch time. Open a loop early (promise something that is onl
 
 Before writing, read the three real reference scripts in `references/transcripts/` (`transcript1.txt` to `transcript3.txt`, timestamped, about 230 to 260 words each). Study their rhythm only: how the opening line hits, sentence length, how details escalate, where "You see..." lands, how the twist closes. Never copy their topics, sentences or facts, and do not imitate their vocabulary level; every script must be original, and simpler in language.
 
-About four words a second, no dead air. Write the voice script with ElevenLabs audio tags in square brackets (e.g. `[excited]`, `[whispering]`, `[gasping]`; full list and a sample in the project `CLAUDE.md`), roughly one tag per one or two sentences. Never use tags that slow down or lengthen the audio (`[pause]`, `[short pause]`, `[slowly]`, `[softly]`, `[sighs]`, `[inhales deeply]`): pauses are trimmed anyway and the track must be as short as possible. Tags are never subtitles and do not count toward pacing: keep `audio/script.txt` tag-free (strip `[...]`) before running `words`, or word alignment breaks. Then generate the voice with Miles (`voice_id e18664a7-ee4f-5273-acf8-533eb24cd366`, `voice_type: preset`; see `references/prompts.md`; no music), save the raw take as `audio/voice_original.mp3` (never edit audio through Higgsfield). Process it locally with ffmpeg via the project's `scripts/voice.sh`: it removes the gaps between sentences and speeds the track up so it is 60 s at most, writing `audio/voice.mp3`. Save the script as `audio/script.txt`, then get the word timings from the processed `voice.mp3`:
+About four words a second, no dead air. Write the voice script with ElevenLabs audio tags in square brackets (e.g. `[excited]`, `[whispering]`, `[gasping]`; full list and a sample in the project `CLAUDE.md`), roughly one tag per one or two sentences. Never use tags that slow down or lengthen the audio (`[pause]`, `[short pause]`, `[slowly]`, `[softly]`, `[sighs]`, `[inhales deeply]`): pauses are trimmed anyway and the track must be as short as possible. Tags are never subtitles and do not count toward pacing: keep `audio/script.txt` tag-free (strip `[...]`) before running `words`, or word alignment breaks. Then wait for the voice: the user records it and supplies it as the raw take `work/audio/voice_original.mp3` (never generate it, never edit audio through Higgsfield). Process it locally with ffmpeg via the project's `scripts/voice.sh`: it removes the gaps between sentences and speeds the track up so it is 60 s at most, writing `audio/voice.mp3`. Save the script as `audio/script.txt`, then get the word timings from the processed `voice.mp3`:
 
 ```bash
 python3 scripts/stage/shortkit.py words audio/voice.mp3 audio/script.txt -o audio/words.json
@@ -138,7 +138,7 @@ Write `short.json`. Read `references/formats.md` first; `examples/demo/short.jso
 
 ### Keep every scene alive (anti-boring rules)
 
-A scene feels empty when the picture barely changes between shots. Without music, textures or 3D models, the variety has to come from the shots, the set layout, the light and the acting. Apply all of this when writing `short.json`:
+A scene feels empty when the picture barely changes between shots. Without textures or 3D models, the variety has to come from the shots, the set layout, the light and the acting. Apply all of this when writing `short.json`:
 
 1. **Something new in every shot.** Compared with the previous shot, at least two of these must differ: framing (`headWidth`), angle (`yaw`/`pitch`), the face or pose of Tlama, who is on screen, what is behind the character, or the light mood. If two neighbouring shots look alike, merge them or change one.
 2. **Short beats.** One shot per sentence or per new idea, 1 to 3 seconds. A 60 s Short has 20 to 30 shots, not 8.
@@ -234,7 +234,7 @@ python3 scripts/stage/shortkit.py check out.mp4
 
 ### 12. The next video
 
-Reuse the project folder: the puppets and background stay. A new video is a new `audio/` set and a new `short.json`.
+Reuse the shared library (`puppets/`, `props/`, `bg/`, `scripts/`): it stays. Each video lives in its own folder `videos/NNN-slug/work/` (audio, `short.json`, generator, stills, one-off assets) that can be deleted without touching anything else, so several videos can be made at the same time. Render with `--lib <project root>`: paths in `short.json` are looked up in the video's `work/` folder first, then in the shared library. Anything with a real chance of reuse (new puppet, background, GLB pack, helper script) goes to the shared library; video-specific things stay in `work/`. See the project `CLAUDE.md`, section "Struktura".
 
 ### Measuring another style
 
@@ -248,7 +248,7 @@ It writes one reference sheet per two seconds of video and `measured.json` with 
 
 ## Working with sub-agents
 
-If you split the work across agents, give each one its own files: one owns `short.json` lighting and moods, one owns shots and camera, one owns asset generation and the library folders. Two agents writing the same file at the same time overwrite each other, and parts of the scene vanish.
+If you split the work across agents, give each one its own files: one owns `short.json` lighting and moods (or better: one agent per video, each in its own `videos/NNN-slug/work/`), one owns shots and camera, one owns asset generation and the library folders. Two agents writing the same file at the same time overwrite each other, and parts of the scene vanish.
 
 ## The four rules
 

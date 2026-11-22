@@ -20,21 +20,22 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const die = (msg) => { console.error('error: ' + msg); process.exit(1); };
 
 // ------------------------------------------------------------ arguments
-const argv = process.argv.slice(2), pos = [], opt = { scale: null, from: null, to: null, stills: false, audio: true, chrome: process.platform === 'darwin' };
+const argv = process.argv.slice(2), pos = [], opt = { scale: null, from: null, to: null, stills: false, audio: true, lib: null, chrome: process.platform === 'darwin' };
 for (let i = 0; i < argv.length; i++) {
   const a = argv[i];
   if (a === '--stills') opt.stills = true; else if (a === '--no-audio') opt.audio = false; else if (a === '--chrome') opt.chrome = true;
-  else if (a === '--scale' || a === '--from' || a === '--to') { const v = Number(argv[++i]); if (!Number.isFinite(v)) die(a + ' needs a number'); opt[a.slice(2)] = v; }
+  else if (a === '--lib') opt.lib = argv[++i]; else if (a === '--scale' || a === '--from' || a === '--to') { const v = Number(argv[++i]); if (!Number.isFinite(v)) die(a + ' needs a number'); opt[a.slice(2)] = v; }
   else if (a.startsWith('--')) die('unknown option ' + a); else pos.push(a);
 }
-if (!pos[0]) { console.log('usage: node render.mjs short.json out.mp4 [--stills] [--scale 0.5] [--from s --to s] [--no-audio] [--chrome]'); process.exit(1); }
-const scenePath = path.resolve(pos[0]), outPath = path.resolve(pos[1] || 'out.mp4'), root = path.dirname(scenePath);
+if (!pos[0]) { console.log('usage: node render.mjs short.json out.mp4 [--stills] [--scale 0.5] [--from s --to s] [--no-audio] [--chrome] [--lib dir]'); process.exit(1); }
+const scenePath = path.resolve(pos[0]), outPath = path.resolve(pos[1] || 'out.mp4'), root = path.dirname(scenePath), libRoot = opt.lib ? path.resolve(opt.lib) : null;   // root = this video's folder, libRoot = shared library (puppets, props, bg); video folder wins
 if (!fs.existsSync(scenePath)) die('no such file: ' + scenePath);
 if (opt.scale !== null && !(opt.scale > 0.1 && opt.scale <= 1)) die('--scale must be between 0.1 and 1');
 let spec; try { spec = JSON.parse(fs.readFileSync(scenePath, 'utf8')); } catch (e) { die('short.json is not valid JSON: ' + e.message); }
 
 // ------------------------------------------------------------ validation (the scene file is input: check it before use)
-const inProject = (p) => { const f = path.resolve(root, String(p)); return (f === root || f.startsWith(root + path.sep)) ? f : null; };
+const under = (r, p) => { const f = path.resolve(r, String(p)); return (f === r || f.startsWith(r + path.sep)) ? f : null; };
+const inProject = (p) => { const a = under(root, p); if (a && fs.existsSync(a)) return a; const b = libRoot && under(libRoot, p); return b && fs.existsSync(b) ? b : a; };
 function validate(s) {
   const errs = [], isNum = (v) => typeof v === 'number' && Number.isFinite(v), isVec = (v, n) => Array.isArray(v) && v.length === n && v.every(isNum);
   const isTime = (v) => isNum(v) || (typeof v === 'string' && /^(w:\d+|say:.+)$/.test(v));
@@ -130,7 +131,9 @@ spec._scale = opt.scale ?? (opt.stills ? 0.5 : 1);
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.glb': 'model/gltf-binary', '.gltf': 'model/gltf+json', '.bin': 'application/octet-stream', '.wasm': 'application/wasm', '.ttf': 'font/ttf', '.otf': 'font/otf', '.woff2': 'font/woff2' };
 const server = http.createServer((req, res) => {
   let rel; try { rel = decodeURIComponent((req.url || '/').split('?')[0]); } catch { res.writeHead(400); return res.end(); }
-  const base = rel.startsWith('/project/') ? root : here, f = path.resolve(base, '.' + (rel.startsWith('/project/') ? rel.slice('/project'.length) : rel));
+  const isP = rel.startsWith('/project/'), sub = '.' + (isP ? rel.slice('/project'.length) : rel);
+  let base = isP ? root : here, f = path.resolve(base, sub);
+  if (isP && libRoot && !fs.existsSync(f)) { base = libRoot; f = path.resolve(base, sub); }
   if (req.method !== 'GET' || !(f === base || f.startsWith(base + path.sep)) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); return res.end(); }
   res.writeHead(200, { 'Content-Type': types[path.extname(f).toLowerCase()] || 'application/octet-stream', 'Cache-Control': 'no-store' }); fs.createReadStream(f).pipe(res);
 });

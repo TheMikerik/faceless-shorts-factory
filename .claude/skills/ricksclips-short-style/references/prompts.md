@@ -68,13 +68,13 @@ Keep the horizon low and the foreground empty: the stage wraps the painting arou
 
 ## Voice
 
-`generate_audio`, speech model from the catalog (default `seed_audio`). **Always use the channel voice Miles: `voice_id: e18664a7-ee4f-5273-acf8-533eb24cd366`, `voice_type: "preset"`.** Do not use any other voice. Paste the script as the prompt. Ask for English (US) output and check the result: a wrong language or accent is the first thing to rule out when timings look odd.
+**Not used in this project: the user records the voice themselves. Never generate it** (no `generate_audio`, no other TTS). Only the text script is written.
 
 Delivery for this style: energetic, fast, punchy, about four words a second, no pauses between sentences. If the model takes a speed setting, raise it slightly instead of rewriting the script.
 
 ## Music
 
-`generate_audio` with a music model from the catalog, instrumental, a few seconds longer than the voice track.
+(Not used in this project: every video uses the shared `music/music.mp3`.) `generate_audio` with a music model from the catalog, instrumental, a few seconds longer than the voice track.
 
 ```
 Minimal playful cartoon underscore: light pizzicato strings with a soft plucked bass, sneaky and curious, steady medium tempo, builds a little tension, no drums, no vocals, leaves room for a narrator.

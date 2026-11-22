@@ -16,10 +16,10 @@ Můj content creator projekt zaměřený hlavně na **YouTube Shorts**. Tento re
 - **Zaměření:** úplná změna. Roblox obsah je minulost, kanál dostane novou identitu (faceless absurdní vymyšlené příběhy). Stávající Roblox Shorts už nejsou směr.
 - **Téma a jazyk:** **vymyšlené absurdní příběhy, které se nikdy nestaly** (žádná historie, žádná reálná fakta, žádní skuteční lidé). Vždy v **angličtině**, formát silný hook → stupňující se absurdita → zlom „You see…“ → twist (globální publikum, vyšší RPM)
 - **Hlavní postava:** `puppets/main_hero_tlama` (Tlama, růžová hlava s obří pusou a žlutými brýlemi) je hrdina **každého** videa. Vždy ji použij jako hlavní postavu. Detaily v `PUPPETS.md`
-- **Hlas:** hlas si **generuji sám** a nahraji ho do projektu (`audio/voice.mp3`). **Hlas negeneruj** (žádné `generate_audio` ani jiný TTS), ani ho nenavrhuj generovat. Dodej jen textový skript. Hlas generuj **pouze tehdy, když to výslovně řeknu**. V tom případě použij **Miles** z Higgsfieldu (`voice_id: e18664a7-ee4f-5273-acf8-533eb24cd366`, `voice_type: preset`)
+- **Hlas:** hlas si **generuji sám** a nahraji ho do složky videa (viz „Zkratka `--cv`“). **Hlas negeneruj nikdy** (žádné `generate_audio` ani jiný TTS), ani ho nenavrhuj generovat. Dodej jen textový skript.
 - **Hlavní cíl videa:** co nejvyšší retence. Divák musí zůstat u Shortu až do konce (a ideálně ho pustit znovu v loopu)
 - **Úroveň angličtiny:** jednoduchá, srozumitelná pro všechny (viz sekce „Jednoduchá angličtina“)
-- **Frekvence:** **denně** 1 Short. Výroba proto musí být co nejrychlejší: knihovna (postavy, textury, pozadí) se staví jednou a znovu používá, nové video = jen nový skript, hlas a `short.json`.
+- **Frekvence:** **denně** 1 Short. Výroba proto musí být co nejrychlejší: knihovna (postavy, textury, pozadí) se staví jednou a znovu používá, nové video = jen jeho složka `videos/NNN-slug/` (skript, hlas, `short.json`).
 - **Důsledek:** preferuj opakovatelné, automatizovatelné postupy před jednorázovou dokonalostí. Navrhuj, jak zkrátit čas na jedno video.
 
 ## Obsah složky
@@ -35,14 +35,62 @@ Můj content creator projekt zaměřený hlavně na **YouTube Shorts**. Tento re
 
 Používej skill **`ricksclips-short-style`** (`.claude/skills/ricksclips-short-style/SKILL.md`). Před jakoukoli prací na videu si ho přečti a řiď se jím.
 
-Stručně: ploché 2D doodle postavy ve slunečném 3D světě, celé sestavené v kódu (three.js stage). Assety (postavy, pozadí, hlas) se generují přes **Higgsfield connector**, scéna se skládá do `short.json` a renderuje přes `scripts/stage/render.mjs`.
+Stručně: ploché 2D doodle postavy ve slunečném 3D světě, celé sestavené v kódu (three.js stage). Assety (postavy, pozadí, hlas) se generují přes **Higgsfield connector**, scéna se skládá do `short.json` a renderuje přes `.claude/skills/ricksclips-short-style/scripts/stage/render.mjs`.
 
 Formát: 1080x1920, 30 fps, cca 60 s, titulky po 1–2 slovech.
 
-Kroky workflow (podrobně ve skillu):
-1. Hlavní postava → 2. emotion sheet → 3. slice na vrstvy / rig puppetu → 4. pozadí → 5. skript, hlas, timing → 6. scéna v `short.json` → 7. stop-frame kontrola (`--stills`) → 8. render → 9. porovnání s referencí → 10. **uložení do `videos/`** (viz „Po vyrenderování videa“) → 11. **publikace** (viz „Publikace přes Buffer“, nikdy automaticky, až po mé kontrole videa) → 12. další video
+### Zkratka `--cv` (create video)
 
-**Negenerují se:** hudba, textury ani 3D modely. Video má hlas, ploché barvy, rekvizity z primitiv stage (bedna, sud, zeď, dům…) a **hotové 3D modely (GLB) z knihovny `props/`**, které dodávám ručně (stažené free packy, CC0). Nové 3D modely negeneruj, jen používej ty z knihovny.
+Když napíšu jen `--cv`, znamená to tento prompt (nemusím ho psát celý):
+
+> Using the ricksclips-short-style skill, suggest 3 absurd/funny stories. Give me those ideas and I will choose one of them. Then write a 60-second script with the channel's formula: paradox first line, strong hook, escalation, "You see…", twist. Use puppets available in PUPPETS.md
+
+Postup je vždy stejný:
+
+1. **Okamžitě, jako úplně první krok** (před čtením čehokoli) vytvoř prázdnou složku `videos/NNN/`, kde `NNN` = nejvyšší číslo ve `videos/` + 1 (třímístné, např. `009`). Zatím jen číslo, žádný slug a žádné podsložky. Díky tomu může běžet víc videí souběžně.
+2. **Tři příběhy.** Přečti skill a skripty hotových videí, aby se téma neopakovalo. **Téma musí být vždy nové, originální a jiné než všechna dosavadní videa.** Pak vypiš přesně tuto strukturu a **nic jiného** (žádný úvod, žádné doporučení, žádný výpis postav):
+
+   ```
+   # 1 - Název
+   - Hook: ...
+   - Pravidlo: ...
+   - Twist: ...
+   - Hodnocení: x/10
+
+   # 2 - Název
+   ...
+   # 3 - Název
+   ...
+   ```
+
+   `Hodnocení` = tvůj upřímný odhad virálního potenciálu (1 nejméně, 10 nejvíce). Pravidlo = to jedno kouzelné pravidlo příběhu.
+3. **Skript.** Po mé volbě vypiš jen text pro ElevenLabs (s audio tagy, viz níže) v této podobě a nic dalšího. Zároveň ho ulož do `videos/NNN/script_tagged.txt` a `videos/NNN/script.txt` (bez tagů):
+
+   ```
+   Příběh:
+   [whispering] There is a monster under my bed. ...
+
+   Nyní čekám na vložení zvukové stopy do složky NNN.
+   ```
+4. **Čekání na hlas.** Hlas nahraju sám a vložím ho do `videos/NNN/` (bude tam jediný `.mp3`, název je libovolný). Žádné slovo na pokračování není potřeba. Až napíšu, že je hotovo (cokoli, co není otázka), pokračuj. Pokud se na něco zeptám, odpověz srozumitelně a dál čekej. Pokud ve složce není právě jeden `.mp3`, napiš mi to a zastav se.
+5. **Výroba.** Složku přejmenuj na `NNN-slug` (slug = krátký anglický název videa), mp3 přesuň do `work/audio/voice_original.mp3` a proveď celé workflow: zpracování hlasu (`voice.sh`), časování slov, generátor scény, kontrola stillů, render, finální soubory (`video.mp4`, `script.txt`, `metadata.md`). Neptej se. Chyby (vlajky ze stillů, selhání renderu) oprav sám. Zeptej se, nebo mě upozorni, jen když něco nejde vyřešit bez mě.
+6. **Dry run.** Po dokončení spusť `node scripts/publish/publish.mjs --dry NNN` (nic se nepublikuje). Ostrou publikaci nikdy nespouštěj sám.
+7. **Závěrečný výpis** vždy v této struktuře:
+
+   ```
+   - Plný render doběhl: <snímky>, <délka>, 1080×1920, 30 fps, hlas + hudba.
+   - `shortkit.py check`: <výsledek kamery a zoomu>
+   - Vytvořeno: `video.mp4`, `script.txt`, `metadata.md`
+   - Dry run: <OK nebo problém>
+   - [případné upozornění na chyby nebo věci, které musím vědět]
+   - command pro nahrání:
+     - node scripts/publish/publish.mjs NNN
+   ```
+
+Kroky workflow (podrobně ve skillu):
+1. Hlavní postava → 2. emotion sheet → 3. slice na vrstvy / rig puppetu → 4. pozadí → 5. skript, hlas, timing → 6. scéna v `short.json` → 7. stop-frame kontrola (`--stills`) → 8. render → 9. porovnání s referencí → 10. **finální soubory do složky videa** (viz „Po vyrenderování videa“) → 11. **publikace** (viz „Publikace přes Buffer“, nikdy automaticky, až po mé kontrole videa) → 12. další video
+
+**Negenerují se:** hudba, textury ani 3D modely. **Hudba:** každé video používá moji hotovou stopu `music/music.mp3` (sdílený archiv), v `short.json` `"audio": {"voice": "audio/voice.mp3", "music": "music/music.mp3", "musicDb": -18}`; render ji ořízne na délku videa a ztlumí na konci. Žádnou jinou hudbu negeneruj. Video má hlas, hudbu, ploché barvy, rekvizity z primitiv stage (bedna, sud, zeď, dům…) a **hotové 3D modely (GLB) z knihovny `props/`**, které dodávám ručně (stažené free packy, CC0). Nové 3D modely negeneruj, jen používej ty z knihovny.
 
 ### Knihovna 3D modelů (`props/`)
 
@@ -54,16 +102,36 @@ Kroky workflow (podrobně ve skillu):
 - **Hustota scény:** lokace musí působit jako skutečné místo, ne jako holá scéna. Cíl **120–200 objektů na lokaci** (střed, drobný nepořádek na zemi, ploty/zdi, popředí, pás stromů a velké kulisy v pozadí, mix packů). Skládej to přes `scripts/set_dressing.py` (`scatter`, `line`, `ring`, `clear_zone`), pár řádků na vrstvu. Podrobná pravidla jsou v SKILL.md, pravidlo 4.
 - Použití v `short.json`: `{"type": "model", "file": "props/basic_scene/wall.glb", "pos": [x, 0, z], "scale": 3, "rotY": 30}`. Kenney modely jsou malé (dlaždice 1×1), obvykle `scale` 2–3, nebo `height` v jednotkách stage.
 
-### Struktura složky kanálu (podle skillu)
+### Struktura: sdílený archiv + složka na každé video
 
-Jedna složka na kanál, znovupoužitelná pro všechna videa. Knihovna se staví jednou, pro nové video se mění jen `audio/` a `short.json`.
+**Každé video má vlastní složku `videos/NNN-slug/`**, kterou můžu kdykoli celou smazat, a nic se tím nerozbije. Videa se navzájem neovlivňují, takže jich jde vyrábět víc najednou (paralelně, třeba v oddělených agentech). Žádné video nesmí zapisovat do kořene projektu (`short.json`, `audio/`, `out.mp4` v kořeni se už nepoužívají) ani do složky jiného videa.
 
 ```
-puppets/<postava>/   rig.json, vrstvy PNG, faces/
-bg/                  pozadí
-audio/               voice_original.mp3 (raw), voice.mp3 (upravený), script.txt, words.json
-short.json           scéna pro aktuální video
+videos/NNN-slug/
+  work/            pracovní věci jen pro tohle video (smazatelné)
+    audio/         voice_original.mp3 (raw), voice.mp3, script.txt, words.json
+    build.py       generátor scény (kopie šablony, viz níže)
+    short.json     scéna
+    out.mp4, out_stills/
+    custom/        cokoli jednorázového: pozadí, puppet jen pro tohle video, textury, obrázky
+  video.mp4        finální render
+  script.txt       finální skript bez tagů
+  metadata.md      popisky pro platformy
 ```
+
+**Sdílený archiv** (v kořeni, znovupoužitelný napříč videi): `puppets/`, `props/`, `bg/`, `music/`, `textures/`, `sprites/`, `scripts/` (šablony generátorů, `set_dressing.py`, `puppet_variants.py`, `voice.sh`, `publish/`). Rozhodnutí kam co patří:
+- **Má reálnou šanci se použít znovu** (nová postava, obecné pozadí, nový GLB pack, nový pomocný skript, obecná šablona) → rovnou do sdíleného archivu (`puppets/`, `bg/`, `props/`, `scripts/`…), případně doplnit `PUPPETS.md`.
+- **Je to specifické jen pro tohle video** (hlas, skript, words, `short.json`, generátor scény, jednorázová rekvizita, pozadí nebo varianta puppeta na míru, stilly) → do `videos/NNN-slug/work/`. Když pochybuješ, ber to jako video-specifické a archiv zbytečně nezahlcuj.
+- Sdílený archiv jen **přidávej**, existující soubory v něm pro jedno video neměň (rozbil bys ostatní videa). Potřebuješ úpravu postavy? Udělej variantu do `work/custom/`.
+
+**Cesty v `short.json`** se hledají nejdřív ve `work/` videa, potom ve sdíleném archivu. Tedy `audio/voice.mp3` = z videa, `puppets/main_hero_tlama` a `props/...glb` = z archivu, `custom/bg.png` = z videa. Render proto vždy s `--lib` na kořen projektu:
+
+```
+V=videos/NNN-slug/work
+node .claude/skills/ricksclips-short-style/scripts/stage/render.mjs $V/short.json $V/out.mp4 --stills --lib .
+```
+
+Generátor scény: zkopíruj `scripts/build_call_from_tomorrow.py` do `$V/build.py` a spusť `cd $V && ../../../.venv/bin/python build.py short.json` (v kopii nastav `sys.path.insert(0, "<absolutní cesta>/scripts")` pro `set_dressing`). Hlas: `cd $V && ../../../scripts/voice.sh`. Word timing: `cd $V && ../../../.venv/bin/python ../../../.claude/skills/ricksclips-short-style/scripts/stage/shortkit.py words audio/voice.mp3 audio/script.txt -o audio/words.json`. Zkontroluj si, že `.venv/bin/python` cestu vidíš (jinak absolutní).
 
 ### Skript – vzorec (vymyšlený absurdní příběh)
 
@@ -158,7 +226,7 @@ Ukázka smí používat i další přirozené tagy mimo seznam (`[thoughtful]`, 
 
 ### Zvuková stopa: raw + lokální úprava
 
-- Nahraný hlas je vždy **raw** a ukládá se jako `audio/voice_original.mp3`. Nikdy ho neupravuj přes Higgsfield ani jiný online nástroj.
+- Nahraný hlas je vždy **raw** a ukládá se do složky videa jako `videos/NNN-slug/work/audio/voice_original.mp3`. Nikdy ho neupravuj přes Higgsfield ani jiný online nástroj.
 - Úpravu dělej **lokálně na tomhle počítači** přes `ffmpeg`: `scripts/voice.sh` (výstup `audio/voice.mp3`, raw soubor se nepřepisuje).
   1. odstraní mezery/ticho mezi větami (`silenceremove`, zbyde jen ~0,06 s),
   2. zrychlí (`atempo`, výška hlasu se nemění) tak, aby výsledek měl **max 60 s** (cíl ~59,5 s). Pokud už je kratší, nezrychluje.
@@ -167,10 +235,10 @@ Ukázka smí používat i další přirozené tagy mimo seznam (`[thoughtful]`, 
 
 ### Po vyrenderování videa (povinné)
 
-Po každém dokončeném renderu (`out.mp4`) hned vytvoř složku videa v `videos/`, bez ptaní:
+**Složku videa `videos/NNN-slug/` vytvoř hned na začátku práce** (ať si paralelní videa nevezmou stejné číslo; `NNN` = další volné). Po dokončeném renderu do ní bez ptaní ulož finální soubory:
 
 - Název: `videos/NNN-nazev-videa/`, kde `NNN` je další pořadové číslo (podle nejvyššího čísla v `videos/`) a název je krátký anglický slug (např. `003-invisible-invention`).
-- Obsah: **jen tyto tři soubory**:
+- Obsah složky: `work/` (pracovní věci, viz „Struktura“) a **tři finální soubory**, které čte publikace:
   1. `video.mp4`: kopie finálního `out.mp4`,
   2. `script.txt`: kopie `audio/script.txt` (finální skript bez tagů),
   3. `metadata.md`: anglicky, **zvlášť pro každou platformu** (každá má jiné konvence). Přesná struktura (nadpisy nech beze změny, publikační skript je podle nich parsuje):
@@ -232,7 +300,7 @@ Cca 4 slova za sekundu, žádné prázdné místo.
 ## Technické požadavky
 
 - Higgsfield connector musí být zapnutý (bez něj nejdou generovat assety; samotný render funguje i bez něj)
-- Setup (jednou): `cd scripts/stage && npm install && npx playwright install chromium`, `pip install numpy pillow scipy opencv-python-headless`, `ffmpeg` a `ffprobe` v PATH
+- Setup (jednou): `cd .claude/skills/ricksclips-short-style/scripts/stage && npm install && npx playwright install chromium`, `pip install numpy pillow scipy opencv-python-headless`, `ffmpeg` a `ffprobe` v PATH
 - Python skripty skillu spouštěj přes `.venv/bin/python` (je v něm `faster-whisper` pro přesné časování slov ve `words.json`; systémový `python3` ho nemá a spadne na odhad podle hlasitosti)
 - Před každým plným renderem vždy `--stills` kontrola
 
