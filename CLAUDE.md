@@ -27,6 +27,9 @@ My content creator project, focused mainly on **YouTube Shorts**. This repositor
 | --- | --- |
 | `.claude/skills/ricksclips-short-style/` | Main skill for producing faceless Shorts in the @RicksClips3000 style |
 | `PUPPETS.md` | Overview of the characters in `puppets/` (who is who and when to use them). Update it after adding a new character |
+| `DOCUMENTATION.md` | How the project works: idea, goals, workflow, architecture, key decisions and why, videos so far, changelog |
+
+**Keep `DOCUMENTATION.md` up to date (mandatory).** Whenever you change the workflow, a rule in this file, the skill, a script, a tool, the folder structure or a technical decision, update the relevant section of `DOCUMENTATION.md` in the same piece of work and add a dated line to its changelog. After a new video is finished, add it to the "Videos so far" table. Do not let it drift from the actual state of the project.
 
 ## Main workflow: faceless Shorts in the RicksClips style
 
@@ -60,7 +63,9 @@ The procedure is always the same. (The output templates below are intentionally 
    ...
    ```
 
-   `Hodnocení` (rating) = your honest estimate of the viral potential (1 lowest, 10 highest). `Pravidlo` (rule) = the one magic rule of the story.
+   `Hodnocení` (rating) = the score from the idea scorecard. `Pravidlo` (rule) = the one magic rule of the story.
+
+   **10/10 gate (mandatory):** before printing, run the full procedure in `.claude/skills/ricksclips-short-style/references/idea-scorecard.md` silently (8–10 candidates → `scripts/idea_check.py` → scorecard with reasons → critic pass → fix or drop). Print **only ideas that reach 10/10, at least 2** (max 3). If fewer than 2 reach 10/10, keep generating; never show weaker ideas. After I choose, register the idea with `idea_check.py --add`.
 3. **Script.** After I choose, print only the text for ElevenLabs (with audio tags, see below) in this form and nothing else. At the same time save it to `videos/NNN/script_tagged.txt` and `videos/NNN/script.txt` (without tags):
 
    ```

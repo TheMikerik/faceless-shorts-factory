@@ -116,6 +116,8 @@ The goal is maximum watch time. Open a loop early (promise something that is onl
 - Every sentence has one clear picture to show; cut sentences that cannot be drawn.
 - Retell test: the story fits into 3 sentences (problem, what happens, how it ends). If not, cut characters, places and side ideas.
 
+**Choosing the story:** every idea shown to the user must pass the 10/10 gate in `references/idea-scorecard.md` (candidates → `scripts/idea_check.py` → scorecard → critic pass). Show at least two 10/10 ideas, never weaker ones.
+
 Before writing, read the three real reference scripts in `references/transcripts/` (`transcript1.txt` to `transcript3.txt`, timestamped, about 230 to 260 words each). Study their rhythm only: how the opening line hits, sentence length, how details escalate, where "You see..." lands, how the twist closes. Never copy their topics, sentences or facts, and do not imitate their vocabulary level; every script must be original, and simpler in language.
 
 About four words a second, no dead air. Write the voice script with ElevenLabs audio tags in square brackets (e.g. `[excited]`, `[whispering]`, `[gasping]`; full list and a sample in the project `CLAUDE.md`), roughly one tag per one or two sentences. Never use tags that slow down or lengthen the audio (`[pause]`, `[short pause]`, `[slowly]`, `[softly]`, `[sighs]`, `[inhales deeply]`): pauses are trimmed anyway and the track must be as short as possible. Tags are never subtitles and do not count toward pacing: keep `audio/script.txt` tag-free (strip `[...]`) before running `words`, or word alignment breaks. Then **stop and wait until the user has put the `.mp3` into the video folder and confirmed**; do not continue without both. The user records it and supplies it as the raw take `work/audio/voice_original.mp3` (never generate it, never edit audio through Higgsfield). Process it locally with ffmpeg via the project's `scripts/voice.sh`: it removes the gaps between sentences and speeds the track up so it is 60 s at most, writing `audio/voice.mp3`. Save the script as `audio/script.txt`, then get the word timings from the processed `voice.mp3`:
@@ -189,6 +191,8 @@ The user called 004 the best video so far (good animation, assets, full scenes).
 - When the target is swapped/hidden at the shot start, frame it with `anchor` + `distance` instead of `target` (the camera would follow the hidden copy underground).
 - Keep foreground props out of the line between the camera and a close-up (the `TARGET_HIDDEN_BEHIND_SET` flag).
 - After `--stills` passes, look at a few stills at full size (paste 4–8 into one image), not only the contact sheet.
+
+**Like & subscribe call-to-action.** The renderer adds it automatically to every video (no voice, no setup): ONE pill with a thumbs-up, a bell and the text "LIKE & SUBSCRIBE", near 27 s for 2.5 s, snapped to the nearest sentence start in `words.json`. Do not add your own. Change the time with `"cta": {"at": 30}` in `short.json`, or turn it off with `"cta": false`. It sits at y = 1180, above the captions: in the stills check make sure it does not hide a face or the key action.
 
 ### 7. Stop-frame check, before every full render
 

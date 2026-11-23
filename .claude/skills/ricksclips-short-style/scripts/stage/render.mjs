@@ -120,6 +120,18 @@ function resolveTimeline(s) {
     const text = typeof cap === 'string' ? cap : cap.text, per = (cap && cap.wordsPer) || s.words_per_caption || 1, every = ((cap && cap.framesPer) || s.frames_per_caption || 10) / fps, ws = text.split(/\s+/).filter(Boolean);
     for (let i = 0, n = 0; i < ws.length; i += per, n++) s._captions.push({ t0: n * every, t1: i + per >= ws.length ? end : (n + 1) * every, text: ws.slice(i, i + per).map(clean).join(' ') });
   }
+  // like & subscribe call-to-action: ONE on-screen graphic (no voice). Default at 27 s, snapped to the
+  // nearest sentence start in words.json (+-3 s) so it never covers a punchline. "cta": {"at": 30, "dur": 2.5}; "cta": false turns it off.
+  s._cta = [];
+  if (s.cta !== false) {
+    const c = s.cta || {}, dur = c.dur ?? 2.5;
+    let t = c.at ?? 27;
+    if (words) {
+      const starts = words.words.filter((w, i) => i === 0 || /[.!?]["'\u201d\u2019)]*$/.test(words.words[i - 1].w)).map(w => w.t0);
+      if (starts.length) { const near = starts.reduce((a, b) => Math.abs(b - t) < Math.abs(a - t) ? b : a); if (Math.abs(near - t) <= 3) t = near; }
+    }
+    if (t + 1 <= end) s._cta.push({ t0: t, t1: Math.min(t + dur, end - 0.3) });
+  }
   s._frames = Math.max(1, Math.round(end * fps)); s._end = end;
   return s;
 }

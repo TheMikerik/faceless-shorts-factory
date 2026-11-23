@@ -450,6 +450,40 @@ function drawCaption(t) {
   octx.fillStyle = '#ffffff'; octx.fillText(text, W / 2, CAPTION_Y);
   octx.restore();
 }
+// like / subscribe call-to-action (text + drawn icon), pops in and out
+const CTA_Y = 1180;
+function ctaIcon(kind, x, y, r) {
+  octx.save(); octx.translate(x, y); octx.scale(r / 50, r / 50); octx.lineJoin = 'round'; octx.lineCap = 'round';
+  octx.fillStyle = '#ffffff'; octx.strokeStyle = LINE; octx.lineWidth = 7;
+  octx.beginPath();
+  if (kind === 'like') {   // thumbs up
+    octx.rect(-42, -4, 20, 46); octx.moveTo(-22, 2); octx.lineTo(-6, -4); octx.lineTo(8, -40); octx.quadraticCurveTo(26, -42, 22, -20);
+    octx.lineTo(18, -6); octx.lineTo(40, -6); octx.quadraticCurveTo(50, -4, 46, 8); octx.lineTo(40, 36); octx.quadraticCurveTo(38, 44, 28, 44); octx.lineTo(-22, 44); octx.closePath();
+  } else {                 // bell
+    octx.moveTo(0, -44); octx.quadraticCurveTo(-36, -36, -34, 4); octx.lineTo(-38, 22); octx.lineTo(-44, 30); octx.lineTo(44, 30); octx.lineTo(38, 22); octx.lineTo(34, 4);
+    octx.quadraticCurveTo(36, -36, 0, -44); octx.closePath();
+  }
+  octx.fill(); octx.stroke();
+  if (kind === 'bell') { octx.beginPath(); octx.arc(0, 40, 9, 0, Math.PI); octx.fill(); octx.stroke(); }
+  octx.restore();
+}
+function drawCta(t) {
+  const c = (S._cta || []).find(k => t >= k.t0 && t < k.t1); if (!c) return;
+  const a = t - c.t0, b = c.t1 - t;
+  const sc = (a < 0.25 ? clamp(a / 0.25, 0, 1) * 1.12 - (a / 0.25 > 0.7 ? (a / 0.25 - 0.7) * 0.4 : 0) : 1) * (b < 0.2 ? clamp(b / 0.2, 0, 1) : 1);
+  if (sc <= 0.01) return;
+  const text = 'LIKE & SUBSCRIBE';
+  octx.save(); octx.scale(SCALE, SCALE); octx.translate(W / 2, CTA_Y); octx.scale(sc, sc); octx.rotate(-0.03);
+  octx.font = `800 58px ShortCaption, "Montserrat ExtraBold", Montserrat, "Arial Black", "Helvetica Neue", "DejaVu Sans", sans-serif`;
+  octx.textAlign = 'center'; octx.textBaseline = 'middle'; octx.lineJoin = 'round';
+  const tw = octx.measureText(text).width, pw = tw + 250, ph = 130;
+  octx.beginPath(); octx.roundRect(-pw / 2, -ph / 2, pw, ph, ph / 2);
+  octx.fillStyle = '#ff3b30'; octx.strokeStyle = LINE; octx.lineWidth = 14; octx.stroke(); octx.fill();
+  ctaIcon('like', -pw / 2 + 70, -2, 40); ctaIcon('bell', pw / 2 - 70, -2, 40);
+  octx.strokeStyle = LINE; octx.lineWidth = 14; octx.strokeText(text, 0, 4);
+  octx.fillStyle = '#ffffff'; octx.fillText(text, 0, 4);
+  octx.restore();
+}
 function compose(i, withCaption = true) {
   const t = i / FPS, plan = cameraPlan(t);
   for (const ch of Object.values(chars)) ch.draw(t);
@@ -461,7 +495,7 @@ function compose(i, withCaption = true) {
     const p = plan.kind === 'glide' ? { pos: plan.a.pos.clone().lerp(plan.b.pos, mix), quat: plan.a.quat.clone().slerp(plan.b.quat, mix), fov: lerp(plan.a.fov, plan.b.fov, mix), anchor: plan.a.anchor.clone().lerp(plan.b.anchor, mix) } : plan.a;
     applyMood(moodAt(t), p.anchor); setCamera(p); drawScene(); octx.drawImage(renderer.domElement, 0, 0);
   }
-  if (withCaption) drawCaption(t);
+  if (withCaption) { drawCta(t); drawCaption(t); }
   return plan;
 }
 window.renderFrame = (i) => { compose(i); return out.toDataURL('image/png'); };
