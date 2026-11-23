@@ -4,6 +4,7 @@
 //   node render.mjs short.json out.mp4 --stills     3 stills per shot + sanity checks, no video
 //   options: --scale 0.5   render smaller (fast preview)      --from 3 --to 9   only this time range (s)
 //            --no-audio    picture only                       --chrome          use the installed Chrome (default on macOS, uses the GPU)
+//            --cool [ms]   keep the Mac cool: hardware encoder + a pause between frames (default 100 ms)
 //
 // The stage (stage.js) runs in headless Chromium; this script resolves the
 // timeline (say:/w: times, shot lengths, captions), serves the files, pulls the
@@ -24,10 +25,11 @@ const argv = process.argv.slice(2), pos = [], opt = { scale: null, from: null, t
 for (let i = 0; i < argv.length; i++) {
   const a = argv[i];
   if (a === '--stills') opt.stills = true; else if (a === '--no-audio') opt.audio = false; else if (a === '--chrome') opt.chrome = true;
+  else if (a === '--cool') { opt.cool = 100; if (/^\d+$/.test(argv[i + 1] || '')) opt.cool = Number(argv[++i]); }
   else if (a === '--lib') opt.lib = argv[++i]; else if (a === '--scale' || a === '--from' || a === '--to') { const v = Number(argv[++i]); if (!Number.isFinite(v)) die(a + ' needs a number'); opt[a.slice(2)] = v; }
   else if (a.startsWith('--')) die('unknown option ' + a); else pos.push(a);
 }
-if (!pos[0]) { console.log('usage: node render.mjs short.json out.mp4 [--stills] [--scale 0.5] [--from s --to s] [--no-audio] [--chrome] [--lib dir]'); process.exit(1); }
+if (!pos[0]) { console.log('usage: node render.mjs short.json out.mp4 [--stills] [--scale 0.5] [--from s --to s] [--no-audio] [--chrome] [--cool [ms]] [--lib dir]'); process.exit(1); }
 const scenePath = path.resolve(pos[0]), outPath = path.resolve(pos[1] || 'out.mp4'), root = path.dirname(scenePath), libRoot = opt.lib ? path.resolve(opt.lib) : null;   // root = this video's folder, libRoot = shared library (puppets, props, bg); video folder wins
 if (!fs.existsSync(scenePath)) die('no such file: ' + scenePath);
 if (opt.scale !== null && !(opt.scale > 0.1 && opt.scale <= 1)) die('--scale must be between 0.1 and 1');
@@ -204,7 +206,9 @@ if (ain.length) {
   const fc = mi && vi ? `[${mi}:a]volume=${mdb}dB,${fade}[m];[${vi}:a][m]amix=inputs=2:duration=longest:normalize=0[a]` : mi ? `[${mi}:a]volume=${mdb}dB,${fade}[a]` : `[${vi}:a]anull[a]`;
   ff.push('-filter_complex', `[0:v]${vf}[v];${fc}`, '-map', '[v]', '-map', '[a]', '-c:a', 'aac', '-b:a', '192k');
 } else ff.push('-vf', vf);
-ff.push('-t', String(dur), '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', outPath);
+// --cool: Apple's hardware encoder (almost no CPU) instead of libx264; 16 Mbit/s is well above what YouTube keeps for a 1080x1920 Short
+const venc = opt.cool && process.platform === 'darwin' ? ['-c:v', 'h264_videotoolbox', '-b:v', '16M', '-profile:v', 'high'] : ['-c:v', 'libx264', '-preset', 'veryfast', '-crf', '18'];
+ff.push('-t', String(dur), ...venc, '-pix_fmt', 'yuv420p', '-movflags', '+faststart', outPath);
 const enc = spawn('ffmpeg', ff, { stdio: ['pipe', 'inherit', 'inherit'] });
 enc.on('error', () => fail('ffmpeg is not on PATH'));
 const done = new Promise(r => enc.on('close', r));
@@ -212,6 +216,7 @@ const t0 = Date.now();
 for (let i = f0; i < f1; i++) {
   const url = await page.evaluate(n => window.renderFrame(n), i);
   if (!enc.stdin.write(Buffer.from(url.slice(url.indexOf(',') + 1), 'base64'))) await new Promise(r => enc.stdin.once('drain', r));
+  if (opt.cool) await new Promise(r => setTimeout(r, opt.cool));   // let the chip rest between frames
   const n = i - f0 + 1;
   if (n % 30 === 0 || i === f1 - 1) { const per = (Date.now() - t0) / n; console.log(`${n}/${f1 - f0} frames, ${per.toFixed(0)} ms/frame, ${((f1 - i - 1) * per / 1000).toFixed(0)} s left`); }
 }

@@ -19,7 +19,7 @@ const GLIDE_S = 0.8, DISSOLVE_S = 8 / 30;
 const CAPTION_Y = 1350, CAPTION_PX = 70;
 
 let FPS = 30, SCALE = 1, S;
-let renderer, scene, camera, setRoot, sun, hemi, skyMesh, backdrop, inkPass;
+let renderer, scene, camera, setRoot, sun, hemi, skyMesh, backdrop;
 let out, octx;                        // 2D output canvas (render + captions)
 const chars = {}, shots = [], anchors = [];
 const texCache = new Map();
@@ -29,6 +29,10 @@ const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
 const lerp = (a, b, t) => a + (b - a) * t;
 const smoothstep = (e0, e1, x) => { const t = clamp((x - e0) / (e1 - e0), 0, 1); return t * t * (3 - 2 * t); };
 const smoother = (t) => { t = clamp(t, 0, 1); return t * t * t * (t * (t * 6 - 15) + 10); };
+// easing curves for actions ("curve" on an action): back = fast with a small overshoot that settles
+const easeOutBack = (t, s) => { t = clamp(t, 0, 1); const u = t - 1; return 1 + (s + 1) * u * u * u + s * u * u; };
+const CURVES = { back: (t) => easeOutBack(t, 1.4), smooth: (t) => smoothstep(0, 1, t), out: (t) => 1 - Math.pow(1 - clamp(t, 0, 1), 3), linear: (t) => clamp(t, 0, 1) };
+const curveOf = (name, def) => { const c = CURVES[name || def]; if (!c) throw new Error('unknown curve "' + name + '" (use back, smooth, out or linear)'); return c; };
 const rad = (d) => d * Math.PI / 180;
 const hash = (s) => { let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return ((h >>> 0) % 10000) / 10000; };
 const projectUrl = (p) => '/project/' + String(p).split('/').map(encodeURIComponent).join('/');
@@ -114,7 +118,7 @@ async function loadRig(c) {
 // had when keyframe i began, so overlapping moves blend instead of popping.
 function makeChannel(base, keys) {
   keys = keys.slice().sort((a, b) => a.t - b.t);
-  const evalTo = (n, t) => { let v = base; for (let i = 0; i < n; i++) { const k = keys[i]; if (t < k.t) break; v = lerp(k.from, k.v, smoothstep(0, 1, (t - k.t) / Math.max(1e-3, k.ease))); } return v; };
+  const evalTo = (n, t) => { let v = base; for (let i = 0; i < n; i++) { const k = keys[i]; if (t < k.t) break; v = lerp(k.from, k.v, k.curve((t - k.t) / Math.max(1e-3, k.ease))); } return v; };
   keys.forEach((k, i) => { k.from = evalTo(i, k.t); });
   return (t) => evalTo(keys.length, t);
 }
@@ -134,6 +138,7 @@ function makeCharacter(c, rig, actions) {
   const mesh = new THREE.Mesh(geo, mat);
   mesh.castShadow = true; mesh.renderOrder = 10;
   mesh.customDepthMaterial = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking, map: tex, alphaTest: 0.5 });
+  mesh.userData.depthMat = new THREE.MeshBasicMaterial({ map: tex, alphaTest: 0.5, colorWrite: false, side: THREE.DoubleSide, fog: false });   // writes the silhouette into the depth buffer (for depth of field)
   // soft contact shadow that pins the feet to the ground
   const sc = canvasOf(128, 128), sg = sc.getContext('2d'), gr = sg.createRadialGradient(64, 64, 4, 64, 64, 62);
   gr.addColorStop(0, 'rgba(39,25,37,1)'); gr.addColorStop(0.55, 'rgba(39,25,37,0.45)'); gr.addColorStop(1, 'rgba(39,25,37,0)');
@@ -145,10 +150,10 @@ function makeCharacter(c, rig, actions) {
   // channels
   const pose = {}, keys = { armL: [], armR: [], legL: [], legR: [], head: [], body: [] }, faceKeys = [], posKeys = [], flips = [], hops = [], shakes = [];
   for (const a of actions) {
-    const ease = a.ease ?? 0.3;
-    for (const ch of Object.keys(a.pose || {})) if (keys[ch]) keys[ch].push({ t: a.t, v: a.pose[ch], ease });
+    const ease = a.ease ?? 0.3, poseCurve = curveOf(a.curve, 'back');
+    for (const ch of Object.keys(a.pose || {})) if (keys[ch]) keys[ch].push({ t: a.t, v: a.pose[ch], ease, curve: poseCurve });
     if (a.face) faceKeys.push({ t: a.t, face: a.face });
-    if (a.to) posKeys.push({ t: a.t, to: a.to, over: a.over ?? 1.0, walk: !!a.walk });
+    if (a.to) posKeys.push({ t: a.t, to: a.to, over: a.over ?? 1.0, walk: !!a.walk || !!a.run, run: !!a.run, curve: curveOf(a.curve, 'smooth') });   // moves keep "smooth" by default (instant swaps with over: 0.01 must not overshoot)
     if (a.flip !== undefined) flips.push({ t: a.t, v: !!a.flip });
     if (a.hop) hops.push({ t: a.t, h: a.hop });
     if (a.shake) shakes.push({ t: a.t, d: a.shake });
@@ -159,19 +164,25 @@ function makeCharacter(c, rig, actions) {
   const seed = hash(c.id), blinkP = 3.1 + 1.3 * seed;
 
   const state = (t) => {
-    let p = (c.pos || [0, 0, 0]).slice(), walking = 0;
-    for (const pk of posKeys) { if (t < pk.t) break; const u = clamp((t - pk.t) / pk.over, 0, 1), e = smoothstep(0, 1, u); p = pk.from.map((v, i) => lerp(v, pk.to[i], e)); walking = pk.walk && u < 1 ? Math.sin(Math.PI * u) : 0; }
+    let p = (c.pos || [0, 0, 0]).slice(), walking = 0, running = false;
+    for (const pk of posKeys) { if (t < pk.t) break; const u = clamp((t - pk.t) / pk.over, 0, 1), e = pk.curve(u); p = pk.from.map((v, i) => lerp(v, pk.to[i], e)); walking = pk.walk && u < 1 ? (pk.run ? 1.6 : Math.sin(Math.PI * u)) : 0; running = pk.run && u < 1; }   // run: full-speed legs for the whole move, also in place
     let face = c.face || 'default', faceT = -9; for (const f of faceKeys) { if (t < f.t) break; face = f.face; faceT = f.t; }
     let flip = !!c.flip; for (const f of flips) { if (t >= f.t) flip = f.v; }
-    let hop = 0; for (const hp of hops) { const u = (t - hp.t) / 0.36; if (u > 0 && u < 1) hop = Math.max(hop, 4 * u * (1 - u) * hp.h); }
+    // hop: parabola in the air, stretched while moving fast, squashed for a moment on landing
+    let hop = 0, squash = 1; const HOP = 0.36, LAND = 0.2;
+    for (const hp of hops) {
+      const u = (t - hp.t) / HOP, amp = clamp(hp.h / 0.3, 0.4, 1.2);
+      if (u > 0 && u < 1) { hop = Math.max(hop, 4 * u * (1 - u) * hp.h); squash = 1 + 0.08 * amp * Math.abs(1 - 2 * u); }
+      else if (u >= 1 && u < 1 + LAND / HOP) { const d = (t - hp.t - HOP) / LAND; squash = 1 - 0.12 * amp * Math.sin(Math.PI * d) * (1 - d * 0.5); }
+    }
     let shake = 0; for (const sh of shakes) { if (t >= sh.t && t < sh.t + sh.d) shake = 1; }
-    return { p, walking, face, faceT, flip, hop, shake };
+    return { p, walking, running, face, faceT, flip, hop, squash, shake };
   };
 
   const draw = (t) => {
     const st = state(t), idle = c.idle === false ? 0 : 1, ph0 = seed * 6.283;
     const breath = Math.sin(6.283 * t / 3.4 + ph0), sy = 1 + 0.012 * breath * idle;
-    const walk = st.walking, wph = Math.sin(6.283 * t * 2.2);
+    const walk = st.walking, wph = Math.sin(6.283 * t * (st.running ? 3.6 : 2.2) + (st.running ? ph0 : 0));
     const ang = {
       armL: pose.armL(t) + idle * 1.6 * Math.sin(6.283 * t / 3.4 + ph0 + 0.6) + walk * 14 * wph + st.shake * 3 * Math.sin(t * 55),
       armR: pose.armR(t) - idle * 1.6 * Math.sin(6.283 * t / 3.4 + ph0 + 0.6) - walk * 14 * wph - st.shake * 3 * Math.sin(t * 55 + 1),
@@ -179,7 +190,7 @@ function makeCharacter(c, rig, actions) {
       head: pose.head(t) + idle * 1.2 * Math.sin(6.283 * t / 5.1 + ph0 * 1.7) + st.shake * 1.5 * Math.sin(t * 61),
       body: pose.body(t),
     };
-    const pop = 1 + 0.07 * (1 - smoothstep(0, 0.14, t - st.faceT));           // a face change lands with a small pop
+    const pu = (t - st.faceT) / 0.32, pop = pu < 1 ? 1 + 0.08 * Math.cos(pu * Math.PI * 2.5) * (1 - pu) * (1 - pu) : 1;   // a face change lands with an elastic pop
     const blink = idle && rig.eyes && st.face === 'default' && ((t + seed * 7) % blinkP) < 0.12;
     const bp = rig.layers.body.pivot;
     g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height);
@@ -207,7 +218,7 @@ function makeCharacter(c, rig, actions) {
     tex.needsUpdate = true;
     const bob = walk * Math.abs(wph) * 0.02 * (c.height || 1.8), jx = st.shake * 0.012 * (c.height || 1.8) * Math.sin(t * 80);
     mesh.position.set(st.p[0] + jx, st.p[1] + st.hop + bob, st.p[2]);
-    mesh.scale.x = st.flip ? -1 : 1;
+    mesh.scale.set((st.flip ? -1 : 1) / Math.sqrt(st.squash), st.squash, 1);   // squash keeps the volume, pivots on the feet
     blob.position.set(st.p[0], st.p[1] + 0.012, st.p[2]);
     blob.material.opacity = (S.contactShadow ?? 0.55) * (1 - clamp(st.hop * 1.5, 0, 0.7));
   };
@@ -288,23 +299,58 @@ function applyMood(P, focus) {
   const pos = skyMesh.geometry.attributes.position, col = skyMesh.geometry.attributes.color, c = new THREE.Color();
   for (let i = 0; i < pos.count; i++) { c.copy(P.hor).lerp(P.top, Math.pow(Math.max(0, pos.getY(i) / 400), 0.6)); col.setXYZ(i, c.r, c.g, c.b); }
   col.needsUpdate = true; scene.fog.color.copy(P.hor);
+  if (fx) fx.mat.uniforms.aoCol.value.copy(P.fGnd).multiplyScalar(0.45).convertLinearToSRGB();   // occlusion takes the cool shadow colour of the mood, never black
   for (const ch of Object.values(chars)) ch.mesh.material.color.copy(P.tint);
   setRoot.traverse(o => { if (o.userData.tint) o.material.color.copy(P.tint); });
   if (backdrop) backdrop.material.color.copy(P.tint);
 }
 
-// ------------------------------------------------------------ ink outline on the 3D set
-function makeInk(width, color) {
-  const rt = new THREE.WebGLRenderTarget(Math.round(W * SCALE), Math.round(H * SCALE), { depthTexture: new THREE.DepthTexture(), samples: 0 });
-  const mat = new THREE.ShaderMaterial({
-    uniforms: { tN: { value: rt.texture }, tD: { value: rt.depthTexture }, px: { value: new THREE.Vector2(1 / (W * SCALE), 1 / (H * SCALE)) }, w: { value: width * SCALE }, ink: { value: new THREE.Color(color).convertLinearToSRGB() }, near: { value: 0.1 }, far: { value: 1000 } },
-    vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
-    fragmentShader: `
-      uniform sampler2D tN, tD; uniform vec2 px; uniform float w, near, far; uniform vec3 ink; varying vec2 vUv;
-      float lin(vec2 uv){ float z = texture2D(tD, uv).r * 2.0 - 1.0; return 2.0 * near * far / (far + near - z * (far - near)); }
-      void main(){
-        vec2 o = px * max(1.0, w * 0.5);
-        vec3 n0 = texture2D(tN, vUv).rgb; float d0 = lin(vUv), e = 0.0;
+// ------------------------------------------------------------ full-screen passes
+const FSQ_VS = 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }';
+const LIN_GLSL = 'float lin(vec2 uv){ float z = texture2D(tD, uv).r * 2.0 - 1.0; return 2.0 * near * far / (far + near - z * (far - near)); }';
+let fsqScene, fsqCam, fsqMesh;
+function pass(mat, target) {                                   // draw one full-screen shader into target (null = screen)
+  if (!fsqScene) { fsqScene = new THREE.Scene(); fsqCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1); fsqMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2)); fsqMesh.frustumCulled = false; fsqScene.add(fsqMesh); }
+  fsqMesh.material = mat; renderer.setRenderTarget(target); renderer.render(fsqScene, fsqCam);
+}
+const shader = (uniforms, fragmentShader, extra = {}) => new THREE.ShaderMaterial({ uniforms, vertexShader: FSQ_VS, fragmentShader, depthTest: false, depthWrite: false, ...extra });
+
+// ------------------------------------------------------------ set effects: ink outline + ambient occlusion
+// One normal+depth pass of the set (layer 1) feeds the outline and a half-res AO (soft cool shading in
+// corners, under props and where things meet the ground). Both are laid over the set in one composite.
+let fx = null;
+function makeFx(width, color, ao) {
+  const rw = Math.round(W * SCALE), rh = Math.round(H * SCALE);
+  const rt = new THREE.WebGLRenderTarget(rw, rh, { depthTexture: new THREE.DepthTexture(), samples: 0 });
+  const aoRT = new THREE.WebGLRenderTarget(Math.round(rw / 2), Math.round(rh / 2));
+  const px = new THREE.Vector2(1 / rw, 1 / rh);
+  const aoMat = shader({ tN: { value: rt.texture }, tD: { value: rt.depthTexture }, px: { value: px }, near: { value: 0.1 }, far: { value: 1000 },
+    tanHalf: { value: new THREE.Vector2(1, 1) }, projScale: { value: 1 }, radius: { value: ao ? ao.radius : 0.55 } }, `
+    uniform sampler2D tN, tD; uniform vec2 px, tanHalf; uniform float near, far, projScale, radius; varying vec2 vUv;
+    ${LIN_GLSL}
+    vec3 vpos(vec2 uv){ float d = lin(uv); return vec3((uv * 2.0 - 1.0) * tanHalf * d, -d); }
+    void main(){
+      if (texture2D(tD, vUv).r >= 1.0) { gl_FragColor = vec4(0.0); return; }
+      vec3 P = vpos(vUv), N = normalize(texture2D(tN, vUv).rgb * 2.0 - 1.0);
+      float rpx = clamp(radius * projScale / -P.z, 2.0, 90.0);
+      float ang = 6.2831853 * fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715))));
+      float occ = 0.0;
+      for (int i = 0; i < 16; i++) {
+        float fi = (float(i) + 0.5) / 16.0, a = ang + float(i) * 2.39996323;
+        vec3 v = vpos(vUv + vec2(cos(a), sin(a)) * rpx * sqrt(fi) * px) - P; float vv = dot(v, v);
+        occ += max(0.0, 1.0 - vv / (radius * radius)) * max(0.0, dot(v, N) * inversesqrt(vv + 1e-5) - 0.15);
+      }
+      occ = clamp(occ / 16.0 * 2.2, 0.0, 1.0) * (1.0 - smoothstep(50.0, 120.0, -P.z));
+      gl_FragColor = vec4(occ, 0.0, 0.0, 1.0);
+    }`);
+  const mat = shader({ tN: { value: rt.texture }, tD: { value: rt.depthTexture }, tA: { value: aoRT.texture }, px: { value: px }, aoPx: { value: new THREE.Vector2(2 / rw, 2 / rh) },
+    w: { value: width * SCALE }, ink: { value: new THREE.Color(color).convertLinearToSRGB() }, aoCol: { value: new THREE.Color('#3a2d52') }, aoAmt: { value: ao ? ao.strength : 0 }, near: { value: 0.1 }, far: { value: 1000 } }, `
+    uniform sampler2D tN, tD, tA; uniform vec2 px, aoPx; uniform float w, near, far, aoAmt; uniform vec3 ink, aoCol; varying vec2 vUv;
+    ${LIN_GLSL}
+    void main(){
+      float d0 = lin(vUv), e = 0.0;
+      if (w > 0.0) {
+        vec2 o = px * max(1.0, w * 0.5); vec3 n0 = texture2D(tN, vUv).rgb;
         vec2 dirs[4]; dirs[0] = vec2(1.0, 0.0); dirs[1] = vec2(0.0, 1.0); dirs[2] = vec2(0.7071, 0.7071); dirs[3] = vec2(0.7071, -0.7071);
         for (int i = 0; i < 4; i++) {
           vec2 a = vUv + dirs[i] * o, b = vUv - dirs[i] * o;
@@ -312,12 +358,87 @@ function makeInk(width, color) {
           e = max(e, smoothstep(0.012, 0.03, abs(lin(a) + lin(b) - 2.0 * d0) / d0));
         }
         e *= 1.0 - smoothstep(45.0, 110.0, d0);
-        gl_FragColor = vec4(ink, e);
-      }`,
-    transparent: true, depthTest: false, depthWrite: false,
-  });
-  const sc = new THREE.Scene(); const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat); quad.frustumCulled = false; sc.add(quad);
-  return { rt, mat, scene: sc, cam: new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1), normal: new THREE.MeshNormalMaterial() };
+      }
+      float ao = 0.0;
+      if (aoAmt > 0.0) {
+        ao = 0.25 * (texture2D(tA, vUv + aoPx * vec2(0.75, 0.75)).r + texture2D(tA, vUv + aoPx * vec2(-0.75, 0.75)).r
+                   + texture2D(tA, vUv + aoPx * vec2(0.75, -0.75)).r + texture2D(tA, vUv + aoPx * vec2(-0.75, -0.75)).r);
+        ao = clamp(ao * aoAmt, 0.0, 0.8);
+      }
+      float A = 1.0 - (1.0 - ao) * (1.0 - e);
+      if (A <= 0.001) discard;
+      gl_FragColor = vec4((aoCol * ao * (1.0 - e) + ink * e) / A, A);
+    }`, { transparent: true });
+  return { rt, aoRT, aoMat, mat, ao: !!ao, normal: new THREE.MeshNormalMaterial() };
+}
+
+// ------------------------------------------------------------ post: depth of field, bloom, grade, vignette, grain
+// Runs on the finished 3D frame (before captions, which stay crisp). The frame is copied off the
+// screen, so tone mapping and colour stay exactly as rendered; depth comes from the fx pass plus the
+// character silhouettes, and the focus is the shot's target.
+let post = null;
+function makePost(o) {
+  const rw = Math.round(W * SCALE), rh = Math.round(H * SCALE), bw = Math.round(rw / 4), bh = Math.round(rh / 4);
+  const src = new THREE.FramebufferTexture(rw, rh);
+  const bA = new THREE.WebGLRenderTarget(bw, bh), bB = new THREE.WebGLRenderTarget(bw, bh);
+  const px = new THREE.Vector2(1 / rw, 1 / rh);
+  const bright = shader({ tC: { value: src }, px: { value: px }, thr: { value: o.bloomThreshold } }, `
+    uniform sampler2D tC; uniform vec2 px; uniform float thr; varying vec2 vUv;
+    void main(){
+      vec3 c = 0.25 * (texture2D(tC, vUv + px * vec2(-1.0, -1.0)).rgb + texture2D(tC, vUv + px * vec2(1.0, -1.0)).rgb + texture2D(tC, vUv + px * vec2(-1.0, 1.0)).rgb + texture2D(tC, vUv + px * vec2(1.0, 1.0)).rgb);
+      gl_FragColor = vec4(c * smoothstep(thr, 1.0, max(c.r, max(c.g, c.b))), 1.0);
+    }`);
+  const blur = shader({ tC: { value: null }, dir: { value: new THREE.Vector2() } }, `
+    uniform sampler2D tC; uniform vec2 dir; varying vec2 vUv;
+    void main(){
+      vec3 c = texture2D(tC, vUv).rgb * 0.2270270;
+      c += (texture2D(tC, vUv + dir * 1.3846154).rgb + texture2D(tC, vUv - dir * 1.3846154).rgb) * 0.3162162;
+      c += (texture2D(tC, vUv + dir * 3.2307692).rgb + texture2D(tC, vUv - dir * 3.2307692).rgb) * 0.0702703;
+      gl_FragColor = vec4(c, 1.0);
+    }`);
+  const final = shader({ tC: { value: src }, tD: { value: fx.rt.depthTexture }, tB: { value: bA.texture }, px: { value: px }, near: { value: 0.1 }, far: { value: 1000 }, focus: { value: 5 },
+    dofMax: { value: o.dof * SCALE }, dofRange: { value: o.dofRange }, bloom: { value: o.bloom }, vig: { value: o.vignette }, grain: { value: o.grain }, ca: { value: o.ca },
+    sat: { value: o.saturation }, con: { value: o.contrast }, tone: { value: o.tone }, seed: { value: 0 } }, `
+    uniform sampler2D tC, tD, tB; uniform vec2 px; uniform float near, far, focus, dofMax, dofRange, bloom, vig, grain, ca, sat, con, tone, seed; varying vec2 vUv;
+    ${LIN_GLSL}
+    float coc(float d){ return dofMax * clamp((abs(d - focus) / d - dofRange) / (1.0 - dofRange), 0.0, 1.0); }
+    vec3 samp(vec2 uv){ vec2 o = (uv - 0.5) * ca; return vec3(texture2D(tC, uv + o).r, texture2D(tC, uv).g, texture2D(tC, uv - o).b); }
+    float h12(vec2 p){ vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }
+    void main(){
+      vec3 col = samp(vUv);
+      float c0 = dofMax > 0.0 ? coc(lin(vUv)) : 0.0;
+      if (c0 > 0.6) {                                   // gather blur; a sample counts only if its own blur reaches here (no halos round sharp characters)
+        vec3 acc = col; float ws = 1.0;
+        for (int i = 0; i < 24; i++) {
+          float r = sqrt((float(i) + 0.5) / 24.0) * c0, a = float(i) * 2.39996323;
+          vec2 suv = vUv + vec2(cos(a), sin(a)) * r * px;
+          float wgt = smoothstep(r - 1.0, r + 0.5, coc(lin(suv)));
+          acc += samp(suv) * wgt; ws += wgt;
+        }
+        col = acc / ws;
+      }
+      if (bloom > 0.0) { vec3 b = texture2D(tB, vUv).rgb * bloom; col = 1.0 - (1.0 - col) * (1.0 - b); }
+      float l = dot(col, vec3(0.2126, 0.7152, 0.0722));
+      col = mix(vec3(l), col, sat);
+      col = (col - 0.5) * con + 0.5;
+      col *= mix(vec3(1.0), mix(vec3(0.96, 0.98, 1.05), vec3(1.04, 1.0, 0.95), smoothstep(0.15, 0.85, l)), tone);   // cool shadows, warm light
+      col *= 1.0 - vig * smoothstep(0.4, 1.05, length(vUv - 0.5) * 1.4142);
+      col += (h12(gl_FragCoord.xy + vec2(seed * 13.1, seed * 7.7)) - 0.5) * grain * (1.0 - abs(l - 0.5));
+      gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
+    }`, { blending: THREE.NoBlending });
+  return { o, src, bA, bB, bright, blur, final, bpx: new THREE.Vector2(1 / bw, 1 / bh) };
+}
+let frameNo = 0;
+function runPost(focus) {
+  const o = post.o;
+  renderer.setRenderTarget(null); renderer.copyFramebufferToTexture(post.src);
+  if (o.bloom > 0) {
+    pass(post.bright, post.bA);
+    post.blur.uniforms.tC.value = post.bA.texture; post.blur.uniforms.dir.value.set(post.bpx.x * 1.5, 0); pass(post.blur, post.bB);
+    post.blur.uniforms.tC.value = post.bB.texture; post.blur.uniforms.dir.value.set(0, post.bpx.y * 1.5); pass(post.blur, post.bA);
+  }
+  const u = post.final.uniforms; u.near.value = camera.near; u.far.value = camera.far; u.focus.value = Math.max(0.3, focus); u.seed.value = frameNo % 997;
+  renderer.autoClear = false; pass(post.final, null); renderer.autoClear = true;
 }
 
 // ------------------------------------------------------------ setup
@@ -337,9 +458,9 @@ window.setup = async (spec) => {
   const skyGeo = new THREE.SphereGeometry(400, 32, 16);
   skyGeo.setAttribute('color', new THREE.Float32BufferAttribute(new Float32Array(skyGeo.attributes.position.count * 3), 3));
   skyMesh = new THREE.Mesh(skyGeo, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide, fog: false, depthWrite: false })); skyMesh.renderOrder = -10; setRoot.add(skyMesh);
-  scene.fog = new THREE.Fog('#f2b98a', 40, 160);
+  const fog = spec.fog || {}; scene.fog = new THREE.Fog('#f2b98a', fog.near ?? 30, fog.far ?? 150);   // atmospheric depth: far things fade into the horizon colour
   sun = new THREE.DirectionalLight('#ffe0b5', 2.4); sun.castShadow = true;
-  const sm = spec.shadowMap || (SCALE < 1 ? 2048 : 4096); sun.shadow.mapSize.set(sm, sm); sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.02; sun.shadow.radius = 3;
+  const sm = spec.shadowMap || (SCALE < 1 ? 2048 : 4096); sun.shadow.mapSize.set(sm, sm); sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.02; sun.shadow.radius = (spec.shadowSoftness ?? 3) * Math.max(0.5, SCALE);
   const sc = sun.shadow.camera; sc.left = -18; sc.right = 18; sc.top = 18; sc.bottom = -18; sc.near = 1; sc.far = 120;
   scene.add(sun); scene.add(sun.target);
   hemi = new THREE.HemisphereLight('#8ea2ff', '#6a3b6e', 1.1); scene.add(hemi);
@@ -369,7 +490,10 @@ window.setup = async (spec) => {
   lightKeys = lk.map(k => { if (!moods[k.mood]) throw new Error('unknown mood "' + k.mood + '"'); return { t: k.t, fade: k.fade ?? 0.8, P: moodParams(moods[k.mood]) }; });
 
   camera = new THREE.PerspectiveCamera(40, W / H, 0.1, 1000);
-  const ink = spec.ink || {}; if ((ink.set ?? 4) > 0) inkPass = makeInk(ink.set ?? 4, ink.color || LINE);
+  const ink = spec.ink || {};
+  const ao = spec.ao === false ? null : { strength: 1, radius: 0.55, ...(spec.ao || {}) };
+  fx = makeFx(ink.set ?? 4, ink.color || LINE, ao && ao.strength > 0 ? ao : null);
+  if (spec.post !== false) post = makePost({ dof: 7, dofRange: 0.3, bloom: 0.25, bloomThreshold: 0.78, vignette: 0.22, grain: 0.03, ca: 0.0015, saturation: 1.06, contrast: 1.04, tone: 1, ...(spec.post || {}) });
 
   for (const s of spec._shots) {
     const n = Math.max(2, Math.round(s.dur * FPS)), yaw = rad(s.yaw || 0), pitch = rad(s.pitch ?? 6);
@@ -419,25 +543,37 @@ function cameraPlan(t) {                                        // -> one pose, 
 function setCamera(p) { camera.position.copy(p.pos); camera.quaternion.copy(p.quat); camera.fov = p.fov; camera.updateProjectionMatrix(); camera.updateMatrixWorld(); }
 
 // ------------------------------------------------------------ drawing one frame
-function drawScene() {
+function drawScene(focus) {
   for (const ch of Object.values(chars)) ch.mesh.rotation.y = Math.atan2(camera.position.x - ch.mesh.position.x, camera.position.z - ch.mesh.position.z);
   skyMesh.position.copy(camera.position);
   if (backdrop) backdrop.position.set(camera.position.x, backdrop.userData.y, camera.position.z);
   const cut = Object.values(chars).map(c => c.mesh);
-  if (inkPass) {                                               // normals + depth of the set only
-    inkPass.mat.uniforms.near.value = camera.near; inkPass.mat.uniforms.far.value = camera.far;
-    camera.layers.set(1); scene.overrideMaterial = inkPass.normal; renderer.shadowMap.autoUpdate = false;
-    renderer.setRenderTarget(inkPass.rt); renderer.setClearColor(0x8080ff, 1); renderer.clear(); renderer.render(scene, camera);
-    renderer.setRenderTarget(null); scene.overrideMaterial = null; camera.layers.set(0);
+  // normals + depth of the set only (feeds the outline, AO and depth of field)
+  for (const m of [fx.mat, fx.aoMat]) { m.uniforms.near.value = camera.near; m.uniforms.far.value = camera.far; }
+  camera.layers.set(1); scene.overrideMaterial = fx.normal; renderer.shadowMap.autoUpdate = false;
+  renderer.setRenderTarget(fx.rt); renderer.setClearColor(0x8080ff, 1); renderer.clear(); renderer.render(scene, camera);
+  scene.overrideMaterial = null; camera.layers.set(0);
+  if (fx.ao) {
+    const th = Math.tan(rad(camera.fov) / 2), u = fx.aoMat.uniforms;
+    u.tanHalf.value.set(th * camera.aspect, th); u.projScale.value = (H * SCALE) / (2 * th);
+    pass(fx.aoMat, fx.aoRT);
   }
+  renderer.setRenderTarget(null);
   // the set, with the characters present only as shadow casters
   cut.forEach(m => { m.material.colorWrite = false; m.material.alphaTest = 0.5; });
   renderer.shadowMap.autoUpdate = true; renderer.shadowMap.needsUpdate = true; renderer.autoClear = true; renderer.render(scene, camera);
-  renderer.autoClear = false;
-  if (inkPass) renderer.render(inkPass.scene, inkPass.cam);
+  renderer.shadowMap.autoUpdate = false; renderer.autoClear = false;
+  pass(fx.mat, null);                                          // ink + occlusion over the set
+  if (post && post.o.dof > 0) {                                // character silhouettes into the depth used for focus
+    renderer.setRenderTarget(fx.rt); setRoot.visible = false;
+    cut.forEach(m => { m.userData.mat = m.material; m.material = m.userData.depthMat; });
+    renderer.render(scene, camera);
+    cut.forEach(m => { m.material = m.userData.mat; }); setRoot.visible = true; renderer.setRenderTarget(null);
+  }
   // the characters on top, depth-tested against the set, with soft edges
-  cut.forEach(m => { m.material.colorWrite = true; m.material.alphaTest = 0.02; }); setRoot.visible = false; renderer.shadowMap.autoUpdate = false;
+  cut.forEach(m => { m.material.colorWrite = true; m.material.alphaTest = 0.02; }); setRoot.visible = false;
   renderer.render(scene, camera); setRoot.visible = true; renderer.autoClear = true;
+  if (post) runPost(focus);
 }
 function drawCaption(t) {
   const caps = S._captions || []; let text = null;
@@ -485,15 +621,15 @@ function drawCta(t) {
   octx.restore();
 }
 function compose(i, withCaption = true) {
-  const t = i / FPS, plan = cameraPlan(t);
+  const t = i / FPS, plan = cameraPlan(t); frameNo = i;
   for (const ch of Object.values(chars)) ch.draw(t);
-  const mix = smoother(plan.mix), focusOf = (p) => p.anchor;
+  const mix = smoother(plan.mix), focusOf = (p) => p.anchor, focusDist = (p) => camera.position.distanceTo(p.anchor);
   if (plan.kind === 'dissolve') {
-    applyMood(moodAt(t), focusOf(plan.a)); setCamera(plan.a); drawScene(); octx.globalAlpha = 1; octx.drawImage(renderer.domElement, 0, 0);
-    applyMood(moodAt(t), focusOf(plan.b)); setCamera(plan.b); drawScene(); octx.globalAlpha = clamp(plan.mix, 0, 1); octx.drawImage(renderer.domElement, 0, 0); octx.globalAlpha = 1;
+    applyMood(moodAt(t), focusOf(plan.a)); setCamera(plan.a); drawScene(focusDist(plan.a)); octx.globalAlpha = 1; octx.drawImage(renderer.domElement, 0, 0);
+    applyMood(moodAt(t), focusOf(plan.b)); setCamera(plan.b); drawScene(focusDist(plan.b)); octx.globalAlpha = clamp(plan.mix, 0, 1); octx.drawImage(renderer.domElement, 0, 0); octx.globalAlpha = 1;
   } else {
     const p = plan.kind === 'glide' ? { pos: plan.a.pos.clone().lerp(plan.b.pos, mix), quat: plan.a.quat.clone().slerp(plan.b.quat, mix), fov: lerp(plan.a.fov, plan.b.fov, mix), anchor: plan.a.anchor.clone().lerp(plan.b.anchor, mix) } : plan.a;
-    applyMood(moodAt(t), p.anchor); setCamera(p); drawScene(); octx.drawImage(renderer.domElement, 0, 0);
+    applyMood(moodAt(t), p.anchor); setCamera(p); drawScene(focusDist(p)); octx.drawImage(renderer.domElement, 0, 0);
   }
   if (withCaption) { drawCta(t); drawCaption(t); }
   return plan;

@@ -139,7 +139,10 @@ videos/NNN-slug/
 ```
 V=videos/NNN-slug/work
 node .claude/skills/ricksclips-short-style/scripts/stage/render.mjs $V/short.json $V/out.mp4 --stills --lib .
+node .claude/skills/ricksclips-short-style/scripts/stage/render.mjs $V/short.json $V/out.mp4 --lib . --cool
 ```
+
+**Always add `--cool` to the full render.** The machine is a fanless MacBook Air M3 (16 GB), and I do not want it to overheat. `--cool` uses Apple's hardware encoder and pauses between frames: about 2x slower, same look.
 
 Scene generator: copy `scripts/build_call_from_tomorrow.py` to `$V/build.py` and run `cd $V && ../../../.venv/bin/python build.py short.json` (in the copy set `sys.path.insert(0, "<absolute path>/scripts")` for `set_dressing`). Voice: `cd $V && ../../../scripts/voice.sh`. Word timing: `cd $V && ../../../.venv/bin/python ../../../.claude/skills/ricksclips-short-style/scripts/stage/shortkit.py words audio/voice.mp3 audio/script.txt -o audio/words.json`. Check that you can see the `.venv/bin/python` path (otherwise use an absolute one).
 

@@ -111,6 +111,10 @@ Paths are relative to the folder that holds `short.json`.
 | `backdrop` | A flat image far behind the set: `image`, `blur` (px, default 5), optional `repeat` (how many times the painting wraps around the horizon, default 4), `height`, `distance`, `y`. |
 | `ink` | `set`: outline width in px on the 3D set (default 4, 0 = off). `color` defaults to `#271925`. |
 | `contactShadow` | Darkness of the soft shadow under each character's feet, 0-1 (default 0.55). |
+| `shadowSoftness` | Blur of the sun shadows (default 3). |
+| `fog` | Atmospheric depth: `near` / `far` distance where the set starts and ends fading into the horizon colour (default 30 / 150). |
+| `ao` | Ambient occlusion on the 3D set: soft cool shading in corners, under props and where things meet the ground. `strength` (default 1), `radius` in world units (default 0.55). `false` turns it off. |
+| `post` | Post-processing of the 3D picture (captions stay untouched). Defaults: `dof` 7 (max blur in px of things out of focus; the focus is always the shot's target, 0 = off), `dofRange` 0.3 (how far in front of / behind the target stays sharp, as a fraction of the distance), `bloom` 0.25 (glow of bright areas), `bloomThreshold` 0.78, `vignette` 0.22, `grain` 0.03, `ca` 0.0015 (colour fringe towards the corners), `saturation` 1.06, `contrast` 1.04, `tone` 1 (warm light / cool shadows, 0 = off). Override any of them, e.g. `"post": {"dof": 0}`; `false` turns the whole post off. |
 | `end` | `"audio"` ends the video with the voice track; a number is the length in seconds. Without it the last shot runs for its `dur`. |
 
 ### Characters
@@ -162,7 +166,7 @@ An action's `at` is seconds from the start of its shot.
 
 ## Poses and actions
 
-An action changes one character from `at` onward. Changes ease in over `ease` seconds (default 0.3).
+An action changes one character from `at` onward. Changes ease in over `ease` seconds (default 0.3) along `curve`: poses use `back` by default (fast, a small overshoot, then settles, which reads as alive), moves (`to`) use `smooth` (ease in and out, no overshoot, so instant swaps with `over: 0.01` stay clean). Other curves: `out` (fast start, soft stop), `linear`. Hops stretch the figure in the air and squash it on landing; a face change lands with an elastic pop.
 
 ```json
 {"at": 0.4, "who": "hero", "face": "shocked", "pose": {"armR": -110, "armL": 20, "head": 6},
@@ -172,6 +176,7 @@ An action changes one character from `at` onward. Changes ease in over `ease` se
 - `face`: switch to a face from the rig's `faces` (or `"default"`).
 - `pose`: angles in degrees, each relative to the pose in the cutout. `armL`, `armR`, `legL`, `legR` swing a limb around its pivot (positive is clockwise on screen); `head` tilts the head; `body` leans the whole figure.
 - `to`: move the feet to `[x, y, z]` over `over` seconds. With `walk: true` the legs swing and the body bobs.
+- `run: true`: like `walk`, but the legs swing fast and at full strength for the whole move (no ease in/out), each character in its own rhythm. A `to` to the same spot = running in place. Chain moves with `"curve": "linear"` for a run along a path (a crowd running in a circle).
 - `hop`: a single jump of that height (world units).
 - `shake`: tremble for that many seconds (anger, fear, cold).
 - `flip`: mirror the figure.

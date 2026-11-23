@@ -86,7 +86,9 @@ Generate the sheet with the template in `references/prompts.md`, using the chara
 
 `slice` writes head, body, arm and leg layers with their pivots into `rig.json` and a `preview.png` with four panels: original, layers apart, re-assembled, posed. Open the preview and check the posed panel: limbs must swing from the shoulders and hips, and the head must tilt on the neck with no gap. `faces` needs the names in the sheet's order, left to right and top to bottom; check `faces_preview.png` the same way. If a cut is wrong, regenerate the character with the limbs further from the body instead of editing the layers by hand.
 
-From here the character is a puppet driven by code. The stage adds breathing, shoulder bobs, a slight head tilt and blinking on its own, and actions in `short.json` set poses, faces, walking, hops and shaking.
+From here the character is a puppet driven by code. The stage adds breathing, shoulder bobs, a slight head tilt and blinking on its own, and actions in `short.json` set poses, faces, walking, hops and shaking. Poses overshoot slightly and settle, hops squash and stretch, face changes pop (see `curve` in `references/formats.md`).
+
+The finished picture gets ambient occlusion on the set, depth of field focused on the shot's target, atmospheric fog, bloom, a warm/cool grade, vignette and light grain automatically (`ao`, `fog`, `post` in `references/formats.md`). Leave the defaults on; turn something down only when the stills show a problem (e.g. `"post": {"dof": 0}` if a wide shot needs the whole set sharp).
 
 ### 4. Background
 
@@ -181,7 +183,7 @@ The user called 004 the best video so far (good animation, assets, full scenes).
 
 **Animation tricks that sell it**
 - **Growing/shrinking things:** several copies of a character at different `height`, parked underground (`pos` y = -60), swapped with `to` + `over: 0.01` at a word (`show()` helper). Same for appearing/vanishing characters.
-- **Real motion with `to`:** the dog falls from the roof into Tlama's arms; Tlama walks between spots in the room; the dog runs across the park. Put at least 3–4 moves like this in every video.
+- **Real motion with `to`:** the dog falls from the roof into Tlama's arms; Tlama walks between spots in the room; the dog runs across the park. Put at least 3–4 moves like this in every video. For running use `run: true` (fast legs for the whole move; a `to` to the same spot = running in place; chained `"curve": "linear"` moves = a crowd running in a ring, see video 011).
 - **Props that belong to a character are painted into its puppet** (`scripts/puppet_variants.py`: phone in hand, nest on head). Static props near a character float when it moves or disappears.
 - 2–3 side characters with reaction shots (neighbour shocked, tomorrow-me shouting, dog barking via `hop`).
 
@@ -216,7 +218,7 @@ Fix `short.json` and run the check again until it reports no problems. Only then
 ### 8. Render
 
 ```bash
-node $S/render.mjs $V/short.json $V/out.mp4 --lib .            # 1080x1920, 30 fps, captions + voice
+node $S/render.mjs $V/short.json $V/out.mp4 --lib . --cool     # 1080x1920, 30 fps, captions + voice; --cool = hardware encoder + pauses so the fanless Mac stays cool (about 2x slower, same look)
 node $S/render.mjs $V/short.json $V/preview.mp4 --lib . --scale 0.5 --from 0 --to 8   # fast partial preview
 ```
 
