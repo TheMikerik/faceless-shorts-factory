@@ -25,6 +25,11 @@ Kopie `main_hero_tlama` s rekvizitou dokreslenou přímo do vrstvy, takže se h�
 | `main_hero_tlama_nest` | ptačí hnízdo se dvěma vajíčky na hlavě | „zítřejší já“, gag s ptákem, druhá Tlama ve stejné scéně |
 | `main_hero_tlama_snow` | hnízdo jako `_nest` + sníh na hnízdě | zimní scény (video 005). Vznikl jednorázově (skript už smazán) |
 
+| `main_hero_tlama_coin` | zlatá mince s hvězdou v pravé ruce | hvězda stojí rovně při `"pose": {"armR": -100}` (mince vedle hlavy, není schovaná za ní). Video 009 |
+| `main_hero_tlama_crown` | zlatá koruna malého krále na hlavě (všechny výrazy) | „teď jsem král“, vítěz. Video 009 |
+
+`_coin` a `_crown` dělá `scripts/crown_coin_variants.py` (spolu s `prop_crown`, `prop_coin`, `dwarf_king_nocrown`, `orange_tabby_cat_crown`).
+
 Vznikly skriptem s PIL (rozšíření plátna vrstvy `armR` / `head` a všech `faces/`, úprava `box`, `pivot` a `center` v `rig.json`). Stejným postupem jde přidat další rekvizitu (klobouk, náplast, korunu), aniž by bylo potřeba generovat novou postavu.
 
 ## Lidé
@@ -37,6 +42,7 @@ Moderní postavy jsou nahoře, starodávné (historická videa) dole. Starodávn
 | `red_bun_mom` | vínový drdol, zelený svetr se zástěrou | laskavá, trochu unavená máma | máma, babička, sousedka, kuchařka |
 | `grey_mustache_teacher` | kulaté brýle, šedý knír a vlasy po stranách, hnědé sako s červenou kravatou | přísný, podezíravý | učitel, ředitel, úředník, strážce pravidel |
 | `dwarf_king` | zlatá koruna, červený nos, obří bílý plnovous, červený plášť | malý, hrdý, mrzutý | malý král ve zdi, šéf, vládce čehokoli |
+| `dwarf_king_nocrown` | stejný malý král s holou hlavou (koruna odstraněná, všechny výrazy) | stejný jako `dwarf_king` | výměna za `dwarf_king` + `prop_crown` pro gag „koruna odletěla“ |
 | `purple_horned_monster` | fialová hlava se třemi očima a rohy, zelený chochol, zelené tělo s oranžovými skvrnami | hloupě přátelská příšera, ne strašidelná | příšera, záporák, který je ve skutečnosti hodný, vetřelec |
 | `green_feather_noble` | zelený klobouk s bílým perem, zrzavé kníry, zelený kabát s krajkovým límcem | naštvaný, hrdý šlechtic | šéf, záporák, nafoukaný pán, rozzlobený soused |
 | `black_hat_noble` | černý vysoký klobouk, bílá krézová (volánová) obojek, zlatý řetěz, bradka | přísný, vážný pán | starosta, soudce, přísný ředitel, někdo, kdo vydává pravidla |
@@ -58,11 +64,17 @@ Zvířata jsou z boku a **koukají doprava** (doleva je otoč pomocí `flip`). K
 | `dog_floppy_ears` | světle hnědý pes s velkým klapatým uchem, krémová hruď, černý nos | pes, věrný parťák, postava v pozadí |
 | `grey_bird` | neutrální bílošedý pták, oranžový zobák a nohy, křídlo na boku | základ pro holuba, kachnu i kuře. Na jiný druh vyrob variantu: přegeneruj `source.png` přes Higgsfield s přebarvením a znovu rozřež |
 
+`orange_tabby_cat_crown`: oranžová kočka s korunou malého krále na hlavě (kočičí král). Výměna za `orange_tabby_cat` ve chvíli, kdy na ni dopadne `prop_crown`.
+
 **Přebarvené varianty pro davy** (vznikly jednorázově, posun barvy srsti, linky a bílá zůstávají):
 - kočky: `cat_grey`, `cat_black`, `cat_white`, `cat_brown`, `cat_cream`, `cat_blue` (oranžová `orange_tabby_cat` tak zůstává v davu jedinečná),
 - psi: `dog_brown`, `dog_white`, `dog_grey`, `dog_golden`, `dog_black`.
 
 Náhled všech: `puppets/_cat_puppets_preview.jpg`.
+
+**Varianty bez/s kloboukem** (video 010, lokálně přes PIL):
+- `black_hat_noble_nohat`: stejný pán jako `black_hat_noble`, ale bez klobouku (všechny výrazy; `nervous` má drobnou vadu obrysu nahoře, raději nepoužívat). Výměna za `black_hat_noble` + `prop_hat_black` pro gag „klobouk spadl“.
+- `dog_floppy_ears_hat`: pes s černým kloboukem starosty na hlavě („starosta pes“).
 
 ## Rekvizitové loutky (`prop_*`)
 
@@ -78,7 +90,14 @@ Obrázek jako „postava“ (vrstva `head` = obrázek, `body` = 1 px). Na rozdí
 | `prop_cake` | třípatrový růžový narozeninový dort se svíčkami | 1.45 |
 | `prop_crumbs` | talíř s drobky a jednou svíčkou (snědený dort, výměna za `prop_cake`) | 0.22 |
 | `prop_can_cat` / `prop_can_cat_open` | konzerva kočičího žrádla zavřená / otevřená (otevřená je vyšší kvůli víčku, `height` × 1.31) | 0.42 |
+| `prop_crown` | zlatá koruna (vystřižená z `dwarf_king`, srovnaná) | 0.32 |
+| `prop_coin` | zlatá mince s hvězdou (na zemi stojí na hraně, čelem ke kameře) | 0.22 |
 | `prop_can_dog` | modrá konzerva psího žrádla s kostí | 0.42 |
+| `prop_hat_black` | černý vysoký klobouk starosty (vyříznutý z `black_hat_noble`) | 0.42 |
+| `prop_paper` | papír s domácím úkolem (MATH, příklady) | 0.32 |
+| `prop_book` | velká červená kniha s hvězdou („BOOK“) | 0.5 |
+| `prop_rulebook` | velká hnědá kniha pravidel („RULES“) | 0.58 |
+| `prop_pill` | růžovo-modrá pilulka | 0.13 |
 
 ## Poznámky
 

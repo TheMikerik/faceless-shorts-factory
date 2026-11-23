@@ -64,7 +64,7 @@ ElevenLabs audio tags are used, about 1 per 1–2 sentences. Tags that lengthen 
 | Renderer | `render.mjs` | resolves the timeline (word-indexed shots), pulls frames, pipes them to ffmpeg with the voice and music. `--stills` checks before the full render |
 | Scene | `build.py` per video (a copy of `scripts/build_call_from_tomorrow.py`) | generates `short.json`: actors, ~40 shots, locations, light keys |
 | Set dressing | `scripts/set_dressing.py` | `scatter` / `line` / `ring` / `clear_zone` fill a location with 120–200 props in a few lines |
-| Puppets | `puppet.py` (slice + rig), `scripts/puppet_variants.py` | cutout layers with a rig and swappable faces. Variants (phone, nest) are painted in locally |
+| Puppets | `puppet.py` (slice + rig), `scripts/puppet_variants.py`, `scripts/crown_coin_variants.py` | cutout layers with a rig and swappable faces. Variants (phone, nest, coin, crown, king without crown, cat with crown) and prop puppets (crown, coin) are made locally with PIL from existing puppets |
 | Props | `props/<pack>/*.glb` + `props/catalog.json` + previews (`scripts/props_catalog.py`) | ready-made CC0 models (Kenney packs) mixed with stage primitives |
 | Voice | `scripts/voice.sh` (ffmpeg) | removes silences and speeds up the track to ≤ 60 s without changing the pitch |
 | Timing | `shortkit.py words` with faster-whisper in `.venv` | `words.json` drives the captions and the cuts |
@@ -109,6 +109,8 @@ Video **004 "Call From Tomorrow"** is the reference for animation, assets and fu
 | 006 | A Thousand Cats | Tlama's laugh sounds like a cat-food can |
 | 007 | Monster Under Bed | Tlama's snore sounds like a dragon to monsters |
 | 008 | Growing Cake | every nice word makes the cake bigger |
+| 009 | Wish Coin | a wish coin gives every wish to the one you love the most (Tlama's cat) |
+| 010 | Dog Ate My Homework | whatever Max eats, Max knows everything written on it |
 
 (Video 004 has no folder or script in the project, only its generator.)
 
@@ -117,3 +119,6 @@ Video **004 "Call From Tomorrow"** is the reference for animation, assets and fu
 - **2026-11-23**: Added the idea gate (`idea-scorecard.md`, `scripts/idea_check.py`, `scripts/ideas_used.json`). `--cv` now shows only ideas at 10/10, at least two. Created this documentation.
 - **2026-11-23**: Added the automatic like / subscribe graphic (10 s and 50 s) to the renderer. It applies to every video with no change to `short.json`.
 - **2026-11-23**: The like / subscribe graphic changed from two separate ones (10 s and 50 s) to ONE combined "LIKE & SUBSCRIBE" at ~27 s (reaches more viewers, interrupts once).
+- **2026-11-23**: Video 009 Wish Coin. New shared script `scripts/crown_coin_variants.py` and puppets `prop_crown`, `prop_coin`, `dwarf_king_nocrown`, `orange_tabby_cat_crown`, `main_hero_tlama_crown`, `main_hero_tlama_coin` (all derived locally, no Higgsfield). Lesson: arm layers draw behind the head, so a prop held high (`armR` ≈ -150) hides behind Tlama's head; hold props at `armR` ≈ -100.
+- **2026-11-23**: Video 010 Dog Ate My Homework. New shared puppets `black_hat_noble_nohat`, `dog_floppy_ears_hat`, `prop_hat_black`, `prop_paper`, `prop_book`, `prop_rulebook`, `prop_pill` (local PIL, no Higgsfield; maker script kept in `videos/010-dog-ate-homework/work/custom/make_assets.py`). Lessons: a `house` prop's roof cone has a bounding box far bigger than the house (radius = 0.78 x the longest side), so a big `house` behind a close-up flags `CAMERA_INSIDE_PROP`; build large buildings from `box` parts instead. Swappable signs/boards work as tiny prop puppets in `work/custom/`.
+- **2026-11-23**: Added `STORIES.md`, a backlog of 11 ideas that all passed the 10/10 gate and `idea_check.py`. They are not registered in `ideas_used.json` until one is chosen.
