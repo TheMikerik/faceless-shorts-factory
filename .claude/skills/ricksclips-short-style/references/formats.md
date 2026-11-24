@@ -101,10 +101,12 @@ Paths are relative to the folder that holds `short.json`.
 
 | Field | Meaning |
 | --- | --- |
+| `format` | `"portrait"` (default, 1080x1920 Short) or `"landscape"` (1920x1080 long-form video, see the `tlama-longform` skill). `headWidth` and `frameX` are fractions of the frame width, so the same head size in landscape needs about 0.56x the Short value. |
 | `fps` | 30. |
-| `audio` | `voice` and `music` files. `musicDb` sets the music level under the voice (default -18). |
+| `audio` | `voice` and `music` files. `musicDb` sets the music level under the voice (default -18). Music shorter than the video loops; it fades out at the end. |
 | `words` | A `words.json`. Needed for `say:` times and word-timed captions. |
-| `captions` | `wordsPer` 1 or 2. Without `words`, give `text` and `framesPer` (default 10). `false` turns captions off. |
+| `captions` | `wordsPer` 1 or 2. Without `words`, give `text` and `framesPer` (default 10). `false` turns captions off. `{"mode": "phrase", "maxWords": 5}` shows short phrases instead: a phrase ends at a sentence end, at a comma once it has 3+ words, or at a pause over 0.35 s, and a longer run is split evenly (6 words = 3 + 3). Portrait: centred at 70% height. Landscape: near the bottom, and phrase mode is the default. |
+| `cta` | The LIKE & SUBSCRIBE graphic, snapped to the nearest sentence start (±3 s). `{"at": 30, "dur": 2.5}`, `{"fromEnd": 30}` (seconds before the end), or a list of those. Default: portrait once at 27 s (y 1180); landscape twice, at 30 s and 30 s before the end (top of the frame). `false` turns it off. |
 | `moods` | Named lighting set-ups: `sun`, `sky`, `fill`, optional `exposure` and `cutoutTint`. |
 | `lighting` | Mood keyframes. The stage eases from one mood to the next over `fade` seconds (default 0.8), starting at `t`. Without it the first mood (or the top-level `sun` / `sky` / `fill`) holds for the whole video. |
 | `ground` | `color`, or a `texture` with `repeat`. |

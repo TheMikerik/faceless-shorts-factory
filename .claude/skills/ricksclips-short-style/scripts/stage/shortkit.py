@@ -229,7 +229,8 @@ def check(video_path, step=1):
     while True:
         ok, f = cap.read()
         if not ok: break
-        gs.append(cv2.cvtColor(cv2.resize(f, (270, 480), interpolation=cv2.INTER_AREA), cv2.COLOR_BGR2GRAY))
+        sz = (480, 270) if f.shape[1] > f.shape[0] else (270, 480)   # short side 270 px, so px/s stay "at 1080 short side" for both formats
+        gs.append(cv2.cvtColor(cv2.resize(f, sz, interpolation=cv2.INTER_AREA), cv2.COLOR_BGR2GRAY))
     for i in range(step, len(gs)):
         sol = flow_fit(gs[i - step], gs[i])
         sp.append(math.hypot(sol[0], sol[1]) * 4 * FPS / step); zm.append(sol[2] * FPS * 100 / step)

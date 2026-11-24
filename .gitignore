@@ -1,7 +1,8 @@
 /videos
 /textures
 /sprites
-/scripts
+/scripts/__pycache__
+/scripts/publish
 /puppets
 /models
 /bg
@@ -21,3 +22,4 @@ short.json
 /music
 
 STORIES.md
+longform/

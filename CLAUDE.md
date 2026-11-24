@@ -25,7 +25,10 @@ My content creator project, focused mainly on **YouTube Shorts**. This repositor
 
 | Path | Description |
 | --- | --- |
-| `.claude/skills/ricksclips-short-style/` | Main skill for producing faceless Shorts in the @RicksClips3000 style |
+| `.claude/skills/ricksclips-short-style/` | Main skill for producing faceless Shorts in the @RicksClips3000 style (also holds the shared render engine) |
+| `.claude/skills/tlama-longform/` | Skill for landscape long-form videos (5–8 min); inherits everything from the Shorts skill and overrides only what differs |
+| `.claude/skills/tlama-thumbnail/` | Skill that writes 3 ready-to-paste thumbnail prompts (Nano Banana / Higgsfield) with Tlama + one thing from the video. Only prompts, I generate the image by hand |
+| `longform/` | One folder per long-form video, `LNNN-slug/` |
 | `PUPPETS.md` | Overview of the characters in `puppets/` (who is who and when to use them). Update it after adding a new character |
 | `DOCUMENTATION.md` | How the project works: idea, goals, workflow, architecture, key decisions and why, videos so far, changelog |
 
@@ -86,9 +89,35 @@ The procedure is always the same. (The output templates below are intentionally 
    - Dry run: <OK nebo problém>, výpis:
      <celý výstup `publish.mjs --dry NNN`>
    - [případné upozornění na chyby nebo věci, které musím vědět]
+   - Thumbnail prompty (skill `tlama-thumbnail`, 1080×1920): <celý výstup skillu, 3 varianty, uloženo v `thumbnail_prompts.md`>
    - command pro nahrání:
      - node scripts/publish/publish.mjs NNN
    ```
+
+### Long-form videos (landscape) and shortcut `--clv`
+
+Next to the daily Shorts, I make **landscape long-form videos**, about **3× a week**: 1920×1080, 30 fps, **5–8 min (target ~6 min, ~900 words)**, one longer invented absurd story with Tlama in the same style. Use the skill **`tlama-longform`** (`.claude/skills/tlama-longform/SKILL.md`); it builds on `ricksclips-short-style` (same engine, library, style and story rules) and lists everything that differs: story structure (escalation ladder of 6 steps in 3 acts, cliffhangers, midpoint turn, "You see…", twist back to the hook), max 5 places and 5 side characters, shots of 4–8 s, captions as short phrases at the bottom, CTA twice, YouTube-only metadata with chapters. Simple English and the ElevenLabs tag rules are the same as for Shorts.
+
+When I write just `--clv` (create long video), run the same procedure as `--cv` with these differences:
+
+1. **Immediately** create an empty folder `longform/LNNN/` (`LNNN` = `L` + the highest number in `longform/` + 1, three digits, e.g. `L001`). Own numbering, separate from `videos/`.
+2. **Three stories**: the same output format as `--cv` (`# 1 - Název`, Hook, Pravidlo, Twist, Hodnocení), nothing else. The 10/10 gate uses the long-form scorecard `.claude/skills/tlama-longform/references/idea-scorecard.md` and `scripts/idea_check.py --longform` (own registry `scripts/ideas_used_longform.json`). After I choose, register with `idea_check.py --longform --add`.
+3. **Script**: the same output as `--cv` (`Příběh:` … `Nyní čekám na vložení zvukové stopy do složky LNNN.`), saved to `longform/LNNN/script_tagged.txt` and `script.txt`.
+4. **Waiting for the voice**: the same as `--cv` (exactly one `.mp3` in `longform/LNNN/`).
+5. **Production**: rename to `longform/LNNN-slug`, move the mp3 to `work/audio/voice_original.mp3`, then the whole workflow from the long-form skill without asking: `voice.sh … 0` (silences removed, **no speed-up**), word timing, scene generator (`short.json`), stills check, full render **in one piece with `--cool`**, final files `video.mp4`, `script.txt`, `metadata.md`. **Thumbnail prompts** (skill `tlama-thumbnail`, 1280×720) are written at the end, the image itself I generate by hand.
+6. **No dry run and no Buffer.** I upload long-form videos **by hand** in YouTube Studio. Never run `publish.mjs` for a long-form video.
+7. **Final report** in this structure:
+
+   ```
+   - Plný render doběhl: <snímky>, <délka>, 1920×1080, 30 fps, hlas + hudba.
+   - `shortkit.py check`: <výsledek kamery a zoomu>
+   - Vytvořeno: `video.mp4`, `script.txt`, `metadata.md`
+   - [případné upozornění na chyby nebo věci, které musím vědět]
+   - Thumbnail prompty (skill `tlama-thumbnail`, 1280×720): <celý výstup skillu, 3 varianty, uloženo v `thumbnail_prompts.md`>
+   - Nahrání: ručně v YouTube Studiu (video + thumbnail, title, description s kapitolami a tags z `metadata.md`)
+   ```
+
+`metadata.md` for long-form has only the YouTube part: `### Title`, `### Description` (with chapters `0:00 …` inside, then 3–5 hashtags without #shorts) and `### Tags`. The exact template is in the long-form skill. After a long-form video is finished, add it to the long-form table in `DOCUMENTATION.md`.
 
 ### Higgsfield (new characters and backgrounds)
 

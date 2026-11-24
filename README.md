@@ -24,6 +24,7 @@ node scripts/publish/publish.mjs NNN              # queue video NNN on YouTube, 
 | **Buffer** (API key) | queues the finished video on YouTube, Instagram and TikTok | for publishing |
 | **Cloudflare R2** (bucket + keys) | temporary public hosting of `video.mp4`, which Buffer needs to fetch | for publishing |
 | **Higgsfield** (Claude connector) | generates new characters, emotion sheets and backgrounds | only when adding new characters or backgrounds; rendering works without it |
+| **Nano Banana / Higgsfield image generator** | I paste the thumbnail prompts here by hand | manual step, optional |
 | **ElevenLabs** | I record the voiceover here myself; Claude only writes the tagged script | manual step |
 
 Keys live in `.env` (copy `.env.example` and fill it in). `.env` is git-ignored, never commit it. Higgsfield is not a key: it is a connector enabled in Claude Code.
@@ -51,6 +52,25 @@ Keys live in `.env` (copy `.env.example` and fill it in). `.env` is git-ignored,
 
 *The hero, Tlama: source cutout, layers, re-assembled, posed. Limbs rotate at the shoulder and hip, the head tilts, faces are swapped per shot.*
 
+## Thumbnails (prompts + AI image generator)
+
+Thumbnails are not rendered from the 3D stage. At the end of every video, the `tlama-thumbnail` skill reads the script and writes **3 ready-to-paste image prompts** into `thumbnail_prompts.md` in the video folder. Each prompt combines Tlama (pink round head, big grin, yellow goggles) with one key thing from the story and 1–3 words of big outlined text, drawn in a punchy "clickbait" version of the channel style.
+
+How I use it:
+
+1. Open `thumbnail_prompts.md` and pick one of the 3 variants.
+2. Paste the prompt into an image generator (Nano Banana or Higgsfield) and attach `puppets/main_hero_tlama/source.png` as the reference, so Tlama looks the same every time.
+3. Download the result and upload it as the custom thumbnail by hand in YouTube Studio (Buffer cannot set thumbnails).
+
+Shorts are 1080×1920 (9:16), long-form videos are 1280×720 (16:9). Examples generated from the prompts (monster under the bed, giant cake, wish coin, dog ate homework):
+
+<p>
+  <img src="docs/images/th1.png" width="170" alt="Thumbnail: It's scared">
+  <img src="docs/images/th2.png" width="170" alt="Thumbnail: Run!">
+  <img src="docs/images/th3.png" width="170" alt="Thumbnail: Cat = King">
+  <img src="docs/images/th4.png" width="170" alt="Thumbnail: No Max!">
+</p>
+
 ## Automated publishing (Cloudflare R2 + Buffer)
 
 Publishing is fully automated by `scripts/publish/publish.mjs`, so no video is uploaded by hand:
@@ -72,13 +92,14 @@ videos/NNN-slug/
   video.mp4        final render
   script.txt       script without audio tags
   metadata.md      titles and captions per platform (YouTube, Instagram, TikTok)
+  thumbnail_prompts.md  3 image prompts for the thumbnail
   work/            per-video working files (voice, scene, stills), safe to delete
 puppets/           reusable characters, overview in PUPPETS.md
 props/             ready-made 3D models (GLB packs) + catalog.json
 bg/                background paintings
 music/             the shared music track
 scripts/           scene generator template, voice.sh, set_dressing.py, publish/
-.claude/skills/    the ricksclips-short-style skill (stage, render, rules)
+.claude/skills/    ricksclips-short-style (stage, render, rules), tlama-longform, tlama-thumbnail
 docs/images/       images used in this README
 CLAUDE.md          project rules and instructions for Claude
 ```

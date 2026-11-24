@@ -34,6 +34,11 @@ const scenePath = path.resolve(pos[0]), outPath = path.resolve(pos[1] || 'out.mp
 if (!fs.existsSync(scenePath)) die('no such file: ' + scenePath);
 if (opt.scale !== null && !(opt.scale > 0.1 && opt.scale <= 1)) die('--scale must be between 0.1 and 1');
 let spec; try { spec = JSON.parse(fs.readFileSync(scenePath, 'utf8')); } catch (e) { die('short.json is not valid JSON: ' + e.message); }
+// output format: "portrait" (default, 1080x1920 Short) or "landscape" (1920x1080 long-form video)
+const FORMATS = { portrait: [1080, 1920], landscape: [1920, 1080] };
+if (spec.format !== undefined && !FORMATS[spec.format]) die('"format" must be "portrait" or "landscape"');
+const LANDSCAPE = spec.format === 'landscape';
+[spec._W, spec._H] = FORMATS[spec.format || 'portrait'];
 
 // ------------------------------------------------------------ validation (the scene file is input: check it before use)
 const under = (r, p) => { const f = path.resolve(r, String(p)); return (f === r || f.startsWith(r + path.sep)) ? f : null; };
@@ -109,10 +114,24 @@ function resolveTimeline(s) {
   (s.actions || []).forEach((a, i) => s._actions.push({ ...a, t: timeOf(a.t ?? 0, `actions[${i}].t`) }));
   s._lighting = (s.lighting || []).map((k, i) => ({ ...k, t: timeOf(k.t, `lighting[${i}].t`) })).sort((a, b) => a.t - b.t);
   if (s._lighting.length && s._lighting[0].t > 0) s._lighting.unshift({ t: 0, mood: s._lighting[0].mood });
-  // captions: 1-2 words, changing on the word
-  const cap = s.captions; s._captions = [];
+  // captions: 1-2 words, changing on the word (Short); landscape default = short phrases of up to 5 words
+  const cap = s.captions === undefined && LANDSCAPE ? { mode: 'phrase' } : s.captions; s._captions = [];
   const clean = (w) => w.replace(/^["'\u201c\u2018(]+/, '').replace(/["'\u201d\u2019).,;:\u2026]+$/, '');
-  if (cap !== false && words) {
+  if (cap !== false && words && cap && cap.mode === 'phrase') {
+    // a run of words ends at a sentence end, at a comma once it has 3+ words, or at a pause > 0.35 s;
+    // a run longer than maxWords is split into equal phrases (6 words -> 3 + 3, not 5 + 1)
+    const max = cap.maxWords || 5, W = words.words; let run = [];
+    const push = (g, nxt) => { const lastEnd = g[g.length - 1].t1; s._captions.push({ t0: g[0].t0, t1: nxt ? Math.min(nxt.t0, lastEnd + 0.6) : lastEnd + 0.4, text: g.map(w => clean(w.w)).join(' ') }); };
+    const flush = (nxt) => {
+      const parts = Math.ceil(run.length / max);
+      for (let p = 0, a = 0; p < parts; p++) { const b = Math.round(run.length * (p + 1) / parts); push(run.slice(a, b), b < run.length ? run[b] : nxt); a = b; }
+      run = [];
+    };
+    W.forEach((w, i) => {
+      run.push(w); const nxt = W[i + 1];
+      if (!nxt || /[.!?\u2026]["'\u201d\u2019)]*$/.test(w.w) || (run.length >= 3 && /[,;:]["'\u201d\u2019)]*$/.test(w.w)) || nxt.t0 - w.t1 > 0.35) flush(nxt);
+    });
+  } else if (cap !== false && words) {
     const per = (cap && cap.wordsPer) || s.words_per_caption || 1, W = words.words;
     for (let i = 0; i < W.length; i += per) {
       const g = W.slice(i, i + per), nxt = W[i + per], lastEnd = g[g.length - 1].t1;
@@ -122,17 +141,20 @@ function resolveTimeline(s) {
     const text = typeof cap === 'string' ? cap : cap.text, per = (cap && cap.wordsPer) || s.words_per_caption || 1, every = ((cap && cap.framesPer) || s.frames_per_caption || 10) / fps, ws = text.split(/\s+/).filter(Boolean);
     for (let i = 0, n = 0; i < ws.length; i += per, n++) s._captions.push({ t0: n * every, t1: i + per >= ws.length ? end : (n + 1) * every, text: ws.slice(i, i + per).map(clean).join(' ') });
   }
-  // like & subscribe call-to-action: ONE on-screen graphic (no voice). Default at 27 s, snapped to the
-  // nearest sentence start in words.json (+-3 s) so it never covers a punchline. "cta": {"at": 30, "dur": 2.5}; "cta": false turns it off.
+  // like & subscribe call-to-action: an on-screen graphic (no voice), snapped to the nearest sentence start
+  // in words.json (+-3 s) so it never covers a punchline. Short default: once at 27 s. Landscape default: twice,
+  // at 30 s and 30 s before the end. "cta": {"at": 30, "dur": 2.5}, a list of those ({"fromEnd": 30} counts
+  // back from the end), or false to turn it off.
   s._cta = [];
   if (s.cta !== false) {
-    const c = s.cta || {}, dur = c.dur ?? 2.5;
-    let t = c.at ?? 27;
-    if (words) {
-      const starts = words.words.filter((w, i) => i === 0 || /[.!?]["'\u201d\u2019)]*$/.test(words.words[i - 1].w)).map(w => w.t0);
+    const list = Array.isArray(s.cta) ? s.cta : s.cta ? [s.cta] : LANDSCAPE ? [{ at: 30 }, { fromEnd: 30 }] : [{}];
+    const starts = words ? words.words.filter((w, i) => i === 0 || /[.!?]["'\u201d\u2019)]*$/.test(words.words[i - 1].w)).map(w => w.t0) : [];
+    for (const c of list) {
+      const dur = c.dur ?? 2.5;
+      let t = c.at ?? (c.fromEnd !== undefined ? end - c.fromEnd : 27);
       if (starts.length) { const near = starts.reduce((a, b) => Math.abs(b - t) < Math.abs(a - t) ? b : a); if (Math.abs(near - t) <= 3) t = near; }
+      if (t >= 0 && t + 1 <= end) s._cta.push({ t0: t, t1: Math.min(t + dur, end - 0.3) });
     }
-    if (t + 1 <= end) s._cta.push({ t0: t, t1: Math.min(t + dur, end - 0.3) });
   }
   s._frames = Math.max(1, Math.round(end * fps)); s._end = end;
   return s;
@@ -162,14 +184,14 @@ const tries = opt.chrome ? [{ channel: 'chrome', args: hard }, { channel: 'chrom
 let browser, lastErr;
 for (const t of tries) { try { browser = await pw.chromium.launch(t); break; } catch (e) { lastErr = e; } }
 if (!browser) die('could not start a browser. Run "npx playwright install chromium" in ' + here + ' (or install Chrome and pass --chrome).\n' + String(lastErr && lastErr.message).split('\n')[0]);
-const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: 1 });
+const page = await browser.newPage({ viewport: { width: spec._W, height: spec._H }, deviceScaleFactor: 1 });
 const fail = async (msg) => { console.error('error: ' + msg); await browser.close(); server.close(); process.exit(2); };
 page.on('pageerror', e => fail('stage: ' + e.message));
 await page.goto(`http://127.0.0.1:${port}/index.html`);
 await page.waitForFunction(() => window.ready === true, null, { timeout: 60000 });
 let info; try { info = await page.evaluate(s => window.setup(s), spec); } catch (e) { await fail(String(e.message).split('\n')[0].replace(/^page\.evaluate: /, '')); }
 const frames = info.frames;
-console.log(`${spec._shots.length} shots, ${(frames / fps).toFixed(2)} s, ${frames} frames at ${Math.round(1080 * spec._scale)}x${Math.round(1920 * spec._scale)}`);
+console.log(`${spec._shots.length} shots, ${(frames / fps).toFixed(2)} s, ${frames} frames at ${Math.round(spec._W * spec._scale)}x${Math.round(spec._H * spec._scale)}`);
 
 // ------------------------------------------------------------ stills + checks
 if (opt.stills) {
@@ -199,14 +221,14 @@ if (opt.stills) {
 const f0 = opt.from !== null ? Math.max(0, Math.round(opt.from * fps)) : 0, f1 = opt.to !== null ? Math.min(frames, Math.round(opt.to * fps)) : frames;
 if (f1 <= f0) await fail('--from/--to select no frames');
 const dur = (f1 - f0) / fps, au = (opt.audio && spec.audio) || {}, ff = ['-y', '-v', 'error', '-f', 'image2pipe', '-framerate', String(fps), '-c:v', 'png', '-i', '-'];
-const ain = []; for (const k of ['voice', 'music']) if (au[k]) { ff.push('-ss', String(f0 / fps), '-t', String(dur), '-i', inProject(au[k])); ain.push(k); }
+const ain = []; for (const k of ['voice', 'music']) if (au[k]) { if (k === 'music') ff.push('-stream_loop', '-1'); ff.push('-ss', String(f0 / fps), '-t', String(dur), '-i', inProject(au[k])); ain.push(k); }
 const vf = 'scale=trunc(iw/2)*2:trunc(ih/2)*2';
 if (ain.length) {
   const mdb = Number.isFinite(au.musicDb) ? au.musicDb : -18, fade = `afade=t=out:st=${Math.max(0, dur - 1.5).toFixed(2)}:d=1.5`, mi = ain.indexOf('music') + 1, vi = ain.indexOf('voice') + 1;
   const fc = mi && vi ? `[${mi}:a]volume=${mdb}dB,${fade}[m];[${vi}:a][m]amix=inputs=2:duration=longest:normalize=0[a]` : mi ? `[${mi}:a]volume=${mdb}dB,${fade}[a]` : `[${vi}:a]anull[a]`;
   ff.push('-filter_complex', `[0:v]${vf}[v];${fc}`, '-map', '[v]', '-map', '[a]', '-c:a', 'aac', '-b:a', '192k');
 } else ff.push('-vf', vf);
-// --cool: Apple's hardware encoder (almost no CPU) instead of libx264; 16 Mbit/s is well above what YouTube keeps for a 1080x1920 Short
+// --cool: Apple's hardware encoder (almost no CPU) instead of libx264; 16 Mbit/s is well above what YouTube keeps for a 1080x1920 Short or a 1080p video
 const venc = opt.cool && process.platform === 'darwin' ? ['-c:v', 'h264_videotoolbox', '-b:v', '16M', '-profile:v', 'high'] : ['-c:v', 'libx264', '-preset', 'veryfast', '-crf', '18'];
 ff.push('-t', String(dur), ...venc, '-pix_fmt', 'yuv420p', '-movflags', '+faststart', outPath);
 const enc = spawn('ffmpeg', ff, { stdio: ['pipe', 'inherit', 'inherit'] });

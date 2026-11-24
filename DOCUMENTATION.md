@@ -14,6 +14,8 @@ A faceless YouTube Shorts channel, [@TlamaLabs](https://www.youtube.com/@TlamaLa
 - **Look:** flat 2D doodle cutouts standing in a sunlit 3D world. The style is inspired by @RicksClips3000 (but never copies it). Everything is built and rendered in code.
 - **Voice:** recorded by the author in ElevenLabs. Claude writes the tagged script and never generates the voice.
 
+Next to the daily Shorts the channel also makes **landscape long-form videos** (5–8 min, target ~6 min, 3× a week): one longer absurd story with Tlama in the same style, built with the same engine and library. See "Long-form videos" below.
+
 The channel used to post Roblox content. That direction has been dropped completely.
 
 ## 2. Goals
@@ -24,6 +26,7 @@ The channel used to post Roblox content. That direction has been dropped complet
 | **Retention** | Viewers must stay to the end and ideally replay. This drives the story formula, the 10/10 idea gate, the shot every 1–3 s and the looping last line |
 | **Global reach** | English at A2–B1 level, so non-native speakers and kids understand every sentence. English also brings a higher RPM |
 | **One video per day** | Production has to be fast and repeatable. The library is built once and each new video only adds its own folder |
+| **Long-form 3× a week** | Longer watch time per viewer and a second shelf on the channel, reusing the whole Shorts library and engine |
 
 ## 3. Workflow overview
 
@@ -66,7 +69,7 @@ ElevenLabs audio tags are used, about 1 per 1–2 sentences. Tags that lengthen 
 | Set dressing | `scripts/set_dressing.py` | `scatter` / `line` / `ring` / `clear_zone` fill a location with 120–200 props in a few lines |
 | Puppets | `puppet.py` (slice + rig), `scripts/puppet_variants.py`, `scripts/crown_coin_variants.py` | cutout layers with a rig and swappable faces. Variants (phone, nest, coin, crown, king without crown, cat with crown) and prop puppets (crown, coin) are made locally with PIL from existing puppets |
 | Props | `props/<pack>/*.glb` + `props/catalog.json` + previews (`scripts/props_catalog.py`) | ready-made CC0 models (Kenney packs) mixed with stage primitives |
-| Voice | `scripts/voice.sh` (ffmpeg) | removes silences and speeds up the track to ≤ 60 s without changing the pitch |
+| Voice | `scripts/voice.sh` (ffmpeg) | removes silences and speeds up the track to ≤ 60 s without changing the pitch; `scripts/voice.sh raw out 0` = remove silences only, no speed-up (long-form) |
 | Timing | `shortkit.py words` with faster-whisper in `.venv` | `words.json` drives the captions and the cuts |
 | Picture quality | `stage.js` (`makeFx`, `makePost`, `CURVES`) | on by default in every video: ambient occlusion on the set, depth of field focused on the shot target (character silhouettes go into the depth buffer), fog, bloom, warm/cool grade, vignette, grain, faint colour fringe; poses ease with a small overshoot, hops squash and stretch, faces pop. Tunable or off via `ao`, `fog`, `post`, `shadowSoftness` and an action's `curve` |
 | Like & subscribe | `render.mjs` (`_cta`) + `stage.js` (`drawCta`) | ONE automatic on-screen graphic (thumbs-up + bell + "LIKE & SUBSCRIBE", no voice) at ~27 s for 2.5 s, snapped to the nearest sentence start in `words.json` (±3 s) so it never covers a punchline. On by default in every video; change with `"cta": {"at": 30}`, disable with `"cta": false` |
@@ -98,6 +101,26 @@ ElevenLabs audio tags are used, about 1 per 1–2 sentences. Tags that lengthen 
 | Picture effects in the stage, on by default | AO, depth of field, fog and grading make the code-built set read as a real, deep place and separate the hero from the background. They cost nothing per video (no setup in `short.json`), and post runs before the captions so the text stays crisp |
 | Idea gate with a checklist and a critic pass | an honest bar for "viral potential" instead of an inflated feeling, calibrated with real data |
 
+## 6b. Long-form videos (landscape)
+
+| Part | What |
+| --- | --- |
+| Skill | `.claude/skills/tlama-longform/SKILL.md`. It inherits everything from `ricksclips-short-style` and overrides only what differs |
+| Shortcut | `--clv` (same steps as `--cv`, no dry run). Defined in `CLAUDE.md` |
+| Folder | `longform/LNNN-slug/` (own numbering L001, L002…), same `work/` layout as Shorts, final files `video.mp4`, `script.txt`, `metadata.md` |
+| Format | `"format": "landscape"` in `short.json` → 1920×1080, 30 fps |
+| Story | ~900 words (~6 min): hook + rule within 30 s → escalation ladder of 6 steps in 3 acts, cliffhanger after each act, midpoint turn at ~3:00 → "You see…" → twist back to the hook. Max 5 places, max 5 side characters, a running gag. Same Simple English and ElevenLabs tags |
+| Idea gate | `.claude/skills/tlama-longform/references/idea-scorecard.md` (10 gates, 10 points, the first 30 s worth 2) + `idea_check.py --longform` with its own registry `scripts/ideas_used_longform.json` |
+| Voice | `voice.sh … 0`: silences removed, **no speed-up** (length comes from the text) |
+| Picture | shots 4–8 s, slower camera (`zoom` 2–4), `headWidth` ≈ 0.56× the Short values, `frameX` to use the width |
+| Captions / CTA | engine defaults for landscape: phrases of 3–5 words at the bottom; LIKE & SUBSCRIBE at ~30 s and ~30 s before the end, at the top |
+| Music | the same `music/music.mp3`, looped by the renderer |
+| Thumbnail | the author generates it by hand from prompts written by `tlama-thumbnail` (1280×720) |
+| Render | in one piece with `--cool` (several hours) |
+| Publishing | **by hand** in YouTube Studio; `metadata.md` has YouTube Title, Description (with chapters), Tags. `publish.mjs` is not used |
+
+**Why these choices (decided with the author, 2026-11-23):** one shared engine so fixes land once and Shorts never break (portrait is the default, checked pixel-for-pixel); a separate skill because almost every Short number (60 s, ~40 shots, loop, 1–2 word captions) is different for long-form and mixing them in one file would blur the rules; no speed-up so a 6-min voice stays natural; thumbnails by hand (a test thumbnail rendered from the stage was not good enough); Buffer dropped for long-form, the author uploads by hand.
+
 ## 7. Quality benchmark
 
 Video **004 "Call From Tomorrow"** is the reference for animation, assets and full scenes. Its generator is `scripts/build_call_from_tomorrow.py`, and what made it work is listed in SKILL.md ("Quality benchmark").
@@ -117,6 +140,12 @@ Video **004 "Call From Tomorrow"** is the reference for animation, assets and fu
 
 (Video 004 has no folder or script in the project, only its generator.)
 
+Long-form videos (`longform/`):
+
+| # | Title | Magic rule |
+| --- | --- | --- |
+| L001 | One Copy | the school copy machine makes a real, living copy of anything put on it (every copy has Tlama's idea: make a copy) |
+
 ## 9. Changelog
 
 - **2026-11-23**: Added the idea gate (`idea-scorecard.md`, `scripts/idea_check.py`, `scripts/ideas_used.json`). `--cv` now shows only ideas at 10/10, at least two. Created this documentation.
@@ -128,3 +157,9 @@ Video **004 "Call From Tomorrow"** is the reference for animation, assets and fu
 - **2026-11-23**: Picture quality upgrade in `stage.js`, on by default for all new renders: easing (poses with a small overshoot `curve: back`, hop squash and stretch, elastic face pop), ambient occlusion on the set (`ao`), sun shadow softness (`shadowSoftness`), closer atmospheric fog (default 30–150, was 40–160, `fog`), and post-processing (`post`: depth of field on the shot target, bloom, warm/cool grade, saturation, contrast, vignette, grain, faint chromatic aberration). Captions are drawn after the post, so they stay sharp. Already rendered videos are unchanged until re-rendered.
 - **2026-11-23**: `render.mjs --cool [ms]`: Apple hardware encoder (`h264_videotoolbox`, 16 Mbit/s) instead of libx264, plus a pause between frames (default 100 ms). It halves the average CPU load on the fanless MacBook Air M3 for about 2x the render time, with the same look (SSIM 0.988 vs libx264). It is now the standard full-render command in CLAUDE.md and SKILL.md.
 - **2026-11-23**: Video 011 Opposite Echo. New action option `run: true` in `stage.js` (documented in `references/formats.md`): like `walk`, but the legs swing fast and at full strength for the whole move, each character in its own rhythm; a `to` to the same spot = running in place, chained `to` moves with `"curve": "linear"` = a crowd running along a path (a ring). Backward compatible, older videos unchanged. Video-only assets made locally with PIL (`videos/011-opposite-echo/work/custom/make_assets.py`): STOP!/GO! comic shout bursts as prop puppets, a baker (peasant + apron) and a baker holding the cake, wooden signs as `plane` images. Lessons: a running crowd loops seamlessly when the total running time equals a whole number of laps; a shout made visible as a burst (red STOP, green GO, matching red/green light flashes) makes a sound-based rule readable without audio.
+- **2026-11-23**: Engine prepared for landscape long-form videos (skill for them comes next). `short.json` accepts `"format": "landscape"` (1920×1080); without it, Shorts render exactly as before (checked pixel-for-pixel on video 011). Landscape defaults: captions as short phrases of up to 5 words at the bottom (`"captions": {"mode": "phrase", "maxWords": 5}`, longer runs split evenly), LIKE & SUBSCRIBE twice (30 s and 30 s before the end, at the top of the frame; `"cta"` also accepts a list and `{"fromEnd": 30}`). Music now loops when it is shorter than the video. `shortkit.py check` handles both orientations. `voice.sh` with max `0` skips the speed-up. Note: `headWidth` is a share of the frame width, so in landscape the same head size needs ~0.56× the Short value.
+- **2026-11-23**: Long-form videos added: new skill `.claude/skills/tlama-longform/` (SKILL.md + long-form idea scorecard), shortcut `--clv` in `CLAUDE.md`, folder `longform/LNNN-slug/`, `idea_check.py --longform` with registry `scripts/ideas_used_longform.json`.  Engine keys documented in `references/formats.md` of the Short skill. Shorts are unchanged.
+- **2026-11-23**: Long-form thumbnails dropped from the workflow (the stage-rendered test was not good enough; the author makes them by hand). Removed `render.mjs --thumb`, the thumbnail scene and the thumbnail fields of `idea_check.py --longform`; in the long-form scorecard the 2 thumbnail points went to "First 30 s".
+- **2026-11-23**: First long-form video L001 "One Copy" made (4:05 voice after silence removal, below the 5-min target; 65 shots, 6 locations, ~290 puppets incl. crowds of Tlamas and moms). Lesson for long-form sets: food-kit models are already life size (scale ~0.5–1, not 2), and "sitting" behind a desk works with a lower desk (top ~0.6) and the puppet at y ≈ -0.18. Its generator is `longform/L001-one-copy/work/build.py`.
+- **2026-11-24**: New skill `.claude/skills/tlama-thumbnail/`: writes 3 ready-to-paste thumbnail prompts (Nano Banana / Higgsfield) per video: Tlama (reference `puppets/main_hero_tlama/source.png`) + one key thing from the video + 1–3 words of text, clickbait version of the channel style. Shorts 1080×1920, long-form 1280×720. Runs automatically at the end of `--cv` / `--clv`, saved as `thumbnail_prompts.md` in the video folder. It only writes prompts; nothing is rendered from the stage and the image is generated and uploaded (YouTube Studio) by hand.
+- **2026-11-24**: README: added the "Thumbnails" section (prompt workflow with the image generator) with four example thumbnails `docs/images/th1–th4.png`.

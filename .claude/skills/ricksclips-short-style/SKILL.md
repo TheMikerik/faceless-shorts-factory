@@ -7,6 +7,8 @@ description: The channel skill for @ricksclips3000-style animated Shorts - flat 
 
 Make a vertical Short where flat 2D characters stand in a real 3D set: the sun casts their shadows on the ground, the set uses flat colours with an ink outline, the light follows the story and the camera glides from shot to shot. Higgsfield can generate what has to be designed (new characters, backgrounds), but only on the user's explicit confirmation; the voice is never generated. **This channel does NOT generate music, textures or 3D models** (see "Channel rules" below). The bundled stage builds, checks and renders the scene in code.
 
+This skill is for vertical Shorts. Landscape long-form videos (5-8 min, `--clv`) use the skill `tlama-longform`, which builds on this one and the same engine (`"format": "landscape"`); nothing in it changes how Shorts are made.
+
 The style rules behind every default were measured frame by frame from 20 Shorts. The short version is at the end; the full numbers are in `references/style-rules.md`.
 
 ## Channel rules (override everything below)

@@ -11,12 +11,14 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 
-const W = 1080, H = 1920;             // output pixels; all camera math is in these units
+let W = 1080, H = 1920;               // output pixels; all camera math is in these units (set from spec._W/_H: portrait Short or landscape long-form)
 const LINE = '#271925';               // measured line-art colour
 const OUTLINE_PER_HEAD = 10 / 216;    // 10 px stroke on a 216 px (20% width) head
 const ARRIVE_GAIN = 0.7;              // camera arrives fast, then settles
 const GLIDE_S = 0.8, DISSOLVE_S = 8 / 30;
-const CAPTION_Y = 1350, CAPTION_PX = 70;
+// caption / CTA layout per format: portrait = centred word at 70% height; landscape = short phrase near the bottom
+const LAYOUT = { portrait: { capY: 1350, capPx: 70, capStroke: 16, ctaY: 1180 }, landscape: { capY: 975, capPx: 66, capStroke: 14, ctaY: 120 } };
+let L = LAYOUT.portrait;
 
 let FPS = 30, SCALE = 1, S;
 let renderer, scene, camera, setRoot, sun, hemi, skyMesh, backdrop;
@@ -444,6 +446,7 @@ function runPost(focus) {
 // ------------------------------------------------------------ setup
 window.setup = async (spec) => {
   S = spec; FPS = spec.fps || 30; SCALE = spec._scale || 1;
+  W = spec._W || 1080; H = spec._H || 1920; L = LAYOUT[W > H ? 'landscape' : 'portrait'];
   const rw = Math.round(W * SCALE), rh = Math.round(H * SCALE);
   renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: false });
   renderer.setPixelRatio(1); renderer.setSize(rw, rh);
@@ -580,14 +583,16 @@ function drawCaption(t) {
   for (const c of caps) { if (t >= c.t0 && t < c.t1) { text = c.text; break; } }
   if (!text) return;
   octx.save(); octx.scale(SCALE, SCALE);
-  octx.font = `800 ${CAPTION_PX}px ShortCaption, "Montserrat ExtraBold", Montserrat, "Arial Black", "Helvetica Neue", "DejaVu Sans", sans-serif`;
+  const face = (px) => `800 ${px}px ShortCaption, "Montserrat ExtraBold", Montserrat, "Arial Black", "Helvetica Neue", "DejaVu Sans", sans-serif`;
+  octx.font = face(L.capPx);
+  const tw = octx.measureText(text).width, k = Math.min(1, W * 0.86 / Math.max(1, tw));   // a long phrase shrinks to fit the width
+  if (k < 1) octx.font = face(Math.round(L.capPx * k));
   octx.textAlign = 'center'; octx.textBaseline = 'middle'; octx.lineJoin = 'round';
-  octx.strokeStyle = LINE; octx.lineWidth = 16; octx.strokeText(text, W / 2, CAPTION_Y);
-  octx.fillStyle = '#ffffff'; octx.fillText(text, W / 2, CAPTION_Y);
+  octx.strokeStyle = LINE; octx.lineWidth = L.capStroke; octx.strokeText(text, W / 2, L.capY);
+  octx.fillStyle = '#ffffff'; octx.fillText(text, W / 2, L.capY);
   octx.restore();
 }
 // like / subscribe call-to-action (text + drawn icon), pops in and out
-const CTA_Y = 1180;
 function ctaIcon(kind, x, y, r) {
   octx.save(); octx.translate(x, y); octx.scale(r / 50, r / 50); octx.lineJoin = 'round'; octx.lineCap = 'round';
   octx.fillStyle = '#ffffff'; octx.strokeStyle = LINE; octx.lineWidth = 7;
@@ -609,7 +614,7 @@ function drawCta(t) {
   const sc = (a < 0.25 ? clamp(a / 0.25, 0, 1) * 1.12 - (a / 0.25 > 0.7 ? (a / 0.25 - 0.7) * 0.4 : 0) : 1) * (b < 0.2 ? clamp(b / 0.2, 0, 1) : 1);
   if (sc <= 0.01) return;
   const text = 'LIKE & SUBSCRIBE';
-  octx.save(); octx.scale(SCALE, SCALE); octx.translate(W / 2, CTA_Y); octx.scale(sc, sc); octx.rotate(-0.03);
+  octx.save(); octx.scale(SCALE, SCALE); octx.translate(W / 2, L.ctaY); octx.scale(sc, sc); octx.rotate(-0.03);
   octx.font = `800 58px ShortCaption, "Montserrat ExtraBold", Montserrat, "Arial Black", "Helvetica Neue", "DejaVu Sans", sans-serif`;
   octx.textAlign = 'center'; octx.textBaseline = 'middle'; octx.lineJoin = 'round';
   const tw = octx.measureText(text).width, pw = tw + 250, ph = 130;
@@ -654,7 +659,7 @@ window.probeFrame = (i, quality = 0.9) => {
     head = { x: +(ndc.x * 0.5 + 0.5).toFixed(3), y: +(0.5 - ndc.y * 0.5).toFixed(3), onScreen };
   }
   // picture statistics on a small copy
-  const sw = 54, sh = 96, sc = canvasOf(sw, sh), sg = sc.getContext('2d', { willReadFrequently: true }); sg.drawImage(out, 0, 0, sw, sh);
+  const sw = W > H ? 96 : 54, sh = W > H ? 54 : 96, sc = canvasOf(sw, sh), sg = sc.getContext('2d', { willReadFrequently: true }); sg.drawImage(out, 0, 0, sw, sh);
   const d = sg.getImageData(0, 0, sw, sh).data, n = sw * sh, bins = new Map(); let sum = 0, sum2 = 0, black = 0;
   for (let j = 0; j < d.length; j += 4) { const l = 0.2126 * d[j] + 0.7152 * d[j + 1] + 0.0722 * d[j + 2]; sum += l; sum2 += l * l; if (d[j] < 10 && d[j + 1] < 10 && d[j + 2] < 10) black++; const key = (d[j] >> 4) << 8 | (d[j + 1] >> 4) << 4 | (d[j + 2] >> 4); bins.set(key, (bins.get(key) || 0) + 1); }
   const mean = sum / n, std = Math.sqrt(Math.max(0, sum2 / n - mean * mean)), dominant = Math.max(...bins.values()) / n;
@@ -664,7 +669,7 @@ window.probeFrame = (i, quality = 0.9) => {
   return { frame: i, t: +t.toFixed(3), shot: k, flags, inside, head, luma: +mean.toFixed(1), contrast: +std.toFixed(1), dominant: +dominant.toFixed(2), image: out.toDataURL('image/jpeg', quality) };
 };
 window.makeSheet = async (cells, cols = 6) => {                 // cells: [{ image, label, bad }]
-  const cw = 270, chh = 480, pad = 6, rows = Math.ceil(cells.length / cols);
+  const cw = W > H ? 480 : 270, chh = W > H ? 270 : 480, pad = 6, rows = Math.ceil(cells.length / cols);
   const cv = canvasOf(cols * (cw + pad) + pad, rows * (chh + 34 + pad) + pad), g = cv.getContext('2d');
   g.fillStyle = '#1b1820'; g.fillRect(0, 0, cv.width, cv.height); g.font = '600 16px "Helvetica Neue", Arial, sans-serif'; g.textBaseline = 'middle';
   for (let j = 0; j < cells.length; j++) {
