@@ -98,6 +98,8 @@ The sky and the far distance are one flat painting (background template, 21:9), 
 
 ### 5. Script, voice, timing
 
+**Setting first, never always a town.** Pick the place from the whole `props/` library (factory, pirate ship, forest, graveyard, kitchen, school, space...) before the story, and let the setting shape what happens. Do not default to "the town / the mayor" (details in "Setting variety" in `CLAUDE.md`).
+
 Write an **absurd, completely made-up story that never happened**. Never use history, real events, real people, real brands or real facts, and do not fact-check; invent everything. Use the formula:
 1. a **strong, exaggerated hook** in the first line, with no intro, starting in the middle of the action, with high stakes or a deadline (a number or a time), concrete and impossible, told in first person (Tlama), max 15 words. It must make the viewer ask "what? how does it end?" (see "Strong hooks" in `CLAUDE.md` for 23 examples);
 2. two or three escalating details, each more absurd than the last;

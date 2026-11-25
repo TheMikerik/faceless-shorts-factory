@@ -7,7 +7,7 @@ Used at step 2 of `--cv`. **Show the user only ideas that score 10/10, and at le
 ## Procedure
 
 1. **Read what was done.** `scripts/ideas_used.json` (rule + mechanics of every past video) and `videos/*/script.txt`.
-2. **Generate 8 to 10 candidates** silently. Spread them out: different everyday situations (breakfast, school, bedtime, a trip, a pet, a birthday) and different kinds of magic rule. Do not show them.
+2. **Generate 8 to 10 candidates** silently. **Choose the setting first** (see "Setting variety" in the project `CLAUDE.md`): spread the candidates over different `props/` packs and places (factory, pirate ship, forest, graveyard, kitchen, school, space...), not over "town" variants. At most 1 candidate may be a town/city story, and none may repeat the setting of the last 3 videos. Also vary the everyday situation (breakfast, school, bedtime, a trip, a pet, a birthday) and the kind of magic rule. Do not show them.
 3. **Mechanical check.** Write the candidates into the scratchpad as `candidates.json` (fields: `title, hook, rule, twist, mechanics, puppets, places, side_characters`) and run:
    ```
    .venv/bin/python scripts/idea_check.py <scratchpad>/candidates.json
@@ -29,6 +29,7 @@ Used at step 2 of `--cv`. **Show the user only ideas that score 10/10, and at le
 | G3 | **Rule of three**: the same kind of event three times, each bigger |
 | G4 | The **twist uses only what was already shown** and lands back on the hook, so the Short loops |
 | G5 | Max 3 places, max 3 side characters, all puppets exist in `PUPPETS.md` (no Higgsfield needed) |
+| G5b | **Setting variety**: not a default town/city/mayor story (max 1 of the 3 shown), and a different setting from the last 3 videos; the setting uses a `props/` pack and changes what happens |
 | G6 | **New**: `idea_check.py` passes; the core mechanic was not used in any past video |
 | G7 | Retell test in 3 sentences works, and every sentence can be drawn |
 | G8 | Safe for kids and monetization (no violence, fear for real, gross-out, real people/brands) |

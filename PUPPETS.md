@@ -27,6 +27,7 @@ Kopie `main_hero_tlama` s rekvizitou dokreslenou přímo do vrstvy, takže se h�
 
 | `main_hero_tlama_coin` | zlatá mince s hvězdou v pravé ruce | hvězda stojí rovně při `"pose": {"armR": -100}` (mince vedle hlavy, není schovaná za ní). Video 009 |
 | `main_hero_tlama_crown` | zlatá koruna malého krále na hlavě (všechny výrazy) | „teď jsem král“, vítěz. Video 009 |
+| `main_hero_tlama_hat` | vysoký černý klobouk nad brýlemi (všechny výrazy) | pozor na výšku: rig je o 200 px vyšší kvůli klobouku, pro stejně velké tělo jako 1.8 použij `height` 2.1614 (= 1.8 × feetY / 996). Video 014 |
 
 `_coin` a `_crown` dělá `scripts/crown_coin_variants.py` (spolu s `prop_crown`, `prop_coin`, `dwarf_king_nocrown`, `orange_tabby_cat_crown`).
 
@@ -39,6 +40,7 @@ Moderní postavy jsou nahoře, starodávné (historická videa) dole. Starodávn
 | Složka | Jak vypadá | Povaha / role | Kdy použít |
 | --- | --- | --- | --- |
 | `yellow_hoodie_kid` | hnědé rozcuchané vlasy, žlutá mikina | veselé dítě (cca 8 let) | sestra, bratr, kamarád, svědek |
+| `hoodie_kid_blue`, `hoodie_kid_green`, `hoodie_kid_red` | stejné dítě v modré / zelené / červené mikině (všechny výrazy) | přebarvený `yellow_hoodie_kid` | třída, dav dětí, spolužáci |
 | `red_bun_mom` | vínový drdol, zelený svetr se zástěrou | laskavá, trochu unavená máma | máma, babička, sousedka, kuchařka |
 | `grey_mustache_teacher` | kulaté brýle, šedý knír a vlasy po stranách, hnědé sako s červenou kravatou | přísný, podezíravý | učitel, ředitel, úředník, strážce pravidel |
 | `dwarf_king` | zlatá koruna, červený nos, obří bílý plnovous, červený plášť | malý, hrdý, mrzutý | malý král ve zdi, šéf, vládce čehokoli |
@@ -76,6 +78,19 @@ Náhled všech: `puppets/_cat_puppets_preview.jpg`.
 - `black_hat_noble_nohat`: stejný pán jako `black_hat_noble`, ale bez klobouku (všechny výrazy; `nervous` má drobnou vadu obrysu nahoře, raději nepoužívat). Výměna za `black_hat_noble` + `prop_hat_black` pro gag „klobouk spadl“.
 - `dog_floppy_ears_hat`: pes s černým kloboukem starosty na hlavě („starosta pes“).
 
+**Piráti** (video 012, lokálně přes PIL, `scripts/pirate_variants.py`, všechny výrazy, bez mrkání):
+
+| Složka | Jak vypadá | Základ |
+| --- | --- | --- |
+| `pirate_captain` | zelený klobouk s perem, zrzavý knír, páska přes oko | `green_feather_noble`; kapitán, šéf pirátů |
+| `pirate_elder` | červený šátek, páska přes oko, šedý vous | `maroon_cap_elder_nocap`; starý pirát |
+| `pirate_king` | černý pirátský klobouk s lebkou, obří bílý vous | `dwarf_king_nocrown` |
+| `pirate_noble` | modrý šátek, bradka | `black_hat_noble_nohat` |
+| `pirate_teacher` | žlutý šátek, brýle, knír | `grey_mustache_teacher` |
+| `pirate_kid` | zelený šátek | `yellow_hoodie_kid` (dětská výška 1.45) |
+
+Každý má i variantu `*_shovel` s lopatou v pravé ruce (stojí rovně při `"pose": {"armR": -60}`, kopání = střídat `armR` -25 a -105 s `body` ±10). Dav „sto pirátů“ = jedna karta se 9 piráty (viz `videos/012-the-x-is-me/work/custom/make_assets.py`, `crowd()`).
+
 ## Rekvizitové loutky (`prop_*`)
 
 Obrázek jako „postava“ (vrstva `head` = obrázek, `body` = 1 px). Na rozdíl od statických rekvizit v `props` se dají hýbat a schovat přes `to` (padat, letět, přistát), a kamera je umí sledovat přes `target`. Vznikly jednorázově lokálním skriptem (už smazán).
@@ -98,6 +113,9 @@ Obrázek jako „postava“ (vrstva `head` = obrázek, `body` = 1 px). Na rozdí
 | `prop_book` | velká červená kniha s hvězdou („BOOK“) | 0.5 |
 | `prop_rulebook` | velká hnědá kniha pravidel („RULES“) | 0.58 |
 | `prop_pill` | růžovo-modrá pilulka | 0.13 |
+| `prop_sock` | stará pruhovaná ponožka se třemi dírami | 0.55 |
+| `prop_bike` | červené kolo z boku (jede doprava); jezdec = postava v `y` 0.45, o 0.25 vlevo od středu a 0.15 za kolem, obě se stejným `to` | 1.0 |
+| `prop_key` | zlatý klíč s cedulkou SCHOOL | 0.5 |
 
 ## Poznámky
 

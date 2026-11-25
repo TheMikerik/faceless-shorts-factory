@@ -7,7 +7,7 @@ Used at step 2 of `--clv`. **Show the user only ideas that score 10/10, and at l
 ## Procedure
 
 1. **Read what was done.** `scripts/ideas_used_longform.json` (rule, mechanics, ladder of every past long-form video) and `longform/*/script.txt`. Long-form ideas are compared only with long-form videos; developing a topic that was once a Short is allowed.
-2. **Generate 8 to 10 candidates** silently. Spread them out: different everyday situations and different kinds of magic rule. Do not show them.
+2. **Generate 8 to 10 candidates** silently. **Choose the settings first**: spread them over different `props/` packs and places (factory, pirate ship, forest, graveyard, kitchen, school, space...), not "town" variants. At most 1 candidate may be a town/city story, and none may repeat the setting of the last long-form videos. Different everyday situations and different kinds of magic rule. Do not show them.
 3. **Mechanical check.** Write the candidates into the scratchpad as `candidates.json` and run:
    ```
    .venv/bin/python scripts/idea_check.py --longform <scratchpad>/candidates.json

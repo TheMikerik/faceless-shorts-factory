@@ -189,6 +189,7 @@ Scene generator: copy `scripts/build_call_from_tomorrow.py` to `$V/build.py` and
 - **Strong hook.** The first sentence (within ~2 s) must stop the scroll: concrete, bizarre, no intro. No "Hey guys", no "Today I will tell you".
 - **Retention.** Every 2–3 sentences a new plot turn, reveal or escalation ("open loop": promise something that is explained later). Never explain everything at once. No dead moment, no filler. The last sentence returns to the beginning so the video loops.
 - **One hero, one situation.** A simple story that can be told visually with one character and a few props.
+- **Setting variety (not always a town).** Do not default to "the town / the mayor / the city / my street". The world is the whole `props/` library, so **pick the setting FIRST, then invent the story that fits it.** Packs: `kenney_factory-kit` (factory, machines, conveyor belts), `kenney_pirate-kit` (ship, island, treasure), `kenney_mini-forest` (forest, camp, animals), `kenney_graveyard-kit` (graveyard, crypt, ghosts), `kenney_furniture-kit` (home, rooms), `kenney_food-kit` (kitchen, bakery, picnic), `basic_scene` (castle, village), plus bg images and primitives (space, sea, desert, snow, school, circus, farm, museum, mountain). Rules: of any 3 shown ideas **at most 1 may be set in a town/city or use a mayor/townspeople as the "whole world"**; every idea has a different setting; check the last 3 videos in `scripts/ideas_used.json` and do not repeat their setting; the setting must change what happens (a conveyor belt, a ship, a crypt do something a town cannot), and the stakes can grow without "the whole town" (the whole factory, the island, the forest, the ship, the moon). Mixing 2-3 packs in one scene is encouraged.
 - **Safe content.** No violence, hate or sexual content (monetization, YPP). Suitable for younger viewers too.
 
 ### Clarity (the viewer must not get lost)
@@ -314,7 +315,7 @@ Videos are published by the script `scripts/publish/publish.mjs` (it uploads `vi
 
 - **Never publish automatically.** I review the video first. Run the publication only on my explicit command (e.g. "publish 004"), because it goes to public networks.
 - Before the real run always do `--dry NNN` first and show me the output.
-- Run: `node scripts/publish/publish.mjs NNN` (queues into the next free slot in the Buffer queue, times do not matter). Several videos at once: `... 004 005 006`. Fixed times only on request (`--start`, `--time`).
+- Run: `node scripts/publish/publish.mjs NNN` (queues into the next free slot in the Buffer queue, times do not matter). **`--now`** publishes immediately on all platforms (Buffer `shareNow`, no queue), only when I explicitly say "publish now"; still run `--dry --now NNN` first. Several videos at once: `... 004 005 006`. Fixed times only on request (`--start`, `--time`).
 - The script skips already published videos according to `.published.json`. Do not delete the video from R2 until it has gone out.
 
 ### Simple English

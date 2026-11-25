@@ -96,5 +96,36 @@
       "backwards-command",
       "running-crowd"
     ]
+  },
+  {
+    "video": "012",
+    "title": "The X Is Me",
+    "hook": "The X on this pirate map is me, and a hundred pirates want to dig.",
+    "rule": "The X is always where the gold coin is, and the coin is in my pocket.",
+    "mechanics": [
+      "moving-x",
+      "treasure-map",
+      "digging-crowd"
+    ]
+  },
+  {
+    "video": "013",
+    "title": "The Floor Is Lava",
+    "hook": "I said the floor is lava. Now my whole town lives on chairs.",
+    "rule": "The floor becomes whatever Tlama calls it.",
+    "mechanics": [
+      "floor-becomes-word",
+      "retelling-repeats"
+    ]
+  },
+  {
+    "video": "014",
+    "title": "One Old Sock",
+    "hook": "This morning, I traded one old sock. By lunch, I owned the whole town.",
+    "rule": "It is Trade Day: nobody is allowed to say no to a trade.",
+    "mechanics": [
+      "trade-up",
+      "cannot-say-no"
+    ]
   }
 ]

@@ -13,6 +13,7 @@ Channel: [@TlamaLabs](https://www.youtube.com/@TlamaLabs). Visual style inspired
 node scripts/publish/publish.mjs --channels       # check the Buffer key, list connected channels
 node scripts/publish/publish.mjs --dry NNN        # preview what would be published
 node scripts/publish/publish.mjs NNN              # queue video NNN on YouTube, Instagram and TikTok
+node scripts/publish/publish.mjs --now NNN        # publish video NNN immediately on all platforms (no queue)
 ```
 
 `NNN` is the video number, e.g. `009`.
