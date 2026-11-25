@@ -59,8 +59,8 @@ def check(c, past):
     fails, warns = [], []
     hook = c.get("hook", "")
     n = len(words(hook))
-    if n > 15:
-        fails.append(f"hook has {n} words (max 15)")
+    if n > 10:
+        fails.append(f"hook has {n} words (max 10)")
     if hook.lower().startswith(INTROS):
         fails.append("hook starts with an intro")
     if not re.search(r"\b(i|me|my)\b", hook.lower()):

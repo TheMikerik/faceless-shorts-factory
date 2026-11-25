@@ -127,5 +127,26 @@
       "trade-up",
       "cannot-say-no"
     ]
+  },
+  {
+    "video": "015",
+    "title": "It Rains Me",
+    "hook": "I fell in the rain machine. Today, it rains me.",
+    "rule": "In the cloud factory, the big machine rains the last thing that fell inside, over the whole world.",
+    "mechanics": [
+      "last-thing-in-rains",
+      "weather-machine"
+    ]
+  },
+  {
+    "video": "016",
+    "title": "Nine More Minutes",
+    "hook": "I have nine minutes before a hundred skeletons wake up.",
+    "rule": "Anyone who wakes up from this alarm clock is super hungry.",
+    "mechanics": [
+      "alarm-clock",
+      "snooze",
+      "wakes-hungry"
+    ]
   }
 ]

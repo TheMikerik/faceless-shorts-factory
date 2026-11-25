@@ -1,6 +1,6 @@
 # TlamaLabs – faceless YouTube Shorts workflow
 
-A workflow for producing one ~60 s vertical Short per day with [Claude Code](https://claude.com/claude-code). The videos are invented, absurd stories (hook → escalation → "You see…" → twist) starring one recurring hero. Flat 2D doodle characters stand in a 3D world built entirely in code (three.js), and the result is rendered to MP4 (1080×1920, 30 fps).
+A workflow for producing one vertical Short (max 35 s) per day with [Claude Code](https://claude.com/claude-code). The videos are invented, absurd stories (hook → escalation → "You see…" → twist) starring one recurring hero. Flat 2D doodle characters stand in a 3D world built entirely in code (three.js), and the result is rendered to MP4 (1080×1920, 30 fps).
 
 Channel: [@TlamaLabs](https://www.youtube.com/@TlamaLabs). Visual style inspired by @RicksClips3000.
 
@@ -41,7 +41,7 @@ Keys live in `.env` (copy `.env.example` and fill it in). `.env` is git-ignored,
 
 ## The production pipeline
 
-1. **Voice** – `scripts/voice.sh` (ffmpeg) cuts the silences between sentences and speeds the track up so it is at most 60 s. The raw take is never overwritten.
+1. **Voice** – `scripts/voice.sh` (ffmpeg) cuts the silences between sentences and always speeds the track up at least 1.25x, and more if needed so it is strictly at most 35 s. The raw take is never overwritten.
 2. **Timing** – Whisper aligns every word to the processed voice (`words.json`), which drives the 1–2 word captions and the cuts.
 3. **Scene** – a Python generator (copied from a template video) writes `short.json`: about 40 shots per video (one per phrase), 3 locations with 120–200 props each, light moods that change on story turns, and a camera that moves in every shot. Characters are rigged cutouts, props are ready-made GLB models plus primitives.
 4. **Check** – before the full render, `render.mjs --stills` renders three stills per shot and flags mechanical problems (camera inside a prop, character hidden or off screen, too dark, too bright, flat frame, pure black). A contact sheet is also reviewed for dull or repetitive neighbouring shots.

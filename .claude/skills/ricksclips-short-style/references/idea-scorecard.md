@@ -24,7 +24,8 @@ Used at step 2 of `--cv`. **Show the user only ideas that score 10/10, and at le
 
 | # | Gate |
 | --- | --- |
-| G1 | The hook meets at least **4 of 5** hook criteria (middle of action, exaggerated + concrete, stakes/clock, open loop, Tlama in danger/at center), max 15 words, simple English |
+| G1 | The hook meets at least **4 of 5** hook criteria (middle of action, exaggerated + concrete, stakes/clock, open loop, Tlama in danger/at center), max **10 words**, simple English |
+| G1b | **First frame**: write what is visible at 0:00. It must already show the absurd thing (Tlama + the strange object/situation), not a setup. And the whole story fits **110–130 words (max 35 s)**; the retell test must work in 3 sentences |
 | G2 | **One magic rule**, sayable in one sentence. No second magic |
 | G3 | **Rule of three**: the same kind of event three times, each bigger |
 | G4 | The **twist uses only what was already shown** and lands back on the hook, so the Short loops |
@@ -47,6 +48,10 @@ Used at step 2 of `--cv`. **Show the user only ideas that score 10/10, and at le
 | 1 | **Last-line loop** | Does the last line almost repeat the first line, so the replay feels seamless? |
 | 1 | **Comment trigger** | Is there an obvious thing to comment ("what would you do?", "wait, so that's why…", "do it again")? |
 | 1 | **Visual payoff** | Is there one big moment the stage can show well (a crowd, something huge, something flying, a swap)? |
+
+## Active hook test (one rule at a time, 3 videos each)
+
+Before step 2 of the procedure, open `z_info/hook_tests.md` and find the active block. Every idea shown must follow its rule (for example "a concrete hook the muted viewer understands"). An idea that breaks the active rule is dead, whatever its score. Do not add a second change to the same video. The results are logged there, not in the calibration table below.
 
 ## Calibration
 

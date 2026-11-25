@@ -16,6 +16,7 @@ My content creator project, focused mainly on **YouTube Shorts**. This repositor
 - **Topic and language:** **invented absurd stories that never happened** (no history, no real facts, no real people). Always in **English**, format: strong hook → escalating absurdity → pivot "You see…" → twist (global audience, higher RPM)
 - **Main character:** `puppets/main_hero_tlama` (Tlama, a pink head with a huge mouth and yellow goggles) is the hero of **every** video. Always use Tlama as the main character. Details in `PUPPETS.md`
 - **Voice:** I **generate the voice myself** and upload it into the video folder (see "Shortcut `--cv`"). **Never generate the voice** (no `generate_audio` or any other TTS), and do not suggest generating it. Deliver only the text script.
+- **Length (since 2026-11-25):** Shorts are **strictly 35 s at most (hard limit), 110–130 words**, and the voice is **always sped up at least 1.25x**. Reason: analytics of 005/006/012 showed 38–45 % swiped away and only ~22 s average watch time of 60 s.
 - **Main goal of a video:** the highest possible retention. The viewer must stay with the Short until the end (and ideally replay it in a loop)
 - **English level:** simple, understandable for everyone (see the "Simple English" section)
 - **Frequency:** **daily**, 1 Short. Production must therefore be as fast as possible: the library (characters, backgrounds, models) is built once and reused, a new video = only its own folder `videos/NNN-slug/` (script, voice, `short.json`).
@@ -40,13 +41,13 @@ Use the skill **`ricksclips-short-style`** (`.claude/skills/ricksclips-short-sty
 
 In short: flat 2D doodle characters in a sunlit 3D world, built entirely in code (three.js stage). New characters and backgrounds are **exceptionally** generated through the **Higgsfield connector** (only when truly needed and **only after my explicit confirmation**, see "Higgsfield"). Nobody generates the voice, I record it. The scene is assembled into `short.json` and rendered via `.claude/skills/ricksclips-short-style/scripts/stage/render.mjs`.
 
-Format: 1080x1920, 30 fps, about 60 s, captions of 1–2 words.
+Format: 1080x1920, 30 fps, **strictly 35 s at most (110–130 words)**, captions of 1–2 words.
 
 ### Shortcut `--cv` (create video)
 
 When I write just `--cv`, it means this prompt (I do not have to write it out):
 
-> Using the ricksclips-short-style skill, suggest 3 absurd/funny stories. Give me those ideas and I will choose one of them. Then write a 60-second script with the channel's formula: paradox first line, strong hook, escalation, "You see…", twist. Use puppets available in PUPPETS.md
+> Using the ricksclips-short-style skill, suggest 3 absurd/funny stories. Give me those ideas and I will choose one of them. Then write a script for at most 35 seconds (110–130 words, hook max 10 words) with the channel's formula: paradox first line, strong hook, escalation, "You see…", twist. Use puppets available in PUPPETS.md
 
 The procedure is always the same. (The output templates below are intentionally kept in Czech, because they are what I read; the rest of this file is in English.)
 
@@ -208,6 +209,16 @@ The **situation** should be absurd, not the storytelling. The story must be foll
 - **Every sentence is visible.** For every sentence you must be able to show one clear picture (character, thing, reaction). A sentence that cannot be drawn goes.
 - **Retelling test.** Before delivering, retell the story in 3 sentences (problem, what happens, how it ends). If you cannot, the story is too complex: cut characters, places and side ideas until you can.
 
+### Retention fixes (from the analytics of videos 005, 006, 012)
+
+Data: 38–45 % swiped away in the first seconds (healthy: under 33 %), those who stayed watched ~74 %, likes ~1.3 %, almost no subs. So the story works; the **start** and the **length** lose people.
+
+- **Length:** 110–130 words, strictly 35 s at most. No scene is needed after the twist.
+- **First frame = the absurd thing.** At 0:00 the viewer must already see Tlama in the absurd situation (huge chicken behind him, countdown, giant object), not an empty room or a slow zoom into a place. The hook words are on screen as the first caption. The first shot is the most extreme picture of the hook, and it is a close or medium shot with movement from frame 1.
+- **Hook max 10 words**, and the voice starts at 0.0 s (`voice.sh` already trims leading silence).
+- **No setup before the first twist-worthy detail**: the first escalation comes within 5 s.
+- **Change one thing at a time**, and test every rule on **3 videos** before judging it (target swipe-away under 33 %). The test queue, how to read the numbers and the video log are in `z_info/hook_tests.md`. At `--cv`, check which block is active there and make the script follow its rule; after I report the numbers, update the log.
+
 ### Strong hooks (they must make people stay)
 
 The first sentence decides whether the viewer scrolls away. Every hook must meet **at least 3 of 5**:
@@ -217,7 +228,7 @@ The first sentence decides whether the viewer scrolls away. Every hook must meet
 4. **Opens a loop:** raises a question that only the end answers ("Why did every cat look at my house?").
 5. **The narrator is in danger or at the center of events** ("I" = Tlama), not a description of the world from the outside.
 
-Max. 15 words, simple English. The story then pays off the hook at the "You see…" pivot and returns to it in the twist.
+Max. **10 words**, simple English. **The first frame must show the absurd thing** (see "Retention fixes" below). The story then pays off the hook at the "You see…" pivot and returns to it in the twist.
 
 #### 23 example hooks (+ twist idea)
 1. "At 3 AM, my cat looked at me and whispered: 'Run. They are inside the walls.'" / "They" are tiny workers building a pool for the cat. The cat wanted to warn me about the noise.
@@ -265,16 +276,16 @@ Sample script (style and tag density):
 
 The sample may also use other natural tags outside the list (`[thoughtful]`, `[surprised]`, `[anxious]`, `[annoyed]`, `[muffled]`, `[sound of impact]`), but the list above is the baseline.
 
-**Careful with timing and captions:** tags are never shown as captions and do not count toward the pace (~4 words/s). Before `words` / `words.json`, save `audio/script.txt` **without tags** (or filter the tags out), otherwise the word alignment breaks.
+**Careful with timing and captions:** tags are never shown as captions and do not count toward the pace (~3.5 words/s). Before `words` / `words.json`, save `audio/script.txt` **without tags** (or filter the tags out), otherwise the word alignment breaks.
 
 ### Audio track: raw + local processing
 
 - The uploaded voice is always **raw** and is stored in the video folder as `videos/NNN-slug/work/audio/voice_original.mp3`. Never edit it through Higgsfield or any other online tool.
 - Do the processing **locally on this computer** via `ffmpeg`: `scripts/voice.sh` (output `audio/voice.mp3`, the raw file is not overwritten).
   1. removes gaps/silence between sentences (`silenceremove`, only ~0.06 s remains),
-  2. speeds up (`atempo`, the pitch does not change) so the result is **at most 60 s** (target ~59.5 s). If it is already shorter, it does not speed up.
+  2. speeds up (`atempo`, the pitch does not change) **always at least 1.25x**, and more if needed so the result is **strictly at most 35 s** (target 34.5 s). Both rules are mandatory for every Short; before the render check that `voice.mp3` is ≤ 35 s. (Long-form uses max `0` = no speed-up.)
 - Only then run `words` for `audio/words.json` on the **processed** `voice.mp3` (the timing must match the final track).
-- Run: `scripts/voice.sh` (default paths), or `scripts/voice.sh raw.mp3 out.mp3 60`.
+- Run: `scripts/voice.sh` (default paths), or `scripts/voice.sh raw.mp3 out.mp3 30` (last number = max seconds).
 
 ### After the video is rendered (mandatory)
 
@@ -330,7 +341,7 @@ Everyone must be able to understand the script, including younger viewers and pe
 - Numbers simple (not "1,347", but "a thousand").
 - Before delivering, check the script: if a ten-year-old child or a beginner in English heard it, would they understand every sentence? If not, simplify.
 
-About 4 words per second, no empty space.
+About 3.5 words per second, no empty space.
 
 ## Style rules (short)
 

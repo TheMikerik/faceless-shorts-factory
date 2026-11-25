@@ -5,3 +5,8 @@
 
 - If more videos, then min 45 mins apart
 - https://www.youtube.com/watch?v=CcswIPi7-Ig
+
+---
+25.11. changes:
+- shorten the content to 35s max
+- shorten hook (15 words -> 8-10)

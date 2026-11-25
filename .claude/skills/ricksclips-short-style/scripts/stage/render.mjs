@@ -142,7 +142,7 @@ function resolveTimeline(s) {
     for (let i = 0, n = 0; i < ws.length; i += per, n++) s._captions.push({ t0: n * every, t1: i + per >= ws.length ? end : (n + 1) * every, text: ws.slice(i, i + per).map(clean).join(' ') });
   }
   // like & subscribe call-to-action: an on-screen graphic (no voice), snapped to the nearest sentence start
-  // in words.json (+-3 s) so it never covers a punchline. Short default: once at 27 s. Landscape default: twice,
+  // in words.json (+-3 s) so it never covers a punchline. Short default: once at 45% of the video. Landscape default: twice,
   // at 30 s and 30 s before the end. "cta": {"at": 30, "dur": 2.5}, a list of those ({"fromEnd": 30} counts
   // back from the end), or false to turn it off.
   s._cta = [];
@@ -151,7 +151,7 @@ function resolveTimeline(s) {
     const starts = words ? words.words.filter((w, i) => i === 0 || /[.!?]["'\u201d\u2019)]*$/.test(words.words[i - 1].w)).map(w => w.t0) : [];
     for (const c of list) {
       const dur = c.dur ?? 2.5;
-      let t = c.at ?? (c.fromEnd !== undefined ? end - c.fromEnd : 27);
+      let t = c.at ?? (c.fromEnd !== undefined ? end - c.fromEnd : end * 0.45);
       if (starts.length) { const near = starts.reduce((a, b) => Math.abs(b - t) < Math.abs(a - t) ? b : a); if (Math.abs(near - t) <= 3) t = near; }
       if (t >= 0 && t + 1 <= end) s._cta.push({ t0: t, t1: Math.min(t + dur, end - 0.3) });
     }

@@ -101,7 +101,7 @@ The sky and the far distance are one flat painting (background template, 21:9), 
 **Setting first, never always a town.** Pick the place from the whole `props/` library (factory, pirate ship, forest, graveyard, kitchen, school, space...) before the story, and let the setting shape what happens. Do not default to "the town / the mayor" (details in "Setting variety" in `CLAUDE.md`).
 
 Write an **absurd, completely made-up story that never happened**. Never use history, real events, real people, real brands or real facts, and do not fact-check; invent everything. Use the formula:
-1. a **strong, exaggerated hook** in the first line, with no intro, starting in the middle of the action, with high stakes or a deadline (a number or a time), concrete and impossible, told in first person (Tlama), max 15 words. It must make the viewer ask "what? how does it end?" (see "Strong hooks" in `CLAUDE.md` for 23 examples);
+1. a **strong, exaggerated hook** in the first line, with no intro, starting in the middle of the action, with high stakes or a deadline (a number or a time), concrete and impossible, told in first person (Tlama), **max 10 words**, and **the first frame already shows the absurd thing** (see "Retention fixes" in `CLAUDE.md`). It must make the viewer ask "what? how does it end?" (see "Strong hooks" in `CLAUDE.md` for 23 examples);
 2. two or three escalating details, each more absurd than the last;
 3. the pivot, "You see...", where the (absurd but story-logical) explanation starts;
 4. a twist in the last line that calls back to the hook, so the Short loops.
@@ -126,7 +126,7 @@ The goal is maximum watch time. Open a loop early (promise something that is onl
 
 Before writing, read the three real reference scripts in `references/transcripts/` (`transcript1.txt` to `transcript3.txt`, timestamped, about 230 to 260 words each). Study their rhythm only: how the opening line hits, sentence length, how details escalate, where "You see..." lands, how the twist closes. Never copy their topics, sentences or facts, and do not imitate their vocabulary level; every script must be original, and simpler in language.
 
-About four words a second, no dead air. Write the voice script with ElevenLabs audio tags in square brackets (e.g. `[excited]`, `[whispering]`, `[gasping]`; full list and a sample in the project `CLAUDE.md`), roughly one tag per one or two sentences. Never use tags that slow down or lengthen the audio (`[pause]`, `[short pause]`, `[slowly]`, `[softly]`, `[sighs]`, `[inhales deeply]`): pauses are trimmed anyway and the track must be as short as possible. Tags are never subtitles and do not count toward pacing: keep `audio/script.txt` tag-free (strip `[...]`) before running `words`, or word alignment breaks. Then **stop and wait until the user has put the `.mp3` into the video folder and confirmed**; do not continue without both. The user records it and supplies it as the raw take `work/audio/voice_original.mp3` (never generate it, never edit audio through Higgsfield). Process it locally with ffmpeg via the project's `scripts/voice.sh`: it removes the gaps between sentences and speeds the track up so it is 60 s at most, writing `audio/voice.mp3`. Save the script as `audio/script.txt`, then get the word timings from the processed `voice.mp3`:
+**Length: strictly 35 s at most (hard limit, never longer) = 110–130 words.** About 3.5 words a second, no dead air. The voice is **always sped up at least 1.25x** (`voice.sh` does it, and more if 35 s requires it). Write the voice script with ElevenLabs audio tags in square brackets (e.g. `[excited]`, `[whispering]`, `[gasping]`; full list and a sample in the project `CLAUDE.md`), roughly one tag per one or two sentences. Never use tags that slow down or lengthen the audio (`[pause]`, `[short pause]`, `[slowly]`, `[softly]`, `[sighs]`, `[inhales deeply]`): pauses are trimmed anyway and the track must be as short as possible. Tags are never subtitles and do not count toward pacing: keep `audio/script.txt` tag-free (strip `[...]`) before running `words`, or word alignment breaks. Then **stop and wait until the user has put the `.mp3` into the video folder and confirmed**; do not continue without both. The user records it and supplies it as the raw take `work/audio/voice_original.mp3` (never generate it, never edit audio through Higgsfield). Process it locally with ffmpeg via the project's `scripts/voice.sh`: it removes the gaps between sentences and always speeds the track up at least 1.25x, and more if needed so it is strictly 35 s at most, writing `audio/voice.mp3`. Save the script as `audio/script.txt`, then get the word timings from the processed `voice.mp3`:
 
 ```bash
 .venv/bin/python $S/shortkit.py words $V/audio/voice.mp3 $V/audio/script.txt -o $V/audio/words.json
@@ -149,7 +149,7 @@ Write `short.json`. Read `references/formats.md` first; `examples/demo/short.jso
 A scene feels empty when the picture barely changes between shots. With flat colours and a fixed model library, the variety has to come from the shots, the set layout, the light and the acting. Apply all of this when writing `short.json`:
 
 1. **Something new in every shot.** Compared with the previous shot, at least two of these must differ: framing (`headWidth`), angle (`yaw`/`pitch`), the face or pose of Tlama, who is on screen, what is behind the character, or the light mood. If two neighbouring shots look alike, merge them or change one.
-2. **Short beats.** One shot per sentence or per new idea, 1 to 3 seconds. A 60 s Short has about 40 shots (average ~1.5 s), not 8.
+2. **Short beats.** One shot per sentence or per new idea, 1 to 3 seconds. A 35 s Short has about 24 shots (average ~1.5 s), not 8.
 3. **Alternate the framing.** Close-up, medium, wide, then close again. Alternate the sign of `yaw` (left, right). Use low and high `pitch`, a wide `fov` for drama, push-ins (`zoom` positive) and sometimes pull-outs (`zoom` negative). Keep `glide` for the move between shots.
 4. **Dress every location densely (the set must look like a real place, not a stage).** Target **120-200 props per location**, not 10-25. A sparse set looks cheap even when the hero is perfect. Build it in layers, with `scripts/set_dressing.py` (`scatter`, `line`, `ring`, `clear_zone`; see its docstring), a few lines per layer:
    - **Hero zone (5-10 props):** only what the story needs, clean and readable.
@@ -181,7 +181,7 @@ The user called 004 the best video so far (good animation, assets, full scenes).
 
 **Scene built by a Python generator**
 - Helpers `prop()`, `shot()`, `a()`, `show()`; shots start on `"w:<index>"` from `words.json` (print the indexed word list first).
-- **~40 shots for 60 s** (avg ~1.5 s), one per phrase. Alternate close (`headWidth` 0.3–0.42) / medium / wide (0.09–0.14), flip the sign of `yaw` every shot.
+- **~24 shots for 35 s** (avg ~1.5 s), one per phrase. Alternate close (`headWidth` 0.3–0.42) / medium / wide (0.09–0.14), flip the sign of `yaw` every shot.
 - **3 locations, 120–200 props each** (see rule 4 and `scripts/set_dressing.py`), 60–80 units apart. An interior is built from a floor box + 3 walls + window + door + furniture + shelf with coloured books + rug + foreground plant/toy box. Make the floor box big enough that the global ground never shows inside a room.
 - **8 moods** (day, red, tense, night, flashback, dusk, gold, morning) with a lighting key on every story turn; short red flash (`fade` 0.15) on each shock.
 
@@ -198,7 +198,7 @@ The user called 004 the best video so far (good animation, assets, full scenes).
 - Keep foreground props out of the line between the camera and a close-up (the `TARGET_HIDDEN_BEHIND_SET` flag).
 - After `--stills` passes, look at a few stills at full size (paste 4–8 into one image), not only the contact sheet.
 
-**Like & subscribe call-to-action.** The renderer adds it automatically to every video (no voice, no setup): ONE pill with a thumbs-up, a bell and the text "LIKE & SUBSCRIBE", near 27 s for 2.5 s, snapped to the nearest sentence start in `words.json`. Do not add your own. Change the time with `"cta": {"at": 30}` in `short.json`, or turn it off with `"cta": false`. It sits at y = 1180, above the captions: in the stills check make sure it does not hide a face or the key action.
+**Like & subscribe call-to-action.** The renderer adds it automatically to every video (no voice, no setup): ONE pill with a thumbs-up, a bell and the text "LIKE & SUBSCRIBE", at ~45% of the video for 2.5 s, snapped to the nearest sentence start in `words.json`. Do not add your own. Change the time with `"cta": {"at": 30}` in `short.json`, or turn it off with `"cta": false`. It sits at y = 1180, above the captions: in the stills check make sure it does not hide a face or the key action.
 
 ### 7. Stop-frame check, before every full render
 
@@ -254,7 +254,7 @@ If you split the work across agents, give each one its own files: one owns `shor
 3. **Colour** sets warm sunlight against cool shadow; shadows are tinted red-brown, blue or violet and lifted off black.
 4. **The camera** moves in every shot, mostly pushing in, and travels to the next shot instead of cutting. Hard cuts are under 1%.
 
-Format: 1080x1920, 30 fps, about 60 seconds, captions of one or two words centred at 70% of the height.
+Format: 1080x1920, 30 fps, at most 35 seconds (hard limit), captions of one or two words centred at 70% of the height.
 
 ## Limits
 

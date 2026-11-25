@@ -52,6 +52,7 @@ Moderní postavy jsou nahoře, starodávné (historická videa) dole. Starodávn
 | `maroon_cap_elder_nocap` | stejný stařík bez čepice (holá hlava, všechny výrazy) | stejný jako `maroon_cap_elder` | výměna za `maroon_cap_elder` + `prop_cap` pro gag „čepice odletěla“ |
 | `feather_beret_clerk` | černý baret s hnědým perem, hnědá vesta, bílý límec, mladý | zmatený, nenápadný mladík | kamarád hrdiny, úředník, svědek, ten, kdo nechápe, co se děje. Má navíc výraz `burnt` (spálený obličej) pro gagy s výbuchem nebo požárem |
 | `pith_helmet_official` | bílá tropická helma, černé kníry | sebejistý úředník / průzkumník | úředník, vedoucí akce, vynálezce, cestovatel, šéf kanceláře |
+| `pith_helmet_official_wet` | stejný úředník s kapkami vody (všechny výrazy) | stejný jako `pith_helmet_official` | zmoklý šéf, vylezl z vody. Video 015 |
 | `straw_hat_peasant` | kónický slaměný klobouk, modré oblečení s páskem | klidný, skromný člověk | lovec, farmář, prodavač, obyčejný hrdina, dav (použít vícekrát) |
 
 ## Zvířata
@@ -91,6 +92,15 @@ Náhled všech: `puppets/_cat_puppets_preview.jpg`.
 
 Každý má i variantu `*_shovel` s lopatou v pravé ruce (stojí rovně při `"pose": {"armR": -60}`, kopání = střídat `armR` -25 a -105 s `body` ±10). Dav „sto pirátů“ = jedna karta se 9 piráty (viz `videos/012-the-x-is-me/work/custom/make_assets.py`, `crowd()`).
 
+**Kostlivci** (video 016, nakreslení lokálně přes PIL, `scripts/skeleton_puppets.py`, bez mrkání):
+
+| Složka | Jak vypadá | Poznámka |
+| --- | --- | --- |
+| `skeleton` | kulatá lebka, žebra, kostěné ruce a nohy | roztomilý, ne strašidelný. Výrazy navíc: `sleep` (zavřené oči), `hungry` (otevřená pusa, sliny). `height` = výška postavy × 1.2024 (nad hlavou je v rigu místo na čepici) |
+| `skeleton_old` | stejný s modrobílou noční čepicí a šedým vousem | „starý kostlivec“, stejné výrazy a přepočet výšky |
+
+`main_hero_tlama_sleep`: Tlama s výrazy navíc `sleep` (zavřené oči, úsměv) a `hungry` (křik se slinami), jinak stejná jako `main_hero_tlama`. Sezení = `legL` 62, `legR` -62 a `pos` y -0.2.
+
 ## Rekvizitové loutky (`prop_*`)
 
 Obrázek jako „postava“ (vrstva `head` = obrázek, `body` = 1 px). Na rozdíl od statických rekvizit v `props` se dají hýbat a schovat přes `to` (padat, letět, přistát), a kamera je umí sledovat přes `target`. Vznikly jednorázově lokálním skriptem (už smazán).
@@ -116,6 +126,12 @@ Obrázek jako „postava“ (vrstva `head` = obrázek, `body` = 1 px). Na rozdí
 | `prop_sock` | stará pruhovaná ponožka se třemi dírami | 0.55 |
 | `prop_bike` | červené kolo z boku (jede doprava); jezdec = postava v `y` 0.45, o 0.25 vlevo od středu a 0.15 za kolem, obě se stejným `to` | 1.0 |
 | `prop_key` | zlatý klíč s cedulkou SCHOOL | 0.5 |
+| `prop_sandwich` | sendvič (šunka, sýr, salát) | 0.46 |
+| `prop_glass` | sklenice vody | 0.5 |
+| `prop_drop` | kapka vody | 0.3 |
+| `prop_splash` | modré šplouchnutí (vyjede `to` nahoru z otvoru a zase dolů) | 1.1 |
+| `prop_cloud` | bílý mrak s obrysem (kouř z komína, letící mraky při pádu) | 0.9–2.4 |
+| `prop_wind` | bílé svislé čáry rychlosti (pád) | 5.0 |
 
 ## Poznámky
 

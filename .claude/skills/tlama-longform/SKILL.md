@@ -14,8 +14,8 @@ The `--clv` procedure (steps, output templates, final report) is defined in the 
 | | Short | Long-form (this skill) |
 | --- | --- | --- |
 | Format | 1080x1920 | **1920x1080**, `"format": "landscape"` in `short.json` |
-| Length | ≤ 60 s, ~240 words | **5-8 min, target ~900 words (~6 min)** |
-| Voice | silences removed + sped up to ≤ 60 s | **silences removed only, no speed-up** (`voice.sh ... 0`) |
+| Length | ≤ 35 s, 110–130 words | **5-8 min, target ~900 words (~6 min)** |
+| Voice | silences removed + sped up at least 1.25x, strictly ≤ 35 s | **silences removed only, no speed-up** (`voice.sh ... 0`) |
 | Story | hook → 3 escalations → "You see…" → twist | **hook → escalation ladder of 6 steps in 3 acts, cliffhanger after each act, a midpoint turn → "You see…" → twist back to the hook** |
 | Places / side characters | max 3 / max 3 | **max 5 / max 5** |
 | Shot length | 1-3 s (~40 shots) | **4-8 s (~50-90 shots)**, slower camera |
