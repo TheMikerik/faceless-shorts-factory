@@ -1,6 +1,6 @@
 # TlamaLabs – faceless YouTube Shorts workflow
 
-A workflow for producing one vertical Short (max 35 s) per day with [Claude Code](https://claude.com/claude-code). The videos are invented, absurd stories (hook → escalation → "You see…" → twist) starring one recurring hero. Flat 2D doodle characters stand in a 3D world built entirely in code (three.js), and the result is rendered to MP4 (1080×1920, 30 fps).
+A workflow for producing one vertical Short (max 35 s) per day with [Claude Code](https://claude.com/claude-code). The videos are **"What if…?" questions** answered with checked science (hook → escalation ladder → "But here is the real problem." → looping finale), with one recurring hero as the test subject. Flat 2D doodle characters stand in a 3D world built entirely in code (three.js), and the result is rendered to MP4 (1080×1920, 30 fps).
 
 Channel: [@TlamaLabs](https://www.youtube.com/@TlamaLabs). Visual style inspired by @RicksClips3000.
 
@@ -32,8 +32,8 @@ Keys live in `.env` (copy `.env.example` and fill it in). `.env` is git-ignored,
 
 ## How it works
 
-1. `--cv` – Claude creates an empty `videos/NNN/` folder and proposes 3 original story ideas (hook, magic rule, twist, viral rating 1–10).
-2. **Pick one** – Claude writes the voice script with ElevenLabs audio tags.
+1. `--cv` – Claude creates an empty `videos/NNN/` folder and proposes 3 original "What if" ideas (hook, escalation, finale, rating 1–10).
+2. **Pick one** – Claude checks the facts (`facts.md` with sources), then writes the voice script with ElevenLabs audio tags.
 3. **Record the voice** – I generate the voiceover myself and drop it into `videos/NNN/` as the only `.mp3`, then tell Claude it's done. Claude never generates the voice.
 4. **Production** – Claude renames the folder to `NNN-slug` and runs the whole pipeline (below) without asking questions.
 5. **Review** – Claude reports the result and runs a dry run of the publishing step. I watch `video.mp4`.

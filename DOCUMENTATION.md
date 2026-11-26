@@ -8,21 +8,23 @@ How the project works and why it is built this way. The README gives commands an
 
 ## 1. Idea
 
-A faceless YouTube Shorts channel, [@TlamaLabs](https://www.youtube.com/@TlamaLabs). Every video is a max 35 s **invented, absurd story that never happened**, told in first person by the same hero, **Tlama** (a pink head with a huge mouth, yellow goggles and a white coat).
+A faceless YouTube Shorts channel, [@TlamaLabs](https://www.youtube.com/@TlamaLabs). Since 2026-11-25 every video is a max 35 s **"What if…?" question** answered with checked science. The voice says "you" and on screen it happens to the same hero, **Tlama** (a pink head with a huge mouth, yellow goggles and a white coat), the test subject.
 
-- **Story shape:** strong hook → escalation (rule of three) → the pivot "You see…" → a twist that lands back on the hook, so the Short loops.
+- **Shape:** "What if…?" hook → escalation ladder on one scale (time or size) → "But here is the real problem." → a finale that leads back into the hook, so the Short loops.
 - **Look:** flat 2D doodle cutouts standing in a sunlit 3D world. The style is inspired by @RicksClips3000 (but never copies it). Everything is built and rendered in code.
 - **Voice:** recorded by the author in ElevenLabs. Claude writes the tagged script and never generates the voice.
 
-Next to the daily Shorts the channel also makes **landscape long-form videos** (5–8 min, target ~6 min, 3× a week): one longer absurd story with Tlama in the same style, built with the same engine and library. See "Long-form videos" below.
+Since 2026-11-26 there is a second Short format, the **song Short** (`--cvs`): a language word game that ends in a rapped tongue twister. The Idea bullets above and the Story system below describe "What if" videos; song Shorts are described in section 6c.
 
-The channel used to post Roblox content. That direction has been dropped completely.
+Next to the daily Shorts the channel also makes **landscape long-form videos** (5–8 min, target ~6 min, 3× a week): one bigger "What if…?" question, built with the same engine and library. See "Long-form videos" below.
+
+Earlier directions are dropped: Roblox content, and invented absurd stories (videos 005–016, L001). **Why the last change (author's decision, 2026-11-25):** the stories got few views. Note for later reading of the data: they had been published for only a few days. The expectation for "What if" (an instantly clear question, wider audience) is a hypothesis, tested by the 10-video baseline in `z_info/hook_tests.md`.
 
 ## 2. Goals
 
 | Goal | What it means in practice |
 | --- | --- |
-| **Monetization (YPP)** | Original content only, no real people, facts or brands, no music copyright problems, nothing that could count as reused content, and safe for kids |
+| **Monetization (YPP)** | Original content only, no real people or brands, only checked facts, no music copyright problems, nothing that could count as reused or repetitive content, and safe for kids |
 | **Retention** | Viewers must stay to the end and ideally replay. This drives the story formula, the 10/10 idea gate, the shot every 1–3 s and the looping last line |
 | **Global reach** | English at A2–B1 level, so non-native speakers and kids understand every sentence. English also brings a higher RPM |
 | **One video per day** | Production has to be fast and repeatable. The library is built once and each new video only adds its own folder |
@@ -33,7 +35,7 @@ The channel used to post Roblox content. That direction has been dropped complet
 ```
 --cv ──► videos/NNN/ (empty, reserves the number)
      ──► idea gate: 8–10 hidden candidates → idea_check.py → scorecard → critic → show ≥2 ideas at 10/10
-     ──► user picks ──► tagged script (ElevenLabs) ──► WAIT for the user's .mp3
+     ──► user picks ──► fact check (facts.md) ──► tagged script (ElevenLabs) ──► WAIT for the user's .mp3
      ──► rename to NNN-slug ──► voice.sh ──► words.json (Whisper) ──► build.py → short.json
      ──► render --stills (auto-fix until clean) ──► full render ──► shortkit check
      ──► video.mp4 + script.txt + metadata.md ──► publish --dry ──► report
@@ -42,17 +44,31 @@ The channel used to post Roblox content. That direction has been dropped complet
 
 The full step-by-step rules are in `CLAUDE.md` (shortcut `--cv`) and in the skill `.claude/skills/ricksclips-short-style/SKILL.md`.
 
+Song Shorts (second format, skill `.claude/skills/tlama-song/`):
+
+```
+--cvs ──► videos/NNN/ ──► ASK the language (English × ?) every time ──► rename to NNN-language
+      ──► idea gate (sound family + trap pair + tongue twister) ──► show ≥2 ideas at 10/10
+      ──► user picks ──► translation check (facts.md) ──► Suno package (proven sound mix) + thumbnail prompt ──► WAIT for the Suno .mp3 + thumbnail image
+      ──► analyze_song.py (whisper words, drop, BPM, hard cut after the first rap chorus, ≤35 s) → song.json
+      ──► dress.py (country costume) ──► build_song.py --stills ──► full render (~20 s, thumbnail on frame 0) ──► video.mp4 + script.txt + metadata.md ──► publish --dry ──► report
+      ──► (only on the user's command) publish.mjs NNN → folder renamed to NNN-language-pub
+```
+
 ## 4. Story system
 
 ### Formula and clarity rules
-The **situation** is absurd and the **storytelling** is simple. Each story has one magic rule, Tlama has one goal, escalation repeats one pattern three times, there are at most 3 places and 3 side characters, time only moves forward, and every sentence can be drawn. All of this is in `CLAUDE.md` ("Script – formula", "Clarity", "Strong hooks").
+One change to the world per video, one escalation ladder, at most 3 places and 2 side characters (they only react), every sentence can be drawn. All of this is in `CLAUDE.md` ("Script – formula", "Topic rules", "Clarity", "Strong hooks").
+
+### Facts
+The question is imaginary, the answer must be honest. Claude verifies every claim with web search **before** handing over the script (so the author never records a wrong sentence) and saves claim → source in the video's `facts.md`. Unverifiable numbers are cut; consequences use "would" / "might". No health advice, nothing dangerous to copy.
 
 ### Idea gate (10/10)
 **Why:** a self-rating that is only a feeling inflates. The gate turns "10/10" into "passes a fixed checklist, with written reasons and a critic pass".
 
 - `.claude/skills/ricksclips-short-style/references/idea-scorecard.md`: the procedure, 8 hard gates, 10 points and a calibration table.
-- `scripts/idea_check.py`: the mechanical checks (hook length, first person, no intro, puppets exist, hard words, novelty against past videos by mechanic tag and word overlap).
-- `scripts/ideas_used.json`: a registry of past videos (hook, rule, mechanic tags). The chosen idea is added with `idea_check.py --add`.
+- `scripts/idea_check.py`: the mechanical checks (hook starts with "What if" and has max 10 words, ladder length, places and side characters, puppets exist, hard words, novelty against past videos by mechanic tag and word overlap).
+- `scripts/ideas_used.json`: a registry of past "What if" videos (hook, change, ladder, mechanic tags). The chosen idea is added with `idea_check.py --add`. The old story registries are kept as `scripts/ideas_used*_stories_archive.json`.
 - The user only sees ideas that reach 10/10, at least two of them.
 - **Calibration:** 7 days after publishing, the video's views and average % viewed go into the scorecard table. The card changes if 10/10 ideas do not outperform the rest.
 
@@ -75,11 +91,12 @@ ElevenLabs audio tags are used, about 1 per 1–2 sentences. Tags that lengthen 
 | Picture quality | `stage.js` (`makeFx`, `makePost`, `CURVES`) | on by default in every video: ambient occlusion on the set, depth of field focused on the shot target (character silhouettes go into the depth buffer), fog, bloom, warm/cool grade, vignette, grain, faint colour fringe; poses ease with a small overshoot, hops squash and stretch, faces pop. Tunable or off via `ao`, `fog`, `post`, `shadowSoftness` and an action's `curve` |
 | Like & subscribe | `render.mjs` (`_cta`) + `stage.js` (`drawCta`) | ONE automatic on-screen graphic (thumbs-up + bell + "LIKE & SUBSCRIBE", no voice) at ~27 s for 2.5 s, snapped to the nearest sentence start in `words.json` (±3 s) so it never covers a punchline. On by default in every video; change with `"cta": {"at": 30}`, disable with `"cta": false` |
 | QA | `render.mjs --stills`, `shortkit.py check` | catches mechanical errors and checks camera speed and zoom against the measured style numbers (`references/rules.json`) |
-| Publishing | `scripts/publish/publish.mjs` | uploads `video.mp4` to Cloudflare R2 and queues it through the Buffer API on YouTube, Instagram and TikTok |
+| Song Shorts | `.claude/skills/tlama-song/scripts/analyze_song.py`, `build_song.py`, images `puppets/song_duo/` | no 3D stage: the Suno track is aligned to `dialogue.txt` with faster-whisper (fuzzy, accents ignored; a second pass hears the rap in its own language), the track is hard-cut after the first rap chorus at −14 LUFS, the drop is the biggest 30–150 Hz jump near the first rap word, the tempo comes from onset autocorrelation; the build pastes only the face area of mouth / blink variants onto the base images (feathered diff mask), one mouth opening per syllable, `dress.py` puts the country costume on Tlama, the user's thumbnail is frame 0, hard cuts to the speaker, beat-synced drum pose and camera jumps in the finale, PIL frames piped to `h264_videotoolbox` |
+| Publishing | `scripts/publish/publish.mjs` | uploads `video.mp4` to Cloudflare R2 and queues it through the Buffer API on YouTube, Instagram and TikTok; sends `thumbnailOffset: 0` (cover = first frame) for Instagram and TikTok; renames a fully published folder to `…-pub` |
 
 ### Folder model
 - **Shared archive** (root: `puppets/`, `props/`, `bg/`, `music/`, `scripts/`): reusable and **add-only**. Changing an existing asset could break other videos.
-- **Per-video folder** `videos/NNN-slug/`: everything specific to that video lives in `work/`, and the final files sit next to it. Any video can be deleted on its own, and several can be produced in parallel.
+- **Per-video folder** `videos/NNN-slug/`: everything specific to that video lives in `work/`, and the final files sit next to it. Song folders are `videos/NNN-language/` (shared numbering). Published folders get the `-pub` suffix. Any video can be deleted on its own, and several can be produced in parallel.
 - Paths in `short.json` are resolved in the video's `work/` first, then in the archive (`--lib .`).
 
 ## 6. Key decisions and why
@@ -87,12 +104,12 @@ ElevenLabs audio tags are used, about 1 per 1–2 sentences. Tags that lengthen 
 | Decision | Why |
 | --- | --- |
 | Faceless, one recurring hero | builds recognition and needs no camera. Tlama is in every video |
-| Invented stories only | nothing to fact-check, no risk of misinformation or real-person issues, safer for YPP |
+| "What if" with checked facts | the question is clear from the first second and needs no knowledge of the character. Price: every video needs a fact check, and the niche has strong competition |
 | Simple English | a global audience and kids. Retention drops as soon as a viewer gets lost |
 | Voice recorded by the author | control over the performance and a human voice. Claude never generates audio |
 | Scenes built in code (three.js), not AI video | repeatable, cheap, consistent style, fully automatable for a daily cadence |
 | Higgsfield only for new characters or backgrounds, after confirmation | it costs credits and adds style drift. The library covers most stories |
-| No generated music, textures or 3D models | copyright safety and consistency. One shared track plus CC0 model packs |
+| No generated music, textures or 3D models (Claude never generates audio) | copyright safety and consistency. One shared track plus CC0 model packs. Song Shorts use a track the author makes in Suno (paid plan for published videos, because the free plan gives no commercial rights) |
 | Generator script per video instead of hand-written JSON | 004's generator is the quality benchmark. Copying it keeps the density and liveliness |
 | `--stills` before every render | catches camera or visibility errors in seconds instead of after a full render |
 | Silence trim + speed-up (min 1.25x, hard limit 35 s) | Shorts are strictly ≤ 35 s since 2026-11-25 (author's decision, see changelog); no dead air for retention |
@@ -110,7 +127,7 @@ ElevenLabs audio tags are used, about 1 per 1–2 sentences. Tags that lengthen 
 | Shortcut | `--clv` (same steps as `--cv`, no dry run). Defined in `CLAUDE.md` |
 | Folder | `longform/LNNN-slug/` (own numbering L001, L002…), same `work/` layout as Shorts, final files `video.mp4`, `script.txt`, `metadata.md` |
 | Format | `"format": "landscape"` in `short.json` → 1920×1080, 30 fps |
-| Story | ~900 words (~6 min): hook + rule within 30 s → escalation ladder of 6 steps in 3 acts, cliffhanger after each act, midpoint turn at ~3:00 → "You see…" → twist back to the hook. Max 5 places, max 5 side characters, a running gag. Same Simple English and ElevenLabs tags |
+| Story | ~900 words (~6 min): "What if" hook + the change within 30 s → ladder of 6 steps in 3 acts, cliffhanger after each act, midpoint turn at ~3:00 → "But here is the real problem." → finale back to the hook. Max 5 places, max 5 side characters, a running gag. Facts in `facts.md`. Same Simple English and ElevenLabs tags |
 | Idea gate | `.claude/skills/tlama-longform/references/idea-scorecard.md` (10 gates, 10 points, the first 30 s worth 2) + `idea_check.py --longform` with its own registry `scripts/ideas_used_longform.json` |
 | Voice | `voice.sh … 0`: silences removed, **no speed-up** (length comes from the text) |
 | Picture | shots 4–8 s, slower camera (`zoom` 2–4), `headWidth` ≈ 0.56× the Short values, `frameX` to use the width |
@@ -122,11 +139,38 @@ ElevenLabs audio tags are used, about 1 per 1–2 sentences. Tags that lengthen 
 
 **Why these choices (decided with the author, 2026-11-23):** one shared engine so fixes land once and Shorts never break (portrait is the default, checked pixel-for-pixel); a separate skill because almost every Short number (60 s, ~40 shots, loop, 1–2 word captions) is different for long-form and mixing them in one file would blur the rules; no speed-up so a 6-min voice stays natural; thumbnails by hand (a test thumbnail rendered from the stage was not good enough); Buffer dropped for long-form, the author uploads by hand.
 
+## 6c. Song Shorts (`--cvs`)
+
+| Part | What |
+| --- | --- |
+| Skill | `.claude/skills/tlama-song/SKILL.md`: procedure, idea rules and 10-point gate, translation check, Suno template, metadata, final report. `references/sound-presets.md`, `references/image-prompts.md` |
+| Story | "Bet you can't say this in <Language>." → trap pair (two English words, one answer) → 7 more word pairs, all sharing one sound → "Try this." → English sentence → beat drop and Tlama raps the tongue twister |
+| Characters | the producer (English) and bored Tlama (target language), 16 flat images in `puppets/song_duo/` |
+| Costumes | `puppets/song_duo/costumes/<country>/` (`sheet.png` + `place.json`), applied by `dress.py`. A new one costs 1 Higgsfield credit, after confirmation; a saved one is free |
+| Inputs from the author | one Suno `.mp3` and one thumbnail image |
+| Scripts | `analyze_song.py` (word times, cut, drop, BPM → `work/song.json`, hand-editable), `dress.py`, `build_song.py` (`--stills`; `--no-cover` only for old videos without a thumbnail) |
+| Metadata | same headings as other Shorts; no leading emoji in the title, no "can you say it" lines in descriptions or captions, every platform asks which language comes next |
+| Results | "Song Shorts" table in `z_info/hook_tests.md` |
+
+| Decision | Why |
+| --- | --- |
+| A second format next to "What if" | the first test, 018, had the channel's best early numbers (see the changelog). That is one video read after ~8–9 h |
+| Opening line "Bet you can't say this in <Language>." | a direct challenge, meant to lower swipe-away |
+| One Suno track, no `voice.sh` | voices, beat and rap come together, and the pauses are part of the joke |
+| Flat images, no 3D stage | copies the structure of the tested format and renders in ~20 s |
+| Hard cut after the first rap chorus, no fade | Suno sometimes repeats the chorus, which the author does not want |
+| Only proven sound presets, classic sound as fallback | a new mix for 026 gave no usable track |
+| Country costume in the video, original Tlama on the thumbnail | author's rule |
+| Thumbnail on frame 0 | Instagram and TikTok take the cover from it; YouTube cannot get a cover through Buffer |
+| Folder named by language | author's request |
+
 ## 7. Quality benchmark
 
 Video **004 "Call From Tomorrow"** is the reference for animation, assets and full scenes. Its generator is `scripts/build_call_from_tomorrow.py`, and what made it work is listed in SKILL.md ("Quality benchmark").
 
 ## 8. Videos so far
+
+Videos 005–016 and L001 use the old story format; "What if" videos start after 016.
 
 | # | Title | Magic rule |
 | --- | --- | --- |
@@ -143,6 +187,18 @@ Video **004 "Call From Tomorrow"** is the reference for animation, assets and fu
 | 014 | One Old Sock | it is Trade Day: nobody can say no to a trade |
 | 015 | It Rains Me | the rain machine rains the last thing that fell in |
 | 016 | Nine More Minutes | anyone who wakes up from the alarm clock is super hungry |
+| 017 | Paper Fold (first "What if") | what if you folded one paper a hundred times (10 → 24 → 42 → 100 folds; real problem: it gets thinner than an atom) |
+| 018 | Spanish (test: dialogue + rap format, not monetized) | "Spanish is easy, right?": English word → Spanish "-eño" word, then the whole tongue twister rapped on a beat drop |
+| 019 | French (song Short, French) | "French is easy, right?": owl = "cool" = chouette trap, English word → French "-ette" word, tongue twister rapped on the drop |
+| 020 | Italian (song Short, Italian) | hedgehog = "curly" = riccio trap, English word → Italian "-ccio/-ccia" word, tongue twister rapped on the drop; cut right after the first rap pass (28.15 s) |
+| 022 | Polish (song Short, Polish) | little fly = bow tie = muszka trap, English word → Polish "-uszka" word, tongue twister rapped on the drop; cut right after the rap (30.57 s) |
+| 023 | Arabic (song Short, Arabic) | gold = went = dhahab trap, English word → Arabic "-ab" word, tongue twister rapped on a UK drill drop; first song with the new sound presets (K2 A2 B2 D3 F2) and Latin-transliterated captions |
+| 024 | Russian (song Short, Russian) | onion = bow = luk trap, English word → Russian "-uk" word, tongue twister rapped on a phonk drop; Cyrillic captions with transliteration, new `russia` costume |
+| 025 | Hindi (song Short, Hindi) | mango = common = aam trap, English word → Hindi "-aam" word, line rapped on a Jersey club drop (30.75 s); Devanagari captions with transliteration, new `india` costume; the track did not clearly say the final "karta hai", so it is cut after "aaraam" |
+| 026 | Hungarian (song Short, Hungarian) | ticket = grade = jegy trap, English word → Hungarian "-gy" word, tongue twister rapped on a trap drop (29.2 s, classic sound); new `hungary` costume |
+| 027 | Japanese (song Short, Japanese) | bridge = chopsticks = hashi trap, English word → Japanese "-shi" word, tongue twister rapped on a UK drill drop (28.7 s, sound `K2 A2 B2 D3 F2`); new `japan` costume |
+| 028 | German (song Short, German) | treasure = sweetheart = Schatz trap, English word → German "-atz(e)" word, tongue twister rapped on a phonk drop (31.5 s, sound `K3 A1 B5 D2 F3`); new `germany` costume |
+| 029 | Sinhala (song Short, Sinhala) | sand = beach = waella trap, English word → Sinhala "-lla" word, tongue twister rapped on a Jersey club drop (25.07 s, sound `K4 A3 B1 D4 F1`); Sinhala captions with transliteration, new `srilanka` costume |
 
 (Video 004 has no folder or script in the project, only its generator.)
 
@@ -180,3 +236,33 @@ Long-form videos (`longform/`):
 - **2026-11-25**: Script length for Shorts lowered from 120–150 to **110–130 words** (pace ~3.5 words/s), so the voice fits 35 s with less speed-up (at 015's reading pace about 1.2–1.4x instead of 1.5x; the 1.25x minimum still applies). Changed in `CLAUDE.md`, the Shorts `SKILL.md`, the idea scorecard (G1b) and the comparison table in the long-form `SKILL.md`.
 - **2026-11-25**: Hook tests. Video 015 had 64 % swiped away (36 % stayed) at 539 views, worse than 005/006/012. New `z_info/hook_tests.md`: one rule under test at a time, **each rule tested on 3 videos** (read at 500+ views and ~2 h, YouTube only, decision by block average: keep at 5+ points better, drop at 5+ points worse), queue T0-T3 and a video log. `CLAUDE.md` ("Retention fixes") and the Shorts idea scorecard ("Active hook test") now send `--cv` to that file.
 - **2026-11-25**: Video 016 Nine More Minutes (graveyard, kitchen, garden; hook test block T0). New shared script `scripts/skeleton_puppets.py` and puppets `skeleton`, `skeleton_old`, `main_hero_tlama_sleep` (drawn locally with PIL, no Higgsfield). Lessons: a whole new character can be drawn in code in the channel style (one function per layer, 8 faces) when it is made of simple shapes; things that get eaten = one card in 3-4 stages made by `bite()` (`videos/016-nine-more-minutes/work/custom/make_assets.py`), swapped with a small hop; a sleeping crowd = crowd cards sunk to the waist (`y` -0.75) with dirt discs; a puppet sunk into the ground needs a disc around it, otherwise the cut looks flat; keep crowd cards away from the line behind Tlama's head (a skull behind the head looks like a hat).
+- **2026-11-25**: **Niche change to "What if…?" videos** (author's decision). `CLAUDE.md`: new formula, new "Facts" and "Topic rules" (replacing invented-only story rules), new hooks, `--cv` / `--clv` output is now Hook / Eskalace / Finále, facts are checked before the script and saved to `facts.md`, max 2 side characters in Shorts. Updated both skills, both idea scorecards, the thumbnail skill, `idea_check.py` (hook must start with "What if", ladder of 3–4 steps). Story registries archived as `scripts/ideas_used*_stories_archive.json`, new registries start empty. `z_info/hook_tests.md`: new 10-video baseline read at 48 h (replaces the T0–T3 story hook tests). `STORIES.md` marked as archive. Engine, library, voice, render and publishing are unchanged.
+- **2026-11-25**: Video 017 Paper Fold, the first "What if" Short (32.5 s, 33 shots). No new shared assets; one-off cards in `videos/017-paper-fold/work/custom/` (paper tower segments, Moon, Earth, light, atom, fold badges). Lessons: space = a location 250+ units above the ground (the ground is lost in the fog, so the mood's horizon colour becomes the sky) with `plane` stars and galaxies; a tall object that grows = several 4-unit cards stacked and moved together (one tall card gets too blurry, its canvas is limited to 900 px); to follow a moving thing that gets swapped, target an invisible carrier card that makes the same move.
+- **2026-11-26**: Test of a second format, video 018 "Dream Log" (copied structure of a viral Spanish tongue-twister Short, own text and characters). Differs from the "What if" Shorts: the whole soundtrack (two voices + rap finale) is one Suno track instead of the author's voice + `music/music.mp3`; no `voice.sh` speed-up or silence removal (pauses are part of the joke), only cut to 33 s with a fade and loudness −14 LUFS; no 3D stage. 16 flat images from Higgsfield (GPT Image 2.6, medium, 1k, ~18 credits) on a plain beige background: base images `A_closed` (new producer character), `B_closed` (Tlama in the channel style), `F_closed` (finale with drums) and mouth / blink / gesture variants. Generator `videos/018-spanish/work/build_dialogue.py` (PIL + ffmpeg): hard cuts to the speaker, mouth patches pasted from the variants onto the base image (feathered diff mask, so outlines never jitter), mouth shape from the voice-band loudness inside whisper word times, finale drum pose and camera jumps on a 150 BPM beat grid. Higgsfield runs max 4 jobs at once. Not part of the daily workflow; decide after the test whether it becomes a series.
+- **2026-11-26**: The song format became a skill: `.claude/skills/tlama-song/` (SKILL.md with the procedure, idea rules + 10-point gate, translation check, the Suno style / exclude / lyrics template that worked for 018, metadata template; `references/image-prompts.md`; scripts `analyze_song.py` and `build_song.py`, the generic, data-driven version of 018's `build_dialogue.py`). Shortcut `--cvs` in `CLAUDE.md`: always asks the language first (English × ?). The 16 duo images moved to the shared archive as `puppets/song_duo/` (listed in `PUPPETS.md`), so a new song video needs no Higgsfield. Video 018 now also has `dialogue.txt`. Lessons: whisper may glue the first rap word into the pause, so the rap start is clamped to ≤0.6 s before the detected drop; the tempo is refined and snapped to a round value (Suno makes 150 BPM, not 148).
+- **2026-11-26**: Video 019 (French song Short) had the finale cut 1.3 s late: Tlama sat in the pause shot with closed eyes while the rap was already playing. Cause: `analyze_song.py` transcribed the whole track in English, so the French rap was misheard and the drop was searched in the wrong place. Fix: a second whisper pass for the rap only, in its own language (auto-detected), from the end of the English line; the BPM snap to a round tempo now accepts ±2 BPM (Suno's 150 was read as 148). Checked on 018 and 019.
+- **2026-11-26**: First numbers of song Short 018 (~8–9 h): 3893 views, 62.8 % stayed, 84.6 % average viewed, 127 likes, 14 shares, 13 subs, so far the channel's best video. New "Song Shorts" table in `z_info/hook_tests.md`.
+- **2026-11-26**: Trial opening for song Short 019: ~1.5 s of the rap drop cut mid-sentence ("La chouette à lunettes et…") + 0.12 s gap before "French is easy, right?", to lower swipe-away. One-off script `videos/019-french/work/custom/teaser.py`, output `video_teaser.mp4` (34.9 s) next to the unchanged `video.mp4`. Not part of the `--cvs` workflow; waiting for the author to review and test it.
+- **2026-11-26**: Song Shorts: the opening line changed from "<Language> is easy, right?" to **"Bet you can't say this in <Language>."** to lower swipe-away (a direct challenge to the viewer). Applies from the next song video; 018 and 019 are unchanged. Updated `tlama-song/SKILL.md` (why it works, `dialogue.txt` structure, Suno lyrics, metadata example) and the example in `analyze_song.py`. The drop teaser trial on 019 was rejected by the author and is not part of the workflow.
+- **2026-11-26**: Song Shorts: removed the `[Short Pause]` between the opening line and the first question in the Suno lyrics template (019 had over 1.5 s without speech there). New tip in `tlama-song/SKILL.md`: pick a Suno version where the question follows right away.
+- **2026-11-26**: Video 020 (Italian song Short) finished. Suno repeated the rap, so the author asked to cut right after the first pass: `work/audio/voice.mp3` was re-cut by hand with ffmpeg at 28.15 s (60 ms fade instead of the default 2.6 s tail) and `duration` in `song.json` set to match. Re-running `analyze_song.py --trim` would bring the tail back.
+- **2026-11-26**: Song Shorts lip sync fixed after the author saw mismatches in 020. (1) `build_song.py` no longer shapes the mouth from the loudness of the whole mix (it stayed open through whole words and followed the drums): now one opening per syllable, shape from the vowel, closed between syllables; no blinks inside words. (2) In 020 the first rap word started 0.8 s before the voice (whisper glued it into the pause); RAP word times fixed by hand in `song.json` from the spectrogram.
+- **2026-11-26**: New thumbnail style for song Shorts only (author's request): one prompt instead of three; Tlama with a serious face, above them the country flag and the language name, plain beige background. Updated `tlama-thumbnail/SKILL.md` and `tlama-song/SKILL.md`; redone for 020. "What if" and long-form thumbnails are unchanged.
+- **2026-11-26**: Video 022 (Polish song Short) finished. On the author's request cut right after the last rap word (30.57 s, 0.1 s fade). Fixed by hand in `work/song.json`: finale set to the drop (the drums play ~1.3 s before the rap, so there is no pause shot) and RAP word times taken from a `medium` whisper pass. `myszka` (mouse) was dropped in the translation check because it also has a vulgar slang meaning.
+- **2026-11-26**: Song Shorts, four changes (author's request). (1) Titles never start with an emoji. (2) No "can you say it" lines in descriptions/captions; every platform asks which language comes next. (3) The thumbnail prompt now comes with the Suno package; the user adds the image next to the `.mp3`, `build_song.py` puts it on frame 0 only, and `publish.mjs` sends `thumbnailOffset: 0` for Instagram and TikTok (checked in the Buffer API schema; YouTube cannot get a cover through Buffer). (4) The fixed Suno Style became a template with five rotating parts (beat, producer voice, Tlama voice, dialogue bed, rap flow) in `tlama-song/references/sound-presets.md`; each must differ from the 3 latest song videos.
+- **2026-11-26**: Song video folders are named by the language only (`videos/NNN-language/`), set right after the language question (author's request). Renamed 018–022 to `018-spanish`, `019-french`, `020-italian`, `021-czech`, `022-polish` and changed their `metadata.md` headings. Older changelog entries use the new paths.
+
+- **2026-11-26**: Video 023 (Arabic song Short) finished (33.5 s). For a non-Latin language, `dialogue.txt` and the captions use a plain Latin transliteration (`analyze_song.py` and the caption font do not handle Arabic script); the Suno lyrics use Arabic script with vowel marks. Fixed by hand in `work/song.json`: RAP word times from a second Arabic whisper pass, several dialogue word times from a spectrogram, tempo 142 BPM (detected 95, a drill syncopation; the script's tempo range loops can leave a value below 110).
+- **2026-11-26**: Optional country costumes for song Shorts (author's request): one Higgsfield sheet (1 credit) in `puppets/song_duo/costumes/<country>/`, applied to Tlama in code by `.claude/skills/tlama-song/scripts/dress.py` into the video's `work/custom/`. First costume: `egypt` (galabeya + tarboosh) for video 023.
+- **2026-11-26**: Four new rules (author's request), in `CLAUDE.md` and the `tlama-song` skill. (1) Song videos: Tlama always wears the country's typical costume (`dress.py`); the thumbnail keeps the original Tlama. (2) The song is hard-cut right after the first rap chorus, no fade (`analyze_song.py`, manual `--cut`). (3) Non-Latin languages: original script on top, transliteration in brackets below (`dialogue.txt`: `latin | original`; `build_song.py`, Arial Unicode). (4) `publish.mjs` renames a fully published folder to `NNN-slug-pub`; existing published folders 018 and 020 were renamed by hand. Video 023 was re-rendered with all of these (the earlier render still contained most of a repeated chorus).
+- **2026-11-26**: Videos 019 and 022 re-rendered under the new song rules (author's request): new costumes `france` (beret, Breton shirt, red neckerchief) and `poland` (Krakow folk costume), 1 credit each; hard cut with no fade (019 at 30.87 s, 022 at 30.57 s). Neither has a thumbnail, so they were rendered with the new `build_song.py --no-cover` (only for old videos). Costume placement moved to `costumes/<country>/place.json`. `019-french/video_teaser.mp4` was not updated.
+- **2026-11-26**: Videos 019 and 022 re-rendered with the author's thumbnails on frame 0. The generator returned 2:3 instead of 9:16 and the old cover-crop cut the edges of "FRENCH", so `build_song.py` now fits wider images by cropping the sides only slightly, anchoring the bottom and extending the background at the top. `019-french/video_teaser.mp4` (rejected trial) was not updated. 019 metadata updated to the current song rules (no leading emoji in the title, no challenge lines, a "which language next" CTA on every platform).
+- **2026-11-26**: Song Shorts: the Suno prompt for 026 (Hungarian) gave no usable track with a new mix (`K4 A6 B4 D2 F4`). New rule in `references/sound-presets.md`, `tlama-song/SKILL.md` and `CLAUDE.md`: only proven preset ids, the author's classic sound (018–022) is the base and the immediate fallback, untested presets only on request; replaces the old "every part differs from the 3 latest" rule. 026 `suno.md` switched to the classic sound. Idea rule: avoid rows of one-syllable look-alike answers (precaution, not a confirmed cause).
+- **2026-11-26**: Video 024 (Russian song Short) finished (27.8 s, sound `K3 A3 B5 D4 F3`). New costume `puppets/song_duo/costumes/russia` (red kosovorotka, ushanka, 1 credit). The library `B_o` image has lighter skin than `B_closed`, which showed a pale patch around the mouth; fixed for this video only with `work/custom/skin_match.py` (run after `dress.py`).
+- **2026-11-26**: Video 025 (Hindi song Short): new costume `puppets/song_duo/costumes/india` (mustard kurta, navy Nehru jacket, festive Rajasthani safa, 1 credit, confirmed).
+- **2026-11-26**: Video 025 finished. By the author's decision the rap is cut at 30.75 s and "करता है" is dropped from captions and script. `work/build.py` is a per-video copy of `build_song.py` that sets the Devanagari rap caption in 2+2 rows (the 3+3 default overlapped the turban in the close-up).
+- **2026-11-26**: Video 026 (Hungarian song Short) finished (29.2 s). New costume `puppets/song_duo/costumes/hungary` (white shirt, embroidered black vest, wide gatya, black hat with a feather-grass plume, 1 credit, confirmed). Same light-skin `B_o` problem as in 024, fixed with a copy of `skin_match.py` in the video's `work/custom/`.
+- **2026-11-26**: Video 027 (Japanese song Short) finished (28.7 s). Captions show kana/kanji over the transliteration with no code change. New costume `puppets/song_duo/costumes/japan` (indigo kimono, black haori, grey hakama, sugegasa, 1 credit, confirmed); its wide hat is set lower and flatter in the finale pose (`place.json`) so it clears the rap caption. The idea's "paper → washi" pair was replaced by "bug → mushi" in the translation check (washi is only traditional Japanese paper). Cut set by hand to 28.69 s (`--cut`), the automatic 28.59 s clipped the last "tsu"; rap word times in `song.json` fixed by hand (first word was 0.5 s early).
+- **2026-11-26**: Video 028 (German song Short) finished (31.5 s, cut right after the first rap chorus). The first Suno package failed on the word "Scratches" (author's report; the cause is a guess: Suno may read it as a DJ cue), so it was replaced by "Sentence → Satz" and the twister verb "kratzt" by "holt" (5 taught words in the twister). New costume `puppets/song_duo/costumes/germany` (white shirt, Lederhosen with edelweiss chest panel, green Alpine hat, 1 credit, confirmed). `skin_match.py` copied into the video's `work/custom/`.
+- **2026-11-26**: Video 029 (Sinhala song Short) finished (25.07 s, shorter than the usual 30–35 s because the cut right after the first rap chorus has priority). New costume `puppets/song_duo/costumes/srilanka` (Kandyan formal dress, 1 credit, confirmed). `build_song.py` now uses Sinhala Sangam MN for Sinhala script (the rap caption sits a bit higher, clear of the tall hat). The sentence grammar was not confirmed by a native speaker (see `facts.md`). Light-skin `B_o` fixed again with `work/custom/skin_match.py`.
+- **2026-11-26**: Documentation pass for `--cvs`: `CLAUDE.md` got a "Two Short formats" table that says which general rules apply to song Shorts, the song folder layout and the missing production steps. This file got section 6c (song Shorts and their decisions) and up-to-date workflow, architecture, publishing and folder notes. No workflow rule changed.

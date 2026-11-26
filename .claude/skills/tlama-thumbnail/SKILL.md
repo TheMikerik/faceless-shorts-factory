@@ -9,16 +9,35 @@ The user makes the thumbnail by hand: they paste the prompt into Nano Banana / H
 
 ## Inputs (read, do not ask)
 
-- `script.txt` of the video (hook, rule, twist) and `metadata.md` (title).
+- `script.txt` of the video (hook, escalation, finale) and `metadata.md` (title).
 - `short.json` / `build.py` only if you need to know what the key prop looks like.
 - Format by video type:
   - **Short** (`videos/NNN-slug/`): **1080×1920, 9:16 vertical**
   - **Long-form** (`longform/LNNN-slug/`): **1280×720, 16:9 horizontal**
 
+## Song Shorts (`--cvs`): own fixed style, one variant
+
+For a song / language video (it has `dialogue.txt`) **ignore everything below except "Rules"**. The thumbnail is always the same layout, only the flag and the language name change. Write **exactly one** prompt.
+
+**When:** together with the Suno package, before the track exists (only the language is needed, do not wait for `metadata.md`). The user generates the image and puts it into the video folder; `tlama-song` puts it on the first frame of the video, because Instagram and TikTok use that frame as the cover. So ask for exactly 9:16 (it gets fitted to 1080×1920; a 2:3 result still works if the text keeps some side margin).
+
+- Top to bottom, centred: **flag** of the language's country → **language name** in English, ALL CAPS (`ITALIAN`) → **Tlama with a serious face** (head and upper body).
+- Flag: Spanish = Spain, French = France, German = Germany, Italian = Italy, Portuguese = Portugal. For another language take its home country. Describe the stripes and colors in the prompt, so the generator does not guess.
+- Serious face: mouth closed in one flat straight line, no teeth, no smile, eyes calm and half-lidded, brows low and straight. The reference grins and `emotions.png` has no serious face, so the prompt must say this explicitly. Attach only `puppets/main_hero_tlama/source.png`.
+- Plain beige background `#E3CBA8` (same as the video). No key thing, no burst, no other text. Everything in the upper 80 %, away from the right edge.
+
+Skeleton:
+
+```
+Vertical 9:16 YouTube Shorts thumbnail, flat 2D cartoon doodle style with thick even plum-black outlines (#271925), flat colors, one soft shadow, no photo-realism, no 3D. Plain solid warm beige background (#E3CBA8). Centered layout, top to bottom. At the top: a large <country> flag, <stripes and colors>, as a simple flat rectangle with a thick plum-black outline. Directly below it: the text "<LANGUAGE>" in huge thick white all-caps letters with a thick plum-black outline and a small drop shadow. Below the text: the character from the attached reference image, same design (round pink head, small black eyes, thick eyebrows, flat yellow goggles on the forehead, white coat), shown from the waist up, facing the camera, large. Important: unlike the reference, the face is completely serious: mouth closed in one flat straight line, no teeth, no smile, calm half-lidded eyes, low straight eyebrows. Keep the bottom 20% and the right edge free of important details. Only the flag, the text and the character, no other objects, no other text, no watermark.
+```
+
+Report and save to `thumbnail_prompts.md` as in "Output" below, but with the heading `## Thumbnail prompt (9:16 1080×1920)` and one prompt without a variant number.
+
 ## What every thumbnail contains
 
 1. **Tlama**, always, as the clear hero (about 40–60 % of the frame height). Reference to attach: `puppets/main_hero_tlama/source.png` (full body). For a close-up on the face attach `puppets/main_hero_tlama/emotions.png` too and name the expression. Her identity never changes: round **pink** head with a huge grin full of big square white teeth, two small black oval eyes with thick eyebrows, flat **yellow** safety goggles pushed up on the forehead, white lab coat, thin stick arms and legs with round black hands, thick plum-black outline `#271925`.
-2. **One key thing from the video**: the one object, creature or moment that makes a stranger ask "what?". It comes from the hook or the magic rule, not from the twist (do not spoil it). Examples: the giant chicken, the cake taller than a house, the red DO NOT PRESS button, the cave with a shouting echo. Exactly one, drawn big.
+2. **One key thing from the video**: the one object, creature or moment that makes a stranger ask "what?". It comes from the "What if" question or an early step, not from the finale (do not spoil it). Examples: the giant chicken, the cake taller than a house, the red DO NOT PRESS button, the cave with a shouting echo. Exactly one, drawn big.
 3. **Text of 1–3 words**, English, ALL CAPS, huge, thick white or yellow letters with a thick plum-black outline and a slight drop shadow, placed away from the character's face. The text is a hook or a reaction, never the title: "IT ATE IT?!", "DO NOT PRESS", "RUN!", "WHO IS HE?". The generator may misspell it, so always put the exact text in quotes in the prompt and tell the user the fallback (see below).
 
 ## Style: the "clickbait" version of the channel look
@@ -38,7 +57,7 @@ Same character and outline as the video, but pushed harder so it works as a tiny
 
 ## Output: 3 variants
 
-Always exactly **3 variants**, each a different idea (different key moment or key thing, different expression, different text). Do not pad with near-duplicates. For each variant write one prompt in English, as one paragraph, ready to paste, in this order: format and style → background → Tlama (identity, expression, pose, where) → key thing (what, size, where) → text (exact, in quotes, style, where) → composition and what to avoid.
+(Song Shorts: one prompt, see above.) Always exactly **3 variants**, each a different idea (different key moment or key thing, different expression, different text). Do not pad with near-duplicates. For each variant write one prompt in English, as one paragraph, ready to paste, in this order: format and style → background → Tlama (identity, expression, pose, where) → key thing (what, size, where) → text (exact, in quotes, style, where) → composition and what to avoid.
 
 Prompt skeleton (fill in, keep it concrete, no generic filler):
 
@@ -63,12 +82,12 @@ Přilož referenci: puppets/main_hero_tlama/source.png  (+ emotions.png u varian
 Tip: pokud generátor zkomolí text, vygeneruj obrázek bez textu (přidej "no text") a napiš nápis ručně.
 ```
 
-Save exactly the same content to `thumbnail_prompts.md` in the final video folder (`videos/NNN-slug/` or `longform/LNNN-slug/`), next to `video.mp4`. If the file already exists, overwrite it only when the user asked for a redo.
+Save exactly the same content to `thumbnail_prompts.md` in the final video folder (`videos/NNN-slug/`, for song videos `videos/NNN-language/`, or `longform/LNNN-slug/`), next to `video.mp4`. If the file already exists, overwrite it only when the user asked for a redo.
 
 ## Rules
 
 - Use only Tlama as the character (plus at most one other character from `PUPPETS.md` if it is the key thing of the video). No real people, brands or logos.
-- No spoilers of the twist. The thumbnail asks the question, the video answers it.
+- No spoilers of the finale. The thumbnail asks the question, the video answers it.
 - Safe for all ages (YPP): no violence, blood, weapons, scary gore. "Scary" is fine only in the funny, cartoon way.
 - Simple English text (see "Simple English" in the project `CLAUDE.md`).
 - Do not claim the result will look exactly like the prompt; it is a prompt for a generator the user runs.

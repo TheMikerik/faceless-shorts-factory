@@ -6,17 +6,18 @@ Used at step 2 of `--cv`. **Show the user only ideas that score 10/10, and at le
 
 ## Procedure
 
-1. **Read what was done.** `scripts/ideas_used.json` (rule + mechanics of every past video) and `videos/*/script.txt`.
-2. **Generate 8 to 10 candidates** silently. **Choose the setting first** (see "Setting variety" in the project `CLAUDE.md`): spread the candidates over different `props/` packs and places (factory, pirate ship, forest, graveyard, kitchen, school, space...), not over "town" variants. At most 1 candidate may be a town/city story, and none may repeat the setting of the last 3 videos. Also vary the everyday situation (breakfast, school, bedtime, a trip, a pet, a birthday) and the kind of magic rule. Do not show them.
-3. **Mechanical check.** Write the candidates into the scratchpad as `candidates.json` (fields: `title, hook, rule, twist, mechanics, puppets, places, side_characters`) and run:
+1. **Read what was done.** `scripts/ideas_used.json` (question, steps, mechanics of every past "What if" video) and `videos/*/script.txt`.
+2. **Generate 8 to 10 candidates** silently. Spread them over different areas (body, animals, food, Earth, space, sea, weather, home, school) and settings; none may repeat the area or setting of the last 3 videos. Then do a **basic plausibility check** (web search) of the candidates you want to keep: is the real consequence of each step roughly what you think? The full claim-by-claim check comes after the user chooses (see "Facts" in `CLAUDE.md`).
+3. **Mechanical check.** Write the candidates into the scratchpad as `candidates.json` (fields: `title, hook, rule, ladder, twist, mechanics, puppets, places, side_characters`; `rule` = the one change to the world, `ladder` = 3–4 steps, `twist` = the finale) and run:
    ```
    .venv/bin/python scripts/idea_check.py <scratchpad>/candidates.json
    ```
    Drop every FAIL, or fix it and run again. Treat a `!` warning as a point lost below unless you can argue it away in one line.
-   `mechanics` = 2 to 4 honest tags of what makes the story tick (e.g. `mouth-sound`, `growing-object`, `teleport`, `role-swap`). Do not invent odd tags just to dodge the novelty check: if the core idea is the same as a past video, it fails.
+   `mechanics` = 2 to 4 honest tags of the topic (e.g. `body-size`, `no-sun`, `shrinking`, `endless-rain`). Do not invent odd tags just to dodge the novelty check: if the core question is the same as a past video, it fails.
+
 4. **Score with the card below.** For every line, write one concrete reason (quote the hook, name the scene). "Yes" alone does not count.
 5. **Critic pass.** Switch roles: you are a bored 13-year-old scrolling at 1 AM. For each surviving idea, write the strongest reason to swipe away at second 2, the moment where a half-watching viewer gets lost, and the reason the ending feels flat. Every real hit costs the point it belongs to.
-6. **Fix or drop.** Rewrite ideas at 8 or 9 (usually the hook or the twist) and go back to step 3. Drop ideas at 7 or less. Generate new candidates if the pool runs dry.
+6. **Fix or drop.** Rewrite ideas at 8 or 9 (usually the hook or the finale) and go back to step 3. Drop ideas at 7 or less. Generate new candidates if the pool runs dry.
 7. **Show** only 10/10 ideas (at least 2, at most 3), in the exact `--cv` output format. `Hodnocení: 10/10`.
 8. **After the user chooses**, register the idea: `.venv/bin/python scripts/idea_check.py --add <file with that one candidate> NNN`.
 
@@ -24,34 +25,33 @@ Used at step 2 of `--cv`. **Show the user only ideas that score 10/10, and at le
 
 | # | Gate |
 | --- | --- |
-| G1 | The hook meets at least **4 of 5** hook criteria (middle of action, exaggerated + concrete, stakes/clock, open loop, Tlama in danger/at center), max **10 words**, simple English |
-| G1b | **First frame**: write what is visible at 0:00. It must already show the absurd thing (Tlama + the strange object/situation), not a setup. And the whole story fits **110–130 words (max 35 s)**; the retell test must work in 3 sentences |
-| G2 | **One magic rule**, sayable in one sentence. No second magic |
-| G3 | **Rule of three**: the same kind of event three times, each bigger |
-| G4 | The **twist uses only what was already shown** and lands back on the hook, so the Short loops |
-| G5 | Max 3 places, max 3 side characters, all puppets exist in `PUPPETS.md` (no Higgsfield needed) |
-| G5b | **Setting variety**: not a default town/city/mayor story (max 1 of the 3 shown), and a different setting from the last 3 videos; the setting uses a `props/` pack and changes what happens |
-| G6 | **New**: `idea_check.py` passes; the core mechanic was not used in any past video |
+| G1 | The hook starts with **"What if"**, max **10 words**, simple English, and meets at least **3 of 4** hook criteria (`CLAUDE.md`, "Strong hooks") |
+| G1b | **First frame**: write what is visible at 0:00. It must show Tlama in the most extreme moment of the what-if, not a setup. The whole script fits **110–130 words (max 35 s)** |
+| G2 | **One change to the world**, sayable in one sentence. No second what-if |
+| G3 | **One ladder**: 3–4 steps on one scale (time or size), each bigger and each drawable |
+| G4 | **Honest**: there is a real, checkable answer; the plausibility check found no step that is wrong or pure guessing |
+| G5 | Max 3 places, max 2 side characters, all puppets exist in `PUPPETS.md` (no Higgsfield needed); props come from `props/` or primitives |
+| G6 | **New**: `idea_check.py` passes; the question was not used in any past video, and the area/setting differs from the last 3 |
 | G7 | Retell test in 3 sentences works, and every sentence can be drawn |
-| G8 | Safe for kids and monetization (no violence, fear for real, gross-out, real people/brands) |
+| G8 | Safe for kids and monetization: no gore or detailed death, no real fear, no health advice, nothing dangerous to copy, no politics, religion, tragedies, real people or brands |
 
 ## Points (10 = all of them)
 
 | Pts | Criterion | The question to answer |
 | --- | --- | --- |
-| 2 | **2-second stop** | Is the first sentence a picture so strange that a muted viewer stops too? (picture, not only words) |
-| 1 | **Instant rule** | Can a viewer guess the rule from the first escalation, before "You see…"? (they enjoy predicting the next step) |
-| 1 | **Everyday base** | Is the starting point something every kid knows (breakfast, homework, a lie, hiccups, a pet)? |
-| 1 | **Rising stakes** | Is step 3 huge (whole town, the sky, the mayor), not just "more of the same"? |
-| 1 | **Open loop holds** | Is there a question the viewer still wants answered right before "You see…"? |
-| 1 | **Reversal twist** | Does the ending flip Tlama's position (winner→loser, scared→scary, cure→cause)? |
-| 1 | **Last-line loop** | Does the last line almost repeat the first line, so the replay feels seamless? |
-| 1 | **Comment trigger** | Is there an obvious thing to comment ("what would you do?", "wait, so that's why…", "do it again")? |
-| 1 | **Visual payoff** | Is there one big moment the stage can show well (a crowd, something huge, something flying, a swap)? |
+| 2 | **2-second stop** | Does a muted viewer understand the question from the first picture and want to stay? |
+| 1 | **Curiosity** | Would a ten-year-old have wondered about this, or wonder now? |
+| 1 | **No obvious answer** | Is the viewer unable to guess what happens at the last step? |
+| 1 | **Rising stakes** | Is the last step huge, not just "more of the same"? |
+| 1 | **Surprising fact** | Is there at least one true thing that makes the viewer say "really?" |
+| 1 | **Open loop holds** | Is there a question the viewer still wants answered right before "But here is the real problem"? |
+| 1 | **Last-line loop** | Does the last line lead back into the hook, so the replay feels seamless? |
+| 1 | **Comment trigger** | Is there an obvious thing to comment ("I would…", "now do the Moon")? |
+| 1 | **Visual payoff** | Is there one big moment the stage can show well (something huge, flying, a crowd, a swap)? |
 
-## Active hook test (one rule at a time, 3 videos each)
+## Baseline
 
-Before step 2 of the procedure, open `z_info/hook_tests.md` and find the active block. Every idea shown must follow its rule (for example "a concrete hook the muted viewer understands"). An idea that breaks the active rule is dead, whatever its score. Do not add a second change to the same video. The results are logged there, not in the calibration table below.
+The first 10 "What if" videos keep the format unchanged. The log and targets are in `z_info/hook_tests.md`; read it before step 2.
 
 ## Calibration
 

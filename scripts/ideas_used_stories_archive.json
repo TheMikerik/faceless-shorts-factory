@@ -1,0 +1,152 @@
+[
+  {
+    "video": "004",
+    "title": "Call From Tomorrow",
+    "hook": "My phone rang, and it was me, calling from tomorrow.",
+    "rule": "Tlama gets a phone call from tomorrow's Tlama, who has a bird nest on the head.",
+    "mechanics": [
+      "time-travel",
+      "future-self",
+      "phone"
+    ]
+  },
+  {
+    "video": "005",
+    "title": "Slowest Race",
+    "hook": "I have not moved for three years. And I am winning the race.",
+    "rule": "In the town race the slowest one wins; if you move, you lose.",
+    "mechanics": [
+      "contest",
+      "do-not-move",
+      "elimination"
+    ]
+  },
+  {
+    "video": "006",
+    "title": "A Thousand Cats",
+    "hook": "I have a thousand cats, and I never wanted one.",
+    "rule": "Tlama's laugh sounds like a can of cat food and calls cats.",
+    "mechanics": [
+      "sound-summons",
+      "mouth-sound",
+      "animal-crowd"
+    ]
+  },
+  {
+    "video": "007",
+    "title": "Monster Under Bed",
+    "hook": "There is a monster under my bed. Every night, it screams because of me.",
+    "rule": "Tlama's snore sounds like a giant dragon to monsters.",
+    "mechanics": [
+      "mouth-sound",
+      "scary-sound",
+      "monster",
+      "role-swap"
+    ]
+  },
+  {
+    "video": "008",
+    "title": "Growing Cake",
+    "hook": "I baked the smallest cake in the world. One hour later, it was taller than my house.",
+    "rule": "Every nice word makes the cake bigger.",
+    "mechanics": [
+      "words-change-size",
+      "growing-object"
+    ]
+  },
+  {
+    "video": "009",
+    "title": "Wish Coin",
+    "hook": "I found a wish coin today. Three wishes later, my cat is the king.",
+    "rule": "A wish coin gives every wish to the one you love the most, and Tlama loves the cat the most.",
+    "mechanics": [
+      "wish",
+      "wrong-receiver",
+      "pet-power"
+    ]
+  },
+  {
+    "video": "010",
+    "title": "Dog Ate My Homework",
+    "hook": "This morning, my dog ate my homework. Now he is the mayor of my town.",
+    "rule": "Whatever Max eats, Max knows everything written on it.",
+    "mechanics": [
+      "eat-to-learn",
+      "smart-pet"
+    ]
+  },
+  {
+    "video": "011",
+    "title": "One Wave",
+    "hook": "I waved at one pigeon, and now my whole town is following me.",
+    "rule": "A wave from Tlama means follow me to anyone who sees it.",
+    "mechanics": [
+      "gesture-magic",
+      "parade",
+      "follow"
+    ]
+  },
+  {
+    "video": "011",
+    "title": "Opposite Echo",
+    "hook": "I shouted STOP in a cave, and now a thousand people cannot stop.",
+    "rule": "The cave hears every shout in town and shouts back the opposite, so loud the whole town hears it.",
+    "mechanics": [
+      "opposite-echo",
+      "backwards-command",
+      "running-crowd"
+    ]
+  },
+  {
+    "video": "012",
+    "title": "The X Is Me",
+    "hook": "The X on this pirate map is me, and a hundred pirates want to dig.",
+    "rule": "The X is always where the gold coin is, and the coin is in my pocket.",
+    "mechanics": [
+      "moving-x",
+      "treasure-map",
+      "digging-crowd"
+    ]
+  },
+  {
+    "video": "013",
+    "title": "The Floor Is Lava",
+    "hook": "I said the floor is lava. Now my whole town lives on chairs.",
+    "rule": "The floor becomes whatever Tlama calls it.",
+    "mechanics": [
+      "floor-becomes-word",
+      "retelling-repeats"
+    ]
+  },
+  {
+    "video": "014",
+    "title": "One Old Sock",
+    "hook": "This morning, I traded one old sock. By lunch, I owned the whole town.",
+    "rule": "It is Trade Day: nobody is allowed to say no to a trade.",
+    "mechanics": [
+      "trade-up",
+      "cannot-say-no"
+    ]
+  },
+  {
+    "video": "015",
+    "title": "It Rains Me",
+    "hook": "I fell in the rain machine. Today, it rains me.",
+    "rule": "In the cloud factory, the big machine rains the last thing that fell inside, over the whole world.",
+    "mechanics": [
+      "last-thing-in-rains",
+      "weather-machine"
+    ]
+  },
+  {
+    "video": "016",
+    "title": "Nine More Minutes",
+    "hook": "I have nine minutes before a hundred skeletons wake up.",
+    "rule": "Anyone who wakes up from this alarm clock is super hungry.",
+    "mechanics": [
+      "alarm-clock",
+      "snooze",
+      "wakes-hungry"
+    ]
+  }
+]

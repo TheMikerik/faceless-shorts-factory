@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
-"""Mechanical checks for story ideas (the judgment part is in
+"""Mechanical checks for "What if" ideas (the judgment part is in
 .claude/skills/ricksclips-short-style/references/idea-scorecard.md).
 
   idea_check.py candidates.json          check candidates, exit 1 if any FAIL
   idea_check.py --add candidate.json NNN register the chosen idea as used
 
 candidates.json = list of {title, hook, rule, twist, mechanics:[tags],
-                           puppets:[folder names], places:[...], side_characters:[...]}
+                           puppets:[folder names], places:[...], side_characters:[...],
+                           ladder:[3-4 steps]}   (rule = the one change, twist = the finale)
 
 Long-form (landscape) videos: add --longform to either form. It uses its own registry
 (scripts/ideas_used_longform.json + longform/*/script.txt), allows 5 places and 5 side
-characters, and each candidate also needs ladder:[5-7 escalation steps] and midpoint. The judgment part is in
+characters, and each candidate needs ladder:[5-7 escalation steps] and midpoint. The judgment part is in
 .claude/skills/tlama-longform/references/idea-scorecard.md.
   idea_check.py --longform candidates.json
   idea_check.py --longform --add candidate.json L001
@@ -48,8 +49,8 @@ def past_items():
     seen = {i["video"] for i in items}
     for f in sorted(ROOT.glob(("longform" if LONG else "videos") + "/*/script.txt")):
         num = f.parent.name.split("-")[0]
-        if num in seen:
-            continue
+        if num in seen or not f.read_text().lstrip().lower().startswith("what if"):
+            continue                      # old story-format scripts do not count
         first = " ".join(re.split(r"(?<=[.!?])\s+", f.read_text().strip())[:2])
         items.append({"video": num, "title": f.parent.name, "hook": first, "rule": "", "mechanics": []})
     return items
@@ -63,19 +64,19 @@ def check(c, past):
         fails.append(f"hook has {n} words (max 10)")
     if hook.lower().startswith(INTROS):
         fails.append("hook starts with an intro")
-    if not re.search(r"\b(i|me|my)\b", hook.lower()):
-        fails.append("hook is not first person (Tlama)")
-    if not re.search(r"\d|\b(one|two|three|ten|hundred|thousand|million|every|all|first|last|minutes?|hours?|days?|seconds?|night|morning|today|tonight|breakfast|lunch|dinner|yesterday|tomorrow)\b", hook.lower()):
-        warns.append("hook has no number/time/scale word (concrete + clock)")
+    if not hook.lower().startswith("what if"):
+        fails.append("hook does not start with 'What if'")
     for field in ("hook", "rule", "twist"):
         hard = [w for w in words(c.get(field, "")) if w in HARD or len(w) > 11]
         if hard:
             warns.append(f"{field}: hard words {sorted(set(hard))}")
-    limit = 5 if LONG else 3
-    if len(c.get("places", [])) > limit:
-        fails.append(f"more than {limit} places")
-    if len(c.get("side_characters", [])) > limit:
-        fails.append(f"more than {limit} side characters")
+    places, sides = (5, 5) if LONG else (3, 2)
+    if len(c.get("places", [])) > places:
+        fails.append(f"more than {places} places")
+    if len(c.get("side_characters", [])) > sides:
+        fails.append(f"more than {sides} side characters")
+    if not LONG and not 3 <= len(c.get("ladder", [])) <= 4:
+        fails.append("ladder needs 3 to 4 steps")
     if LONG:
         n = len(c.get("ladder", []))
         if not 5 <= n <= 7:
@@ -110,8 +111,9 @@ def main(argv):
         items = json.loads(USED.read_text()) if USED.exists() else []
         item = {"video": argv[2], "title": c["title"], "hook": c["hook"],
                 "rule": c["rule"], "mechanics": c.get("mechanics", [])}
+        item["ladder"] = c.get("ladder", [])
         if LONG:
-            item.update(ladder=c.get("ladder", []), midpoint=c.get("midpoint", ""))
+            item["midpoint"] = c.get("midpoint", "")
         items.append(item)
         USED.write_text(json.dumps(items, indent=2, ensure_ascii=False) + "\n")
         print(f"registered {argv[2]} {c['title']}")

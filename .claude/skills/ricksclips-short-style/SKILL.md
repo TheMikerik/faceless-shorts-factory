@@ -1,6 +1,6 @@
 ---
 name: ricksclips-short-style
-description: The channel skill for @ricksclips3000-style animated Shorts - flat 2D doodle characters living in a sunlit 3D world, built entirely in code. Use it whenever the user wants to make, plan, render or check a vertical Short in this style, mentions "the channel skill", or asks for any step of it - generate the main character, an emotion sheet, slice a character into layers or rig a puppet, a background, "build the full 3D scene in code", a stop-frame check, or pastes a script and asks for the video. New characters and backgrounds can be generated through the Higgsfield connector (only after the user confirms); the video is assembled, checked and rendered with the bundled three.js stage.
+description: The channel skill for @ricksclips3000-style animated Shorts - flat 2D doodle characters living in a sunlit 3D world, built entirely in code. Use it whenever the user wants to make, plan, render or check a vertical Short in this style, mentions "the channel skill", or asks for any step of it - generate the main character, an emotion sheet, slice a character into layers or rig a puppet, a background, "build the full 3D scene in code", a stop-frame check, or pastes a script and asks for the video, including the channel's "What if...?" videos. New characters and backgrounds can be generated through the Higgsfield connector (only after the user confirms); the video is assembled, checked and rendered with the bundled three.js stage.
 ---
 
 # @ricksclips3000 Short style
@@ -98,33 +98,23 @@ The sky and the far distance are one flat painting (background template, 21:9), 
 
 ### 5. Script, voice, timing
 
-**Setting first, never always a town.** Pick the place from the whole `props/` library (factory, pirate ship, forest, graveyard, kitchen, school, space...) before the story, and let the setting shape what happens. Do not default to "the town / the mayor" (details in "Setting variety" in `CLAUDE.md`).
+**Format: "What if…?"** (since 2026-11-25). The full rules are in the project `CLAUDE.md`: "Script – formula", "Facts", "Topic rules", "Clarity", "Strong hooks". In short:
+1. **hook** = one "What if…?" question, **max 10 words**, no intro, and **the first frame already shows it as a picture** (see "Retention fixes");
+2. **escalation ladder**: 3–4 steps on one scale (time or size), each said out loud and bigger, the first within 5 s;
+3. the pivot **"But here is the real problem."** with one simple real reason;
+4. a **finale** with the biggest picture, whose last line leads back into the hook, so the Short loops.
 
-Write an **absurd, completely made-up story that never happened**. Never use history, real events, real people, real brands or real facts, and do not fact-check; invent everything. Use the formula:
-1. a **strong, exaggerated hook** in the first line, with no intro, starting in the middle of the action, with high stakes or a deadline (a number or a time), concrete and impossible, told in first person (Tlama), **max 10 words**, and **the first frame already shows the absurd thing** (see "Retention fixes" in `CLAUDE.md`). It must make the viewer ask "what? how does it end?" (see "Strong hooks" in `CLAUDE.md` for 23 examples);
-2. two or three escalating details, each more absurd than the last;
-3. the pivot, "You see...", where the (absurd but story-logical) explanation starts;
-4. a twist in the last line that calls back to the hook, so the Short loops.
+The voice says "you"; on screen it happens to Tlama (the test subject). At most 2 side characters, who only react.
 
-The goal is maximum watch time. Open a loop early (promise something that is only explained later), add a new turn or reveal every 2 to 3 sentences, never explain everything at once, and keep the story inside its own rules. Keep it safe for all ages (no violence, hate or sexual content).
+**Facts first.** The question is imaginary, the answer is honest. Verify every factual claim with web search **before** the user gets the script, and save claim → source in `facts.md` in the video folder. No made-up numbers; use "would" / "might" for consequences and open questions. No health advice, nothing a child could copy and get hurt.
 
-**Simple English.** Everyone must understand it, including kids and people who do not speak English as a first language (level A2, B1 at most): short common words, short sentences (about 10 words or fewer, one idea each), simple tenses, no idioms, slang, phrasal verbs, wordplay or technical terms, short easy names (Tom, Mia), numbers kept simple. Test: would a ten-year-old or a beginner understand every sentence? If not, simplify.
+The goal is maximum watch time. Open a loop early (promise the "real problem"), add something new every 1 to 2 sentences and cut every sentence without a picture. Keep it safe for all ages.
 
-**Easy to follow.** The situation is absurd, the storytelling is not: a viewer who only half watches must never get lost (full rules in "Clarity" in `CLAUDE.md`).
-- One magic rule carries the whole story; no second magic, no unrelated absurd extras.
-- Tlama's goal or problem is clear from the hook and never changes.
-- Escalation is one pattern repeated three times, each time bigger (rule of three), not three different kinds of trouble.
-- At most 3 side characters, each introduced once with a fixed label ("my mom", "the inventor"); nobody new after "You see...".
-- No unclear pronouns when two characters are on screen: repeat the name or role. Always say who speaks ("Mom said: ...").
-- Time only moves forward (the "You see..." explanation is the only, clearly signalled, step back). At most 3 places, and every change of place is said out loud ("At school...").
-- "You see..." is 1 or 2 sentences with one simple cause.
-- The twist uses only characters, things and the rule already shown.
-- Every sentence has one clear picture to show; cut sentences that cannot be drawn.
-- Retell test: the story fits into 3 sentences (problem, what happens, how it ends). If not, cut characters, places and side ideas.
+**Simple English.** Everyone must understand it, including kids and people who do not speak English as a first language (level A2, B1 at most): short common words, short sentences (about 10 words or fewer, one idea each), simple tenses (plus "would"), no idioms, slang, phrasal verbs, wordplay or technical terms, numbers kept simple. Test: would a ten-year-old or a beginner understand every sentence? If not, simplify.
 
-**Choosing the story:** every idea shown to the user must pass the 10/10 gate in `references/idea-scorecard.md` (candidates → `scripts/idea_check.py` → scorecard → critic pass). Show at least two 10/10 ideas, never weaker ones.
+**Choosing the idea:** every idea shown to the user must pass the 10/10 gate in `references/idea-scorecard.md` (candidates → plausibility check → `scripts/idea_check.py` → scorecard → critic pass). Show at least two 10/10 ideas, never weaker ones.
 
-Before writing, read the three real reference scripts in `references/transcripts/` (`transcript1.txt` to `transcript3.txt`, timestamped, about 230 to 260 words each). Study their rhythm only: how the opening line hits, sentence length, how details escalate, where "You see..." lands, how the twist closes. Never copy their topics, sentences or facts, and do not imitate their vocabulary level; every script must be original, and simpler in language.
+Before writing, read the three real reference scripts in `references/transcripts/` (`transcript1.txt` to `transcript3.txt`, timestamped, about 230 to 260 words each). They are old-style stories: study their rhythm only (how the opening line hits, sentence length, how details escalate, how the ending closes), not their structure. Never copy their topics, sentences or facts, and do not imitate their vocabulary level; every script must be original, and simpler in language.
 
 **Length: strictly 35 s at most (hard limit, never longer) = 110–130 words.** About 3.5 words a second, no dead air. The voice is **always sped up at least 1.25x** (`voice.sh` does it, and more if 35 s requires it). Write the voice script with ElevenLabs audio tags in square brackets (e.g. `[excited]`, `[whispering]`, `[gasping]`; full list and a sample in the project `CLAUDE.md`), roughly one tag per one or two sentences. Never use tags that slow down or lengthen the audio (`[pause]`, `[short pause]`, `[slowly]`, `[softly]`, `[sighs]`, `[inhales deeply]`): pauses are trimmed anyway and the track must be as short as possible. Tags are never subtitles and do not count toward pacing: keep `audio/script.txt` tag-free (strip `[...]`) before running `words`, or word alignment breaks. Then **stop and wait until the user has put the `.mp3` into the video folder and confirmed**; do not continue without both. The user records it and supplies it as the raw take `work/audio/voice_original.mp3` (never generate it, never edit audio through Higgsfield). Process it locally with ffmpeg via the project's `scripts/voice.sh`: it removes the gaps between sentences and always speeds the track up at least 1.25x, and more if needed so it is strictly 35 s at most, writing `audio/voice.mp3`. Save the script as `audio/script.txt`, then get the word timings from the processed `voice.mp3`:
 
@@ -140,7 +130,7 @@ Write `short.json`. Read `references/formats.md` first; `examples/demo/short.jso
 
 - **Shots.** One per beat of the script, each starting on a spoken phrase (`"start": "say:..."`), so the picture stays locked to the voice. Most shots last one to three seconds; none longer than four. Every shot moves; most push in (`zoom` 3 to 8).
 - **Framing.** `headWidth` 0.2 is the house close-up; 0.08 to 0.12 is a wide shot. Vary `yaw` between shots so the glide between them reads as a camera move.
-- **Light.** Define a warm `day` mood and a cool `night` mood, and switch on the pivot: `{"t": "say:You see", "mood": "night"}`.
+- **Light.** Define a warm `day` mood and a cool `night` mood, and switch on the pivot: `{"t": "say:But here is", "mood": "night"}`.
 - **Acting.** Give each shot one clear action: a face, a pose, a walk. The idle motion covers the rest.
 - **Layout.** The camera looks from +z toward -z by default. Put the set behind the characters (negative z) and leave open ground in front. Separate locations go 60 or more units apart in the same world.
 
@@ -162,9 +152,9 @@ A scene feels empty when the picture barely changes between shots. With flat col
    - **Keep the camera path free:** pass `keep_out=clear_zone((hero_x, hero_z))` to every scatter of BIG props (trees, rocks, crypts), otherwise the stage flags `CAMERA_INSIDE_PROP`. Small clutter can use `keep_out=[(hx, hz, 2.5)]`.
    - Interiors: floor box big enough, 3-4 walls, window + door, furniture in 2-3 depth rows, and clutter on every surface (books, plates, plants, lamps), plus something in front of the camera at the edges.
    - Palette: 4 to 6 saturated colours across the set; use `seed` in every scatter so the set is reproducible when you re-render.
-5. **Change place.** 3 locations per video (the script has at most 3 places), one per story act (different ground colour, different `backdrop`, different props), 60+ units apart. Move between them on the pivot or on a new reveal, not mid-sentence.
-6. **Use the light as a storyteller.** Define more than `day` and `night`: for example `dusk`, an alarm `red`, a weird `green`, a bright `flash`. Switch the mood on every story turn (`lighting` keyframes at `say:` phrases), with a short `fade`.
-7. **More actors.** Put 1 to 3 extra puppets from the library (`PUPPETS.md`) into most scenes as a crowd, a rival or a reaction. Cut to their reaction shots (shocked, nervous, confused). Never leave Tlama alone for the whole video.
+5. **Change place.** Up to 3 locations per video, one per big step of the ladder (different ground colour, different `backdrop`, different props), 60+ units apart. Move between them on the pivot or on a new reveal, not mid-sentence.
+6. **Use the light as a storyteller.** Define more than `day` and `night`: for example `dusk`, an alarm `red`, a weird `green`, a bright `flash`. Switch the mood on every new step (`lighting` keyframes at `say:` phrases), with a short `fade`.
+7. **More actors.** Put 1 to 3 extra puppets from the library (`PUPPETS.md`) into most scenes as a crowd, a rival or a reaction. Cut to their reaction shots (shocked, nervous, confused). Side characters (max 2 named) and crowds react; never leave Tlama alone for the whole video.
 8. **Always acting.** Tlama gets a new face or pose in every shot. Use `walk` + `to`, `hop` on surprises, `shake` for fear or anger, arms up for excitement. Reactions should be big and quick.
 9. **Show the absurd thing.** The key absurd object or creature must be visible, large and in the frame early. Build it from primitives (stacked boxes, a huge barrel, a tall tree) at an exaggerated size. Props do not move or change on their own, so show change by cutting between two locations or two groups of props.
 10. **Captions keep the pace.** Keep word-timed captions (1 to 2 words); they carry attention when the picture is simple.

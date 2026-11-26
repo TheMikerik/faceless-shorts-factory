@@ -33,6 +33,18 @@ Kopie `main_hero_tlama` s rekvizitou dokreslenou přímo do vrstvy, takže se h�
 
 Vznikly skriptem s PIL (rozšíření plátna vrstvy `armR` / `head` a všech `faces/`, úprava `box`, `pivot` a `center` v `rig.json`). Stejným postupem jde přidat další rekvizitu (klobouk, náplast, korunu), aniž by bylo potřeba generovat novou postavu.
 
+## Duo pro „song“ Shorts (`song_duo`)
+
+[puppets/song_duo/](puppets/song_duo/) **není loutka s rigem**. Obsahuje 16 plochých obrázků 752×1344 na béžovém pozadí pro formát `--cvs` (skill `tlama-song`, generátor `build_song.py`). Ve 3D stage se nepoužívají.
+
+| Soubory | Kdo | Role |
+| --- | --- | --- |
+| `A_closed/half/wide/o/blink/hand.png` | **producent**: černá čepice, malé tmavé brýle, plnovous, černá mikina, zlatý řetízek, tmavé křeslo, mikrofon s pop filtrem | mluví anglicky, sebevědomý, vede hru |
+| `B_closed/half/wide/o/blink.png` | **Tlama** v béžovém křesle, modrá sluchátka, pusa zavřená do rovné čáry | odpovídá v cizím jazyce, znuděná, na konci rapuje |
+| `F_closed/half/wide/o/drum.png` | finále: producent za bicími vlevo, Tlama u mikrofonu vpravo | rapový drop (`F_drum` = druhá palička nahoře) |
+
+Prompty pro znovuvytvoření jsou v `.claude/skills/tlama-song/references/image-prompts.md`.
+
 ## Lidé
 
 Moderní postavy jsou nahoře, starodávné (historická videa) dole. Starodávné kostýmy se nejlépe hodí do pohádkově-absurdních příběhů (král, hrad, městečko, trh).
